@@ -25,12 +25,19 @@ if ! command -v uvx >/dev/null 2>&1; then
 fi
 ensure_dirs
 mkdir -p "$(dirname "$HF_TOKEN_PATH")"
-HF=(uvx --python 3.11 --from "huggingface_hub[cli]" hf)
+HF=(uvx --python 3.11 --from huggingface_hub hf)   # CLI, used only for `auth login`
+# Downloads go through the Python API (scripts/hf_download.py): the CLI's multi-pattern
+# --include syntax changed in huggingface_hub 2.x and silently dropped the config files.
+PYDL=(uv run --no-project --python 3.11 --with "huggingface_hub>=1.0" python scripts/hf_download.py)
+FAILED=()
 
 download() {
   local name=$1; shift
   echo "== $name"
-  "${HF[@]}" download "$@"
+  if ! "${PYDL[@]}" "$@"; then
+    echo "!! $name failed (gated repo not accepted on huggingface.co? network?)" >&2
+    FAILED+=("$name")
+  fi
 }
 
 [[ $# -gt 0 ]] || { sed -n '2,13p' "$0"; exit 2; }
@@ -64,5 +71,9 @@ for m in "$@"; do
 done
 
 echo
-echo "== cache contents ($HF_HOME/hub)"
-du -sh "$HF_HOME"/hub/models--* 2>/dev/null || true
+echo "== cache contents ($HF_HOME/hub, apparent size)"
+du -sh --apparent-size "$HF_HOME"/hub/models--* 2>/dev/null || true
+if [[ ${#FAILED[@]} -gt 0 ]]; then
+  echo "FAILED: ${FAILED[*]} — fix the cause and rerun just those (finished files are reused)" >&2
+  exit 1
+fi
