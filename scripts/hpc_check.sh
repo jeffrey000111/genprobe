@@ -34,7 +34,10 @@ mkdir -p logs
   echo "### storage"
   df -h "$HOME" /scratch /data 2>&1
   du -sh "$HOME" 2>/dev/null
-  [[ -d "/scratch/$USER" ]] && du -sh "/scratch/$USER" 2>/dev/null
+  # shellcheck disable=SC1091
+  source scripts/paths.sh
+  ls -ld "$(dirname "$GENPROBE_SCRATCH")" "$GENPROBE_SCRATCH" 2>&1
+  [[ -d "$GENPROBE_SCRATCH" ]] && du -sh "$GENPROBE_SCRATCH" "$GENPROBE_ENVS" 2>/dev/null
   echo
   echo "### internet from login node"
   curl -sI --max-time 10 https://huggingface.co | head -1 || echo "no internet from login node"

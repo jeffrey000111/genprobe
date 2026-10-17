@@ -6,11 +6,10 @@
 #
 # Resubmitting the same command is always safe: finished samples are skipped.
 #SBATCH --job-name=gen
-#SBATCH --partition=gpuqs              # HPC3 short GPU queue (max 2 days)
-# A100 only: cs001-cs004 have 4 each, the most capacity on HPC3, and one card type keeps
-# per-image timings comparable across models (D-009). For an H100 instead, override at
-# submit time: sbatch --gres=gpu:h100:1 ...
-#SBATCH --gres=gpu:a100:1
+#SBATCH --partition=nsfqs              # HPC3 NSF cluster, 13 x H100 NVL 94 GB (max 2 days)
+# H100 NVL only (D-009): all four generators fit without CPU offload (FLUX needs ~50 GB, the
+# A100s have 40 GB), and one card type keeps per-image timings comparable across models.
+#SBATCH --gres=gpu:h100:1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=64G
 #SBATCH --time=06:00:00                # shorter jobs schedule sooner; resume covers the rest
@@ -22,6 +21,7 @@ set -euo pipefail
 CONFIG=${1:?config yaml}; PROMPTS=${2:?prompts jsonl}; NUM_SHARDS=${3:?num shards}; shift 3
 # Slurm runs a spooled copy of this script, so locate the repo via the submit dir.
 source "${SLURM_SUBMIT_DIR:-$PWD}/slurm/common.sh"
+export GENPROBE_GPU_REGEX="${GEN_GPU_REGEX:-H100 NVL}"   # one card type for comparable timings
 require_gpu
 activate_env gen
 cd "$GENPROBE_ROOT"

@@ -24,16 +24,20 @@ with a CPU backend that draws noise images, so the plumbing can be checked on a 
 
 ## Real run on Slurm
 
-Written for SJSU CoE HPC3 (partition `gpuqs`, `--gres=gpu:a100:1`; weights cached in
-`/scratch/$USER`). Run these on the login node from the repo root:
+Written for SJSU CoE HPC3, whose nodes are offline; installs and downloads happen on the
+gateway coe-hpc1, which shares `/home` and `/scratch` with it (see `docs/hpc_notes.md`).
+Paths are set in `scripts/paths.sh`.
 
 ```bash
-bash scripts/hpc_check.sh                 # partitions, GPU nodes, storage -> docs/hpc_check.md
-sbatch slurm/probe_gpu.sbatch             # what GPU/driver/network do jobs get?
-CU=cu126 bash scripts/setup_envs.sh gen   # CU from the probe's driver version
-CU=cu126 bash scripts/setup_envs.sh eval
+# on coe-hpc1 (has internet), from ~/genprobe
+bash scripts/setup_envs.sh gen            # uv venv in ~/envs/gen, wheels chosen for HPC3
+bash scripts/setup_envs.sh eval
+bash scripts/download_models.sh login     # once, HF read token (SD3.5 / FLUX are gated)
+bash scripts/download_models.sh all       # ~60 GB into the class scratch dir
 
-# M1 smoke: 20 prompts x 1 seed per model (submit from the repo root)
+# on HPC3 (g17), from ~/genprobe
+bash scripts/hpc_check.sh                 # partitions, GPU nodes, storage -> docs/hpc_check.md
+sbatch slurm/probe_gpu.sbatch             # envs import torch and see the H100?
 sbatch --array=0-1 slurm/gen.sbatch configs/gen/sdxl.yaml data/prompts/smoke.jsonl 2 --seeds 0
 ```
 
@@ -64,8 +68,8 @@ genprobe/
   metrics/          one plugin per metric, subclassing metrics/base.py
   backends.py       diffusers backend + CPU fake backend for testing
   utils/            shard, manifest, atomic IO, environment fingerprint
-slurm/              job scripts (common.sh holds paths)
-scripts/            HPC checks and conda env setup
+slurm/              job scripts (common.sh: job settings, GPU check, env activation)
+scripts/            paths, env build + model download (coe-hpc1), HPC checks, laptop sync
 docs/               hpc_notes.md (curated), hpc_check.md (raw), decisions.md
 results/            small tables and figures that back REPORT.md
 ```

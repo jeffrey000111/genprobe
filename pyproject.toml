@@ -9,7 +9,7 @@ description = "Text-to-image/video evaluation, metric meta-evaluation, and a gen
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-# Deliberately light: torch/diffusers/t2v-metrics are installed per conda env
+# Deliberately light: torch/diffusers/t2v-metrics are installed per virtualenv
 # (scripts/setup_envs.sh) because their version pins conflict.
 dependencies = [
   "pydantic>=2",

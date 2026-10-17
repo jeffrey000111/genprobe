@@ -1,59 +1,60 @@
 #!/bin/bash
-# Create the two core conda envs (guide §3.3) and lock them. Run on the LOGIN node.
-#   CU=cu126 bash scripts/setup_envs.sh gen
-#   CU=cu126 bash scripts/setup_envs.sh eval
+# Build a Python virtualenv for HPC3 jobs. Run it on **coe-hpc1**, the only SJSU HPC machine
+# with internet. /home is shared, so the env is usable on HPC3 and its compute nodes as is.
 #
-# CU must be <= the "CUDA Version" that nvidia-smi shows on the GPU nodes (from
-# slurm/probe_gpu.sbatch). Driver too old for cu126 -> try cu124 / cu121.
+#   ssh sjsu "cd ~/genprobe && bash scripts/setup_envs.sh gen"
+#   ssh sjsu "cd ~/genprobe && bash scripts/setup_envs.sh eval"
+#
+# coe-hpc1 runs CentOS 7 (glibc 2.17) and HPC3 runs glibc 2.34, so packages are selected for
+# HPC3's platform with uv's --python-platform, not for the machine doing the install. uv and
+# its managed Python only need glibc 2.17, so both run on either machine (D-012).
+# Afterwards, test the env on a GPU node: sbatch slurm/probe_gpu.sbatch (on HPC3).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 ENV=${1:?usage: setup_envs.sh gen|eval}
-CU=${CU:-cu126}
-# /home is nearly full on HPC3: keep the multi-GB pip download cache on scratch.
-if mkdir -p "/scratch/$USER/pip_cache" 2>/dev/null; then
-  export PIP_CACHE_DIR="/scratch/$USER/pip_cache"
-fi
-CONDA_SH=${CONDA_SH:-$HOME/miniforge3/etc/profile.d/conda.sh}
-if [[ ! -f "$CONDA_SH" ]]; then
-  cat >&2 <<'EOF'
-Miniforge not found. Install it into your home directory first (login node):
-  cd ~ && curl -L -O "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
-  bash Miniforge3-$(uname)-$(uname -m).sh -b -p ~/miniforge3 && rm Miniforge3-*.sh
-Then rerun this script. (Or set CONDA_SH to your conda.sh if conda lives elsewhere.)
-EOF
+# shellcheck disable=SC1091
+source scripts/paths.sh
+TARGET_PLATFORM=${TARGET_PLATFORM:-x86_64-manylinux_2_34}   # HPC3's glibc
+PY=${PY:-3.11}
+
+if ! has_internet; then
+  echo "No internet on $(hostname). Run this on coe-hpc1 instead:" >&2
+  echo "  ssh sjsu \"cd ~/genprobe && bash scripts/setup_envs.sh $ENV\"" >&2
   exit 2
 fi
-# conda's activation scripts trip over `set -u`
-set +u
-source "$CONDA_SH"
-if ! conda env list | grep -qE "^$ENV\s"; then
-  conda create -n "$ENV" python=3.11 -y
+ensure_scratch
+mkdir -p "$GENPROBE_ENVS" env
+
+if ! command -v uv >/dev/null 2>&1; then
+  echo "== installing uv into ~/.local/bin"
+  curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR="$HOME/.local/bin" UV_NO_MODIFY_PATH=1 sh
 fi
-conda activate "$ENV"
-set -u
-python -m pip install --upgrade pip
+uv --version
+uv python install "$PY"
+
+VENV="$GENPROBE_ENVS/$ENV"
+if [[ ! -x "$VENV/bin/python" ]]; then
+  uv venv "$VENV" --python "$PY" --seed
+fi
+INSTALL=(uv pip install --python "$VENV/bin/python" --python-platform "$TARGET_PLATFORM")
 
 case "$ENV" in
   gen)
-    pip install torch torchvision --index-url "https://download.pytorch.org/whl/$CU"
-    pip install diffusers transformers accelerate sentencepiece protobuf safetensors
+    # PyPI's Linux torch wheels bundle their CUDA runtime; HPC3's driver (590, CUDA 13.1)
+    # supports all current ones, so no special index is needed.
+    "${INSTALL[@]}" torch torchvision diffusers transformers accelerate sentencepiece protobuf safetensors
     ;;
   eval)
     # t2v-metrics 3.x needs torch>=2.7 and transformers>=5 (guide §7.4)
-    pip install "torch>=2.7" torchvision --index-url "https://download.pytorch.org/whl/$CU"
-    pip install t2v-metrics open_clip_torch
+    "${INSTALL[@]}" "torch>=2.7" torchvision t2v-metrics open_clip_torch
     ;;
-  *) echo "unknown env $ENV" >&2; exit 2 ;;
+  *) echo "unknown env '$ENV' (expected gen or eval)" >&2; exit 2 ;;
 esac
-pip install -e ".[analysis]"
+"${INSTALL[@]}" -e ".[analysis]"
 
-mkdir -p env
-pip freeze --exclude-editable > "env/$ENV.lock.txt"
-python - <<'PY'
-import importlib.metadata as md
-for p in ["torch", "diffusers", "transformers", "accelerate", "t2v-metrics", "open-clip-torch"]:
-    try: print(f"{p}=={md.version(p)}")
-    except md.PackageNotFoundError: pass
-PY
-conda clean -a -y >/dev/null 2>&1 || true   # drop conda's package tarballs from /home
-echo "Locked to env/$ENV.lock.txt — commit it."
+uv pip freeze --python "$VENV/bin/python" --exclude-editable > "env/$ENV.lock.txt"
+grep -iE "^(torch|torchvision|diffusers|transformers|accelerate|t2v-metrics|open-clip-torch)==" "env/$ENV.lock.txt" || true
+echo
+echo "Built $VENV for $TARGET_PLATFORM; locked to env/$ENV.lock.txt."
+echo "Packages were chosen for HPC3, so test there, not here:"
+echo "  ssh sjsu3 \"cd ~/genprobe && sbatch slurm/probe_gpu.sbatch\""

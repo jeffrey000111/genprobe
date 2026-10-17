@@ -2,49 +2,55 @@
 
 SJSU College of Engineering HPC. Curated notes, edited on the laptop. Raw output of
 `bash scripts/hpc_check.sh` goes to `docs/hpc_check.md` on the cluster and comes back with
-`scripts/hpc_sync.sh pull`; fill the tables below from it and from `slurm/probe_gpu.sbatch`.
+`scripts/hpc_sync.sh pull`; probe-job logs come back under `logs/`.
 
-## What we found on 2026-10-16 (login MOTD, `sinfo`, `df`)
+## What we found on 2026-10-16 (login MOTD, `sinfo`, `df`, probe jobs)
 
-- **HPC1 is only a gateway now.** Its compute and GPU nodes were migrated to **HPC3**; Slurm on
-  coe-hpc1 no longer answers. Path: VPN → `coe-hpc1.sjsu.edu` (SJSUOne password) →
-  `ssh coe-hpc3` (key in `~/.ssh/id_ed25519`, shared home). HPC3's login node is `g17`.
+- **Two machines, one filesystem.** coe-hpc1 (CentOS 7, glibc 2.17) has **internet** but no
+  working Slurm. HPC3 (login node g17, Rocky Linux, glibc 2.34) runs Slurm, but neither g17
+  nor its compute nodes can reach the internet. `/home` and `/scratch` are the same on both
+  (on compute nodes `/home` → `/fs/atipa/home`, same paths). So: install and download on
+  coe-hpc1, run jobs on HPC3 (D-012).
+- **Login path:** VPN → `coe-hpc1.sjsu.edu` (SJSUOne password) → `coe-hpc3` (ed25519 key).
+  From the laptop: SSH aliases `sjsu` (hpc1) and `sjsu3` (HPC3 via ProxyJump).
 - **Access** comes through the CMPE-261 (Fall 2026) class allocation, max 6 months. The course
   instructor's rule: never run jobs on the head node.
-- **The old HPC page is out of date** (its node list and partition name `gpu` no longer apply).
+- **The old HPC web page is out of date** (its node list and partition name `gpu` no longer apply).
+- **GPU isolation is by `CUDA_VISIBLE_DEVICES` only.** Slurm sets it, but `nvidia-smi` in a job
+  still lists every GPU on the node, so scripts query `nvidia-smi -i $CUDA_VISIBLE_DEVICES`.
 
-### Partitions on HPC3
+### Partitions on HPC3 (all usable by this account; `sbatch --test-only`)
 
 | Partition | Max time | Nodes / GPUs |
 | --- | --- | --- |
 | defq (default), cpuqs / cpuqm / cpuql | 4–6 h, 5 d / 14 d / 21 d | CPU only |
-| **gpuqs** / gpuqm / gpuql | **2 d** / 7 d / 14 d | cs001–cs004: `gpu:a100:4` each (16 A100); g16, g18, g19: `gpu:h100:1`; g1–g15: `gpu:p100:1` (many down) |
-| nsfqs / nsfqm / nsfql | 2 d / 14 d / 21 d | g20–g32: `gpu:h100:1` (NSF CC* grant cluster; access to be checked) |
+| **gpuqs** / gpuqm / gpuql | **2 d** / 7 d / 14 d | cs001–cs004: 4 × **A100-PCIE-40GB** each; g16, g18, g19: `gpu:h100:1`; g1–g15: P100 (many down) |
+| **nsfqs** / nsfqm / nsfql | **2 d** / 14 d / 21 d | g20–g32: 1 × **H100 NVL 94 GB** each (NSF CC* grant cluster) |
 | condo, chemq | 30 d | faculty queues |
 
-GRES are typed, so jobs ask for a card directly: `--gres=gpu:a100:1` (D-009).
+GRES are typed, so jobs ask for a card directly (`--gres=gpu:h100:1`, `--gres=gpu:a100:1`).
 
-### Storage on HPC3
+### Storage
 
 | Mount | Size | Free | Notes |
 | --- | --- | --- | --- |
-| `/home` (shared with coe-hpc1) | 124T | 2.4T (99% used) | code, conda envs, `data/`; keep small |
-| `/scratch` → `/fs/sfs/scratch` | 108T | 13T (89% used) | **purged: MOTD says files are deleted after 21 days of each semester** — weights and caches only |
+| `/home` | 124T | 2.4T (99% used) | code, venvs (`~/envs`), `data/`; keep small |
+| `/scratch/cmpe261-fa26` | 108T pool | 13T | class dir (group `cmpe261-fa26`); ours is `$USER/` (mode 700). **Purged each semester** (MOTD: deleted after 21 days of each semester) — weights and caches only |
 | `/data` | 99T | 7.2T (93% used) | not used |
-| `/opt` (local) | 693G | 299G | not used |
+
+`~/.cache` held 38 GB from earlier projects (33 GB Hugging Face, 5 GB pip) — candidates to clean.
 
 ## Decisions
 
 | Item | Value | How I know |
 | --- | --- | --- |
-| Login path | laptop → coe-hpc1 → coe-hpc3 (g17) | MOTD |
-| GPU partition / GRES | `gpuqs`, `gpu:a100:1` | `sinfo` |
-| Max job time | 2 days on gpuqs (jobs use ≤ 6 h) | `sinfo` |
-| GPU memory (40 GB or 80 GB) | | probe job |
-| Driver / max CUDA version | | probe job → choose `CU=` for setup_envs.sh |
-| Compute nodes online? | | probe job → `HF_HUB_OFFLINE` in slurm/common.sh |
-| `HF_HOME` | `/scratch/$USER/hf_home` | storage table above |
-| nsfqs usable by this account? | | `hpc_check.sh` (`sbatch --test-only`) |
+| Generation GPU | `nsfqs`, `gpu:h100:1` → H100 NVL 94 GB | probe (`srun ... nvidia-smi`) |
+| Scoring GPU | `gpuqs`, `gpu:a100:1` → A100-PCIE 40 GB | probe job 91208 |
+| Max job time | 2 days on gpuqs / nsfqs (jobs use ≤ 6 h) | `sinfo` |
+| Driver / CUDA | 590.44.01 / CUDA 13.1 — any current PyPI torch wheel works | probe job 91208 |
+| Internet | coe-hpc1: yes. g17 and compute nodes: no → `HF_HUB_OFFLINE=1` in jobs | curl tests |
+| Python envs | uv venvs in `~/envs/{gen,eval}`, built on coe-hpc1 for `x86_64-manylinux_2_34` | D-012 |
+| `HF_HOME` | `/scratch/cmpe261-fa26/$USER/hf_home` | storage table |
 | Typical queue wait | | `squeue -u $USER --start` |
 
 ## GPU-hour estimates
@@ -53,7 +59,7 @@ Fill in from the smoke run (`gen_seconds` in the manifests, warmup rows excluded
 
 | Model | Card | Batch | s / image | Full run (2,400 images) GPU-h |
 | --- | --- | --- | --- | --- |
-| sd15 | | | | |
-| sdxl | | | | |
-| sd35m | | | | |
-| flux_schnell | | | | |
+| sd15 | H100 NVL | | | |
+| sdxl | H100 NVL | | | |
+| sd35m | H100 NVL | | | |
+| flux_schnell | H100 NVL | | | |

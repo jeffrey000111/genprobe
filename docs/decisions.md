@@ -36,15 +36,28 @@ files: the laptop owns code, configs and prompt sets; the cluster owns `data/`, 
 checkout as dirty only for changes under code paths, so job outputs that are tracked in git
 (e.g. `results/`) don't mark a clean run as `-dirty`.
 
-**D-009 (2026-10-16) — All generation runs on A100s in HPC3's `gpuqs` (`--gres=gpu:a100:1`).**
-The four cs00x nodes hold 16 A100s, far more capacity than the three H100s in the same
-queue, and a single card type keeps per-image timings comparable across models (guide §4.2,
-§8.4). Scoring may use H100s since its timings are not compared.
+**D-009 (2026-10-16, revised same day) — All generation runs on H100 NVL 94 GB in HPC3's
+`nsfqs` (`--gres=gpu:h100:1`, job checks the card name); scoring runs on A100-PCIE 40 GB in
+`gpuqs`.** First choice was the A100s (16 cards in gpuqs), but the probe showed they have
+40 GB, and FLUX.1-schnell needs ~50 GB without CPU offload; offloading would make its timing
+incomparable. nsfqs has 13 identical H100 NVLs, enough capacity, and one card type keeps
+per-image timings comparable across models (guide §4.2, §8.4). Scoring timings are not
+compared and 7B VLM scorers fit in 40 GB, so scoring uses the A100s and leaves the H100s free.
 
-**D-011 (2026-10-16) — Model weights and pip caches live in `/scratch/$USER`; code, conda envs
-and `data/` stay in `/home`.** `/home` is shared and 99% full; `/scratch` has 13 TB free but is
-purged each semester, so only re-downloadable files go there. If scratch is wiped, weights
-are re-downloaded; generated images are never at risk.
+**D-011 (2026-10-16) — Model weights and caches live in `/scratch/cmpe261-fa26/$USER` (mode
+700); code, venvs and `data/` stay in `/home`.** `/home` is shared and 99% full; the class
+scratch dir has 13 TB free but is purged each semester, so only re-downloadable files go
+there. If scratch is wiped, weights are re-downloaded; generated images are never at risk.
+The HF token is kept in `~/.cache/huggingface/token`, not on the group-shared scratch.
+
+**D-012 (2026-10-16) — Python envs are uv virtualenvs built on coe-hpc1 for HPC3's platform.**
+HPC3 and its compute nodes are offline; coe-hpc1 is online and shares `/home` and `/scratch`,
+but runs CentOS 7 (glibc 2.17) while HPC3 has glibc 2.34. `scripts/setup_envs.sh` therefore
+uses `uv pip install --python-platform x86_64-manylinux_2_34`, so wheels are chosen for HPC3
+rather than for the machine running the install; uv and its managed Python need only glibc
+2.17, so the same interpreter runs on both. Envs are verified on a GPU node by
+`slurm/probe_gpu.sbatch`, never by importing them on coe-hpc1. Conda (used in the original
+guide) is dropped: it can't install offline on HPC3, and on coe-hpc1 it would target CentOS 7.
 
 **D-006 (TODO) — Generation parameters.** Use each model card's recommended settings, no
 tuning, to represent out-of-the-box quality. Re-check the SDXL card for steps/cfg and record
