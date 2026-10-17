@@ -22,7 +22,7 @@ if ! has_internet; then
   echo "  ssh sjsu \"cd ~/genprobe && bash scripts/setup_envs.sh $ENV\"" >&2
   exit 2
 fi
-ensure_scratch
+ensure_dirs
 mkdir -p "$GENPROBE_ENVS" env
 
 if ! command -v uv >/dev/null 2>&1; then

@@ -25,7 +25,7 @@ with a CPU backend that draws noise images, so the plumbing can be checked on a 
 ## Real run on Slurm
 
 Written for SJSU CoE HPC3, whose nodes are offline; installs and downloads happen on the
-gateway coe-hpc1, which shares `/home` and `/scratch` with it (see `docs/hpc_notes.md`).
+gateway coe-hpc1, which shares `/home` with it (see `docs/hpc_notes.md`).
 Paths are set in `scripts/paths.sh`.
 
 ```bash
@@ -33,7 +33,7 @@ Paths are set in `scripts/paths.sh`.
 bash scripts/setup_envs.sh gen            # uv venv in ~/envs/gen, wheels chosen for HPC3
 bash scripts/setup_envs.sh eval
 bash scripts/download_models.sh login     # once, HF read token (SD3.5 / FLUX are gated)
-bash scripts/download_models.sh all       # ~60 GB into the class scratch dir
+bash scripts/download_models.sh all       # ~60 GB into ~/hf_home
 
 # on HPC3 (g17), from ~/genprobe
 bash scripts/hpc_check.sh                 # partitions, GPU nodes, storage -> docs/hpc_check.md

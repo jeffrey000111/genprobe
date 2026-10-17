@@ -1,6 +1,6 @@
 #!/bin/bash
-# Download generator weights on **coe-hpc1** (it has internet) into $HF_HOME on the class
-# scratch dir; jobs on HPC3 then read them offline. Only the diffusers-format files that
+# Download generator weights on **coe-hpc1** (it has internet) into $HF_HOME (~/hf_home);
+# jobs on HPC3 then read them offline. Only the diffusers-format files that
 # configs/gen/*.yaml load are fetched, never the duplicate single-file checkpoints.
 #
 #   ssh -t sjsu "cd ~/genprobe && bash scripts/download_models.sh login"   once: paste an HF read token
@@ -23,7 +23,7 @@ if ! command -v uvx >/dev/null 2>&1; then
   echo "uv not found; run scripts/setup_envs.sh gen first (it installs uv)" >&2
   exit 2
 fi
-ensure_scratch
+ensure_dirs
 mkdir -p "$(dirname "$HF_TOKEN_PATH")"
 HF=(uvx --python 3.11 --from "huggingface_hub[cli]" hf)
 

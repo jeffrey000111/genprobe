@@ -44,14 +44,17 @@ incomparable. nsfqs has 13 identical H100 NVLs, enough capacity, and one card ty
 per-image timings comparable across models (guide §4.2, §8.4). Scoring timings are not
 compared and 7B VLM scorers fit in 40 GB, so scoring uses the A100s and leaves the H100s free.
 
-**D-011 (2026-10-16) — Model weights and caches live in `/scratch/cmpe261-fa26/$USER` (mode
-700); code, venvs and `data/` stay in `/home`.** `/home` is shared and 99% full; the class
-scratch dir has 13 TB free but is purged each semester, so only re-downloadable files go
-there. If scratch is wiped, weights are re-downloaded; generated images are never at risk.
-The HF token is kept in `~/.cache/huggingface/token`, not on the group-shared scratch.
+**D-011 (2026-10-16, revised same day) — Model weights live in `~/hf_home`; uv's download
+cache lives on coe-hpc1's local `/tmp`; nothing is downloaded to `/scratch`.** The first plan
+put weights and caches in the class scratch dir (13 TB free, purged each semester) to keep
+`/home` (99% full) small. In practice `uv python install` hung for 77 minutes on coe-hpc1, and
+a direct test showed why: `flock` on `/scratch` never returns from coe-hpc1, while on `/home`
+it succeeds. uv and huggingface_hub both lock files while downloading, so they cannot write
+to `/scratch` from the only machine with internet. Cost: ~60 GB of weights on `/home`, offset
+by cleaning old caches. The HF token stays in `~/.cache/huggingface/token`.
 
 **D-012 (2026-10-16) — Python envs are uv virtualenvs built on coe-hpc1 for HPC3's platform.**
-HPC3 and its compute nodes are offline; coe-hpc1 is online and shares `/home` and `/scratch`,
+HPC3 and its compute nodes are offline; coe-hpc1 is online and shares `/home` with them,
 but runs CentOS 7 (glibc 2.17) while HPC3 has glibc 2.34. `scripts/setup_envs.sh` therefore
 uses `uv pip install --python-platform x86_64-manylinux_2_34`, so wheels are chosen for HPC3
 rather than for the machine running the install; uv and its managed Python need only glibc

@@ -19,8 +19,6 @@ echo "== node: $(hostname)  job: ${SLURM_JOB_ID:-?}  partition: ${SLURM_JOB_PART
 echo "== CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-<unset>}"
 nvidia-smi -i "${CUDA_VISIBLE_DEVICES:-0}" --query-gpu=name,memory.total,driver_version --format=csv
 echo "== glibc: $(ldd --version | head -1)"
-echo "== scratch: $GENPROBE_SCRATCH"
-if [[ -w "$GENPROBE_SCRATCH" ]]; then echo "-> writable"; else echo "-> NOT writable (run scripts/setup_envs.sh on coe-hpc1 first)"; fi
 echo "== models in $HF_HOME/hub"
 ls "$HF_HOME/hub" 2>/dev/null | grep '^models--' || echo "(none yet: run scripts/download_models.sh on coe-hpc1)"
 

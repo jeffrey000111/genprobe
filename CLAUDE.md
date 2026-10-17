@@ -12,7 +12,7 @@ step instead of loading the whole file. Progress and choices live in `docs/decis
   `~/genprobe`): all real generation and scoring, submitted with Slurm. Reach it with
   `ssh sjsu3 "cd ~/genprobe && <command>"`. HPC3 and its compute nodes have **no internet**.
 - **coe-hpc1** (SSH alias `sjsu`): no working Slurm, but it **has internet** and shares
-  `/home` and `/scratch` with HPC3. All installs and downloads happen there:
+  `/home` with HPC3. All installs and downloads happen there:
   `ssh sjsu "cd ~/genprobe && bash scripts/setup_envs.sh <gen|eval>"` and
   `ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh <models>"`. It runs CentOS 7, so
   never install packages there with plain pip; setup_envs.sh targets HPC3's platform (D-012).
@@ -28,10 +28,10 @@ step instead of loading the whole file. Progress and choices live in `docs/decis
   packages and running unit tests is fine. Everything else goes through `sbatch`.
 - Submit from the repo root (`cd ~/genprobe`). Generation runs on `nsfqs` H100 NVL 94 GB,
   scoring on `gpuqs` A100 40 GB (D-009). Always pass an explicit `--time`; prefer short jobs.
-- Paths are defined once in `scripts/paths.sh`. `/home` is shared and ~99% full — keep our
-  footprint small there (code, venvs in `~/envs`, `data/`). Model weights and caches go to
-  `/scratch/cmpe261-fa26/$USER` (class dir, purged each semester), so never keep anything
-  there that can't be re-downloaded. The HF token stays in `~/.cache/huggingface/token`.
+- Paths are defined once in `scripts/paths.sh`: venvs in `~/envs`, weights in `~/hf_home`,
+  uv's cache on coe-hpc1's local `/tmp`. `/home` is shared and ~99% full, so keep the
+  footprint small and clean caches. Don't put anything that downloads or locks files on
+  `/scratch`: from coe-hpc1, file locks there hang forever (D-011).
 - Before any job that needs more than ~1 GPU-hour, run the 20-prompt smoke version first and
   show the user the result. Propose the full submission and wait for approval.
 - Use `squeue -u $USER`, `sacct -j <id>` and `logs/` to follow jobs. Don't poll in tight loops.
