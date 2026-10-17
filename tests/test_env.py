@@ -15,7 +15,7 @@ class TestGitCommit(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.repo = Path(self.tmp.name)
-        for rel in ("genprobe/x.py", "results/table.csv", "docs/hpc_notes.md"):
+        for rel in ("genprobe/x.py", "results/table.csv", "docs/hpc_check.md"):
             (self.repo / rel).parent.mkdir(parents=True, exist_ok=True)
             (self.repo / rel).write_text("v1\n")
         self.git("init", "-q")
@@ -33,7 +33,7 @@ class TestGitCommit(unittest.TestCase):
 
     def test_job_outputs_do_not_count(self):
         (self.repo / "results/table.csv").write_text("v2\n")
-        (self.repo / "docs/hpc_notes.md").write_text("v2\n")
+        (self.repo / "docs/hpc_check.md").write_text("v2\n")
         self.assertNotIn("dirty", git_commit(str(self.repo)))
 
     def test_code_changes_count_from_any_subdirectory(self):

@@ -12,7 +12,7 @@ step instead of loading the whole file. Progress and choices live in `docs/decis
   `~/genprobe`): all real generation and scoring, submitted with Slurm. Reach it with
   `ssh sjsu3 "cd ~/genprobe && <command>"`. coe-hpc1 has no working Slurm any more.
 - Sync with `scripts/hpc_sync.sh push` (code -> HPC; requires committed code) and
-  `scripts/hpc_sync.sh pull` (results/, logs/, env locks, docs/hpc_notes.md -> laptop).
+  `scripts/hpc_sync.sh pull` (results/, logs/, env locks, docs/hpc_check.md -> laptop).
   Images, manifests and scores stay on the HPC under `data/`; never copy them back wholesale.
 - If `scripts/hpc_sync.sh check` fails, stop and ask the user to connect the VPN and run
   `ssh sjsu3` once in a terminal. Never ask for, type, or store their password.

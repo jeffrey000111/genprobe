@@ -1,7 +1,8 @@
 # HPC notes
 
-SJSU College of Engineering HPC. Raw output of `bash scripts/hpc_check.sh` (HPC3 login node)
-is appended at the bottom; fill the tables by hand from it and from `slurm/probe_gpu.sbatch`.
+SJSU College of Engineering HPC. Curated notes, edited on the laptop. Raw output of
+`bash scripts/hpc_check.sh` goes to `docs/hpc_check.md` on the cluster and comes back with
+`scripts/hpc_sync.sh pull`; fill the tables below from it and from `slurm/probe_gpu.sbatch`.
 
 ## What we found on 2026-10-16 (login MOTD, `sinfo`, `df`)
 
@@ -56,5 +57,3 @@ Fill in from the smoke run (`gen_seconds` in the manifests, warmup rows excluded
 | sdxl | | | | |
 | sd35m | | | | |
 | flux_schnell | | | | |
-
-## Raw output

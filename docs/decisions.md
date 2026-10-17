@@ -32,7 +32,7 @@ behaviour is measured separately as false positives on benign images (guide §7.
 **D-008 (2026-10-16) — Code is edited on the laptop and pushed to the cluster with
 `scripts/hpc_sync.sh` (including `.git`); the cluster never commits.** Each side owns its own
 files: the laptop owns code, configs and prompt sets; the cluster owns `data/`, `results/`,
-`logs/`, env lock files and `docs/hpc_notes.md`, which are pulled back. `git_commit` counts a
+`logs/`, env lock files and `docs/hpc_check.md` (raw `hpc_check.sh` output; curated notes stay in the laptop-owned `docs/hpc_notes.md`), which are pulled back. `git_commit` counts a
 checkout as dirty only for changes under code paths, so job outputs that are tracked in git
 (e.g. `results/`) don't mark a clean run as `-dirty`.
 

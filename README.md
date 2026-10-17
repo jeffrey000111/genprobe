@@ -28,7 +28,7 @@ Written for SJSU CoE HPC3 (partition `gpuqs`, `--gres=gpu:a100:1`; weights cache
 `/scratch/$USER`). Run these on the login node from the repo root:
 
 ```bash
-bash scripts/hpc_check.sh                 # partitions, GPU nodes, storage -> docs/hpc_notes.md
+bash scripts/hpc_check.sh                 # partitions, GPU nodes, storage -> docs/hpc_check.md
 sbatch slurm/probe_gpu.sbatch             # what GPU/driver/network do jobs get?
 CU=cu126 bash scripts/setup_envs.sh gen   # CU from the probe's driver version
 CU=cu126 bash scripts/setup_envs.sh eval
@@ -47,7 +47,7 @@ Code is edited and unit-tested locally; the cluster only runs jobs. With an SSH 
 ```bash
 scripts/hpc_sync.sh push    # committed code, configs, prompt sets -> cluster
 ssh sjsu3 "cd ~/genprobe && sbatch --array=0-1 slurm/gen.sbatch configs/gen/sdxl.yaml data/prompts/smoke.jsonl 2 --seeds 0"
-scripts/hpc_sync.sh pull    # results/, logs/, env locks, docs/hpc_notes.md -> laptop
+scripts/hpc_sync.sh pull    # results/, logs/, env locks, docs/hpc_check.md -> laptop
 ```
 
 `CLAUDE.md` and `.claude/settings.json` hold the working rules for Claude Code; submitting or
@@ -66,7 +66,7 @@ genprobe/
   utils/            shard, manifest, atomic IO, environment fingerprint
 slurm/              job scripts (common.sh holds paths)
 scripts/            HPC checks and conda env setup
-docs/               hpc_notes.md, decisions.md (incl. pre-registered hypotheses)
+docs/               hpc_notes.md (curated), hpc_check.md (raw), decisions.md
 results/            small tables and figures that back REPORT.md
 ```
 

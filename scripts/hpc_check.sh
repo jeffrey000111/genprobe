@@ -1,10 +1,13 @@
 #!/bin/bash
-# Step 0 (guide §3.1): run on the HPC3 login node (g17); appends everything to docs/hpc_notes.md.
+# Step 0 (guide §3.1): run on the HPC3 login node (g17); appends raw output to docs/hpc_check.md,
+# which `scripts/hpc_sync.sh pull` brings back. Curated conclusions go in docs/hpc_notes.md
+# (edited on the laptop), so the two never overwrite each other.
 #   cd ~/genprobe && bash scripts/hpc_check.sh
 # Light commands only (sinfo, df, a dry-run sbatch) — safe on a login node.
 set -uo pipefail
 cd "$(dirname "$0")/.."
-OUT=docs/hpc_notes.md
+OUT=docs/hpc_check.md
+[[ -f "$OUT" ]] || printf '# Raw output of scripts/hpc_check.sh\n\nConclusions live in docs/hpc_notes.md.\n' >"$OUT"
 mkdir -p logs
 
 {
@@ -40,5 +43,5 @@ mkdir -p logs
 } >>"$OUT" 2>&1
 
 echo "Appended to $OUT. Next:"
-echo "  1. Read it; the --test-only lines show which GPU queues your account may use"
+echo "  1. Read it (tail -60 $OUT); the --test-only lines show which GPU queues your account may use"
 echo "  2. sbatch slurm/probe_gpu.sbatch && squeue -u \$USER   (output: logs/probe-gpu_<jobid>.out)"

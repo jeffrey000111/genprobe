@@ -3,11 +3,11 @@
 #
 #   scripts/hpc_sync.sh check   # is the SSH connection up? (no password prompt if it is)
 #   scripts/hpc_sync.sh push    # laptop -> HPC: code, configs, prompt sets, .git
-#   scripts/hpc_sync.sh pull    # HPC -> laptop: results/, logs/, env locks, docs/hpc_notes.md
+#   scripts/hpc_sync.sh pull    # HPC -> laptop: results/, logs/, env locks, docs/hpc_check.md
 #
 # Ownership is one-way so nothing gets overwritten:
-#   written on the laptop : genprobe/ configs/ slurm/ scripts/ tests/ data/prompts/ docs/ (except hpc_notes.md) ...
-#   written on the HPC    : data/ (never synced: images, manifests, scores) results/ logs/ env/*.lock.txt docs/hpc_notes.md
+#   written on the laptop : genprobe/ configs/ slurm/ scripts/ tests/ data/prompts/ docs/ (except hpc_check.md) ...
+#   written on the HPC    : data/ (never synced: images, manifests, scores) results/ logs/ env/*.lock.txt docs/hpc_check.md
 #
 # push refuses to run with uncommitted code changes, because every manifest records the git
 # commit it was produced with; set FORCE=1 for a quick experiment (records will say -dirty).
@@ -75,7 +75,7 @@ case "$CMD" in
     # No --delete anywhere: a sync can add or update files on the other side, never remove them.
     "${RS[@]}" \
       --exclude='/data/' --exclude='/results/' --exclude='/logs/' \
-      --exclude='/env/*.lock.txt' --exclude='/docs/hpc_notes.md' --exclude='/docs/private/' \
+      --exclude='/env/*.lock.txt' --exclude='/docs/hpc_check.md' --exclude='/docs/private/' \
       --exclude='__pycache__/' --exclude='*.egg-info/' --exclude='.DS_Store' \
       ./ "$HOST:$DIR/"
     "${RS[@]}" data/prompts/ "$HOST:$DIR/data/prompts/"
@@ -87,8 +87,8 @@ case "$CMD" in
     "${RS[@]}" "$HOST:$DIR/results/" results/ 2>/dev/null || echo "(no results/ on $HOST yet)"
     "${RS[@]}" "$HOST:$DIR/logs/" logs/ 2>/dev/null || echo "(no logs/ on $HOST yet)"
     "${RS[@]}" --include='*.lock.txt' --exclude='*' "$HOST:$DIR/env/" env/ 2>/dev/null || true
-    "${RS[@]}" "$HOST:$DIR/docs/hpc_notes.md" docs/hpc_notes.md 2>/dev/null || true
-    echo "pulled results/, logs/, env locks and docs/hpc_notes.md from $HOST:$DIR"
+    "${RS[@]}" "$HOST:$DIR/docs/hpc_check.md" docs/hpc_check.md 2>/dev/null || true
+    echo "pulled results/, logs/, env locks and docs/hpc_check.md from $HOST:$DIR"
     ;;
   *)
     sed -n '2,35p' "$0"

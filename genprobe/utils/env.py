@@ -32,7 +32,7 @@ def _run(cmd: list[str]) -> str | None:
 
 
 # Paths whose changes affect what a run computes. Files the cluster itself writes and that
-# are tracked in git (results/, env/*.lock.txt, docs/hpc_notes.md) are deliberately left out,
+# are tracked in git (results/, env/*.lock.txt, docs/hpc_check.md) are deliberately left out,
 # so a clean checkout isn't reported as dirty just because a job produced output.
 CODE_PATHS = ("genprobe", "configs", "slurm", "scripts", "data/prompts", "pyproject.toml")
 
