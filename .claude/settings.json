@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(make test)",
+      "Bash(make smoke-fake)",
+      "Bash(make clean-fake)",
+      "Bash(python -m unittest *)",
+      "Bash(scripts/hpc_sync.sh check)",
+      "Bash(scripts/hpc_sync.sh pull)"
+    ],
+    "ask": [
+      "Bash(sbatch *)",
+      "Bash(scancel *)",
+      "Bash(srun *)",
+      "Bash(ssh *sbatch*)",
+      "Bash(ssh *scancel*)",
+      "Bash(ssh *srun*)",
+      "Bash(ssh *rm *)",
+      "Bash(scripts/hpc_sync.sh push*)",
+      "Bash(*hpc_sync.sh push*)",
+      "Bash(git push *)"
+    ]
+  }
+}

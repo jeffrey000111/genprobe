@@ -1,0 +1,20 @@
+# SDXL base 1.0 — 2023, larger UNet, two CLIP text encoders (77 tokens each)
+name: sdxl
+repo: stabilityai/stable-diffusion-xl-base-1.0
+revision: null          # TODO: pin after smoke run
+variant: fp16
+dtype: fp16
+# The model card's examples leave steps/cfg at pipeline defaults; 30 steps / cfg 5.0 sits
+# inside the commonly recommended range. TODO: re-check the model card and record in D-006.
+steps: 30
+cfg: 5.0
+height: 1024
+width: 1024
+batch_size: 2           # TODO: finalize after smoke run
+seeds: [0, 1, 2, 3]
+# SDXL's VAE overflows in fp16; its config sets force_upcast=true so diffusers decodes in
+# fp32. If you still see black/NaN images, swap in an fp16-fixed VAE and log it (guide §6.4).
+load_kwargs: {}
+call_kwargs: {}
+cpu_offload: false
+notes: Model-card defaults, no tuning.

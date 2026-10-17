@@ -1,0 +1,20 @@
+# FLUX.1 [schnell] — 2024, rectified-flow DiT, timestep-distilled for 1–4 steps
+# Gated: log in and accept the terms on the HF model page first.
+name: flux_schnell
+repo: black-forest-labs/FLUX.1-schnell
+revision: null          # TODO: pin after smoke run
+variant: null
+dtype: bf16
+steps: 4
+cfg: 0.0                # schnell must run with guidance_scale = 0
+height: 1024
+width: 1024
+batch_size: 1           # TODO: finalize after smoke run
+seeds: [0, 1, 2, 3]
+load_kwargs: {}
+call_kwargs:
+  max_sequence_length: 256   # schnell's limit
+# Needs roughly 50 GB without offload. On a 40 GB A100 set this to true, and note that its
+# timings are then not comparable with the other models (guide §6.4, §8.4).
+cpu_offload: false
+notes: Model-card settings (4 steps, guidance 0, max_sequence_length 256).

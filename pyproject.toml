@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "genprobe"
+version = "0.1.0"
+description = "Text-to-image/video evaluation, metric meta-evaluation, and a generation-debugging agent"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+# Deliberately light: torch/diffusers/t2v-metrics are installed per conda env
+# (scripts/setup_envs.sh) because their version pins conflict.
+dependencies = [
+  "pydantic>=2",
+  "pyyaml",
+  "pillow",
+  "numpy",
+]
+
+[project.optional-dependencies]
+analysis = ["pandas", "pyarrow"]
+dev = ["pytest"]
+
+[tool.setuptools.packages.find]
+include = ["genprobe*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

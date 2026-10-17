@@ -1,0 +1,25 @@
+# Generated data stays out of git; prompt sets are small and part of the experiment.
+data/*
+!data/prompts/
+logs/*
+!logs/.gitkeep
+
+# Model caches (t2v_metrics defaults to ./hf_cache — redirect it, guide §3.2)
+hf_cache/
+.cache/
+
+# Weights must never be committed
+*.safetensors
+*.ckpt
+*.bin
+*.pt
+
+# Private notes (e.g. the full project guide) and per-user Claude Code settings
+docs/private/
+.claude/settings.local.json
+
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+.DS_Store

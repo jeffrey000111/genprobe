@@ -1,0 +1,18 @@
+# Stable Diffusion 3.5 Medium — 2024, MMDiT, CLIP-L/G + T5 text encoders
+# Gated: accept the Stability Community License on the HF model page first.
+name: sd35m
+repo: stabilityai/stable-diffusion-3.5-medium
+revision: null          # TODO: pin after smoke run
+variant: null
+dtype: bf16
+steps: 40
+cfg: 4.5
+height: 1024
+width: 1024
+batch_size: 2           # TODO: finalize after smoke run
+seeds: [0, 1, 2, 3]
+load_kwargs: {}
+call_kwargs:
+  max_sequence_length: 256   # T5 tokens; longer prompts get truncated (guide §6.4)
+cpu_offload: false
+notes: Model-card recommended settings (40 steps, cfg 4.5, bf16).

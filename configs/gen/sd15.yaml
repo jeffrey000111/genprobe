@@ -1,0 +1,21 @@
+# Stable Diffusion 1.5 — 2022, UNet, CLIP text encoder (77 tokens)
+# runwayml/stable-diffusion-v1-5 was taken down; this is the mirror used by the diffusers docs.
+name: sd15
+repo: stable-diffusion-v1-5/stable-diffusion-v1-5
+revision: null          # TODO: pin the commit hash after the smoke run (hf download prints it)
+variant: fp16           # TODO: confirm the repo ships *.fp16.safetensors; else set null
+dtype: fp16
+steps: 50
+cfg: 7.5
+height: 512
+width: 512
+batch_size: 4           # TODO: finalize after smoke run (check peak_mem_gb in the manifest)
+seeds: [0, 1, 2, 3]
+load_kwargs:
+  # The bundled safety checker blacks out benign images, which would poison every
+  # metric. Safety is measured separately (guide §7.8). See docs/decisions.md D-005.
+  safety_checker: null
+  requires_safety_checker: false
+call_kwargs: {}
+cpu_offload: false
+notes: Model-card defaults, no tuning; represents out-of-the-box quality.

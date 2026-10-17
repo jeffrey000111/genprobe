@@ -1,0 +1,20 @@
+{"prompt_id": "sm001", "source": "smoke", "prompt": "a photo of 2 dogs", "tags": ["counting"], "spec": {"objects": [{"name": "dog", "count": 2}]}, "split": "dev"}
+{"prompt_id": "sm002", "source": "smoke", "prompt": "a photo of 3 apples", "tags": ["counting"], "spec": {"objects": [{"name": "apple", "count": 3}]}, "split": "dev"}
+{"prompt_id": "sm003", "source": "smoke", "prompt": "a photo of 4 cups", "tags": ["counting"], "spec": {"objects": [{"name": "cup", "count": 4}]}, "split": "dev"}
+{"prompt_id": "sm004", "source": "smoke", "prompt": "a photo of 5 bicycles", "tags": ["counting"], "spec": {"objects": [{"name": "bicycle", "count": 5}]}, "split": "dev"}
+{"prompt_id": "sm005", "source": "smoke", "prompt": "a photo of 6 chairs", "tags": ["counting"], "spec": {"objects": [{"name": "chair", "count": 6}]}, "split": "dev"}
+{"prompt_id": "sm006", "source": "smoke", "prompt": "a photo of 7 bananas", "tags": ["counting"], "spec": {"objects": [{"name": "banana", "count": 7}]}, "split": "dev"}
+{"prompt_id": "sm007", "source": "smoke", "prompt": "a photo of 8 oranges", "tags": ["counting"], "spec": {"objects": [{"name": "orange", "count": 8}]}, "split": "dev"}
+{"prompt_id": "sm008", "source": "smoke", "prompt": "a cat to the left of a dog", "tags": ["spatial"], "spec": {"relation": {"type": "left_of", "a": "cat", "b": "dog"}}, "split": "dev"}
+{"prompt_id": "sm009", "source": "smoke", "prompt": "a cup to the right of a laptop", "tags": ["spatial"], "spec": {"relation": {"type": "right_of", "a": "cup", "b": "laptop"}}, "split": "dev"}
+{"prompt_id": "sm010", "source": "smoke", "prompt": "a clock above a chair", "tags": ["spatial"], "spec": {"relation": {"type": "above", "a": "clock", "b": "chair"}}, "split": "dev"}
+{"prompt_id": "sm011", "source": "smoke", "prompt": "a bicycle to the left of a car", "tags": ["spatial"], "spec": {"relation": {"type": "left_of", "a": "bicycle", "b": "car"}}, "split": "dev"}
+{"prompt_id": "sm012", "source": "smoke", "prompt": "a vase to the right of a book", "tags": ["spatial"], "spec": {"relation": {"type": "right_of", "a": "vase", "b": "book"}}, "split": "dev"}
+{"prompt_id": "sm013", "source": "smoke", "prompt": "a dog below an umbrella", "tags": ["spatial"], "spec": {"relation": {"type": "below", "a": "dog", "b": "umbrella"}}, "split": "dev"}
+{"prompt_id": "sm014", "source": "smoke", "prompt": "a teddy bear above a bench", "tags": ["spatial"], "spec": {"relation": {"type": "above", "a": "teddy bear", "b": "bench"}}, "split": "dev"}
+{"prompt_id": "sm015", "source": "smoke", "prompt": "a storefront sign that says \"OPEN\"", "tags": ["text"], "spec": {"text": "OPEN", "length_bin": "1-2"}, "split": "dev"}
+{"prompt_id": "sm016", "source": "smoke", "prompt": "a storefront sign that says \"FRESH BREAD\"", "tags": ["text"], "spec": {"text": "FRESH BREAD", "length_bin": "1-2"}, "split": "dev"}
+{"prompt_id": "sm017", "source": "smoke", "prompt": "a storefront sign that says \"BOOKS AND COFFEE\"", "tags": ["text"], "spec": {"text": "BOOKS AND COFFEE", "length_bin": "3-4"}, "split": "dev"}
+{"prompt_id": "sm018", "source": "smoke", "prompt": "a storefront sign that says \"OPEN 24 HOURS DAILY\"", "tags": ["text"], "spec": {"text": "OPEN 24 HOURS DAILY", "length_bin": "3-4"}, "split": "dev"}
+{"prompt_id": "sm019", "source": "smoke", "prompt": "a storefront sign that says \"PLEASE WAIT HERE TO BE SEATED\"", "tags": ["text"], "spec": {"text": "PLEASE WAIT HERE TO BE SEATED", "length_bin": "5+"}, "split": "dev"}
+{"prompt_id": "sm020", "source": "smoke", "prompt": "a storefront sign that says \"NO PARKING IN FRONT OF THE GATE\"", "tags": ["text"], "spec": {"text": "NO PARKING IN FRONT OF THE GATE", "length_bin": "5+"}, "split": "dev"}
