@@ -36,7 +36,9 @@ VENV="$GENPROBE_ENVS/$ENV"
 if [[ ! -x "$VENV/bin/python" ]]; then
   uv venv "$VENV" --python "$PY" --seed
 fi
-INSTALL=(uv pip install --python "$VENV/bin/python" --python-platform "$TARGET_PLATFORM")
+# --build-constraints: some sdists (image-reward) still need pkg_resources at build time.
+INSTALL=(uv pip install --python "$VENV/bin/python" --python-platform "$TARGET_PLATFORM"
+         --build-constraints scripts/build-constraints.txt)
 
 case "$ENV" in
   gen)

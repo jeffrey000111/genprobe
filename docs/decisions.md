@@ -61,6 +61,8 @@ rather than for the machine running the install; uv and its managed Python need 
 2.17, so the same interpreter runs on both. Envs are verified on a GPU node by
 `slurm/probe_gpu.sbatch`, never by importing them on coe-hpc1. Conda (used in the original
 guide) is dropped: it can't install offline on HPC3, and on coe-hpc1 it would target CentOS 7.
+Source-only dependencies are built with `setuptools<82` (`scripts/build-constraints.txt`):
+image-reward, pulled in by t2v-metrics, still imports `pkg_resources`, removed in setuptools 82.
 
 **D-006 (TODO) — Generation parameters.** Use each model card's recommended settings, no
 tuning, to represent out-of-the-box quality. Re-check the SDXL card for steps/cfg and record

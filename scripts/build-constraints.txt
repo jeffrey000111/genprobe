@@ -1,0 +1,4 @@
+# Applied to the isolated build environments uv creates for source-only packages.
+# image-reward (a t2v-metrics dependency) imports pkg_resources in its setup.py, and
+# setuptools removed pkg_resources in 82.0. Keep builds on a setuptools that still has it.
+setuptools<82
