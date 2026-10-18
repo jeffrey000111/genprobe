@@ -19,7 +19,8 @@ from typing import Any
 
 PACKAGES = (
     "torch", "torchvision", "diffusers", "transformers", "accelerate",
-    "t2v-metrics", "open-clip-torch", "pydantic", "numpy", "pillow",
+    "t2v-metrics", "open-clip-torch", "huggingface-hub", "qwen-vl-utils", "flash-attn",
+    "pydantic", "numpy", "pillow",
 )
 
 

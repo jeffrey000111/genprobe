@@ -36,13 +36,17 @@ files: the laptop owns code, configs and prompt sets; the cluster owns `data/`, 
 checkout as dirty only for changes under code paths, so job outputs that are tracked in git
 (e.g. `results/`) don't mark a clean run as `-dirty`.
 
-**D-009 (2026-10-16, revised same day) — All generation runs on H100 NVL 94 GB in HPC3's
-`nsfqs` (`--gres=gpu:h100:1`, job checks the card name); scoring runs on A100-PCIE 40 GB in
-`gpuqs`.** First choice was the A100s (16 cards in gpuqs), but the probe showed they have
-40 GB, and FLUX.1-schnell needs ~50 GB without CPU offload; offloading would make its timing
-incomparable. nsfqs has 13 identical H100 NVLs, enough capacity, and one card type keeps
-per-image timings comparable across models (guide §4.2, §8.4). Scoring timings are not
-compared and 7B VLM scorers fit in 40 GB, so scoring uses the A100s and leaves the H100s free.
+**D-009 (2026-10-16, revised 2026-10-17) — All generation and scoring runs on H100 NVL 94 GB
+in HPC3's `nsfqs` (`--gres=gpu:h100:1`, jobs check the card name).** First choice for
+generation was the A100s (16 cards in gpuqs), but they have 40 GB and FLUX.1-schnell needs
+~50 GB without CPU offload; offloading would make its timing incomparable. nsfqs has 13
+identical H100 NVLs, and one card type keeps per-image timings comparable across models
+(guide §4.2, §8.4). Scoring was then planned for the A100s to leave the H100s free, but probe
+job 91529 on cs00x failed in both envs with "CUDA-capable device(s) is/are busy or
+unavailable" (Slurm always sets `CUDA_VISIBLE_DEVICES=0` there and `nvidia-smi` lists all
+four cards, so the job is likely sent to a card someone else holds). Scoring is short and
+resumable, so it moves to nsfqs too. Revisit if the A100 nodes start working (ask the HPC
+admins) or nsfqs queues get long.
 
 **D-011 (2026-10-16, revised same day) — Model weights live in `~/hf_home`; uv's download
 cache lives on coe-hpc1's local `/tmp`; nothing is downloaded to `/scratch`.** The first plan
@@ -70,6 +74,32 @@ the final values and source here before the full run.
 
 **D-007 (TODO) — Batch size per model.** Set after the smoke run from `peak_mem_gb`; fixed
 for the whole project because it enters `config_hash` and can shift numerics slightly.
+
+## Metrics
+
+**D-013 (2026-10-17) — CLIPScore = cosine similarity of OpenAI CLIP ViT-L/14 (224 px)
+embeddings, computed with open_clip directly (not through t2v_metrics), fp32, batch 32.**
+`value` is the raw cosine; Hessel et al.'s `2.5 × max(cos, 0)` is stored in
+`extra["clipscore_w2.5"]` (identical ranking whenever cos > 0). ViT-L/14 follows the guide
+(§7.3). Doing it in open_clip makes the activation explicit: OpenAI weights need QuickGELU,
+and open_clip 3.3 only *warns* when the `openai` tag is loaded without it, so the plugin
+forces it, turns that warning into an error and checks the built model. Prompts over 77 CLIP
+tokens are truncated by CLIP and flagged `extra["truncated"]`. Weights:
+`timm/vit_large_patch14_clip_224.openai` (the HF copy open_clip itself loads).
+
+**D-014 (2026-10-17) — VQAScore = t2v_metrics 3.0 with the `qwen2.5-vl-7b` backbone
+(Qwen/Qwen2.5-VL-7B-Instruct, bf16), SDPA attention, question template
+`Does this figure show "{}"? Please answer Yes or No.` and answer `Yes`.** 3.0 is the newest
+release on PyPI (the guide's 3.1 is GitHub-only). Qwen2.5-VL-7B is the guide's main
+backbone (§7.4); the paper's CLIP-FlanT5 stays optional. t2v_metrics 3.0 hard-codes
+FlashAttention-2 for Qwen, which isn't installed (it must be compiled for the exact
+torch/CUDA); SDPA computes the same attention and is what 3.1 uses, so the plugin overrides
+the entry before loading and verifies it. The template is the t2v_metrics default, passed
+explicitly; the template hash and the weights' commit hash are part of `metric_version`,
+so a change in either is a different metric and is rescored, never mixed. Each image is
+scored only against its own prompt (t2v_metrics' `scorer(images, texts)` computes the full
+image × text matrix). A second backbone from another family will be added as a control
+before module B (guide §7.4).
 
 ## Prompt set
 

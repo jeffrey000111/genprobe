@@ -19,11 +19,17 @@ SCORE_RECORD_KEYS = frozenset({"sample_id", "metric", "metric_version", "value",
 
 class Metric(ABC):
     name: ClassVar[str]                     # "vqascore"
-    version: ClassVar[str]                  # "t2v_metrics==3.1/qwen2.5-vl-7b"
+    # "t2v_metrics==3.0/qwen2.5-vl-7b@cc59489/sdpa/tmpl-…". Resume matches on it, so anything
+    # that changes scores belongs in it. Plugins may set it per instance in __init__ (cheap
+    # lookups only: no torch import).
+    version: str
     needs: ClassVar[frozenset[str]] = frozenset({"image", "prompt"})  # add "spec" for template prompts
-    env: ClassVar[str] = "eval"             # conda env it runs in: "eval" or "aux"
+    env: ClassVar[str] = "eval"             # virtualenv it runs in: "eval" or "aux"
     higher_is_better: ClassVar[bool] = True
     default_batch_size: ClassVar[int] = 16
+    # Filled by setup(): what was actually loaded (weights revision, dtype, attention, templates).
+    # The runner stores it in data/runs/score_*.json next to the package versions.
+    info: dict[str, Any] = {}
 
     def applies_to(self, sample: Sample) -> bool:
         """Skip samples this metric can't score (e.g. OCR only on text-rendering prompts)."""

@@ -27,21 +27,28 @@ from .utils.shard import chunks, select_shard
 
 
 def load_samples(pattern: str, prompts_path: str | None = None) -> list[Sample]:
-    """Latest usable record per sample_id; joins tags/spec from a prompts file if given."""
+    """Latest usable record per sample_id.
+
+    With a prompts file, only samples of those prompts are kept and their tags/spec are
+    joined in, so ``--samples "data/manifests/gen_*.jsonl" --prompts data/prompts/smoke.jsonl``
+    selects exactly the smoke images even after other prompt sets have been generated.
+    """
     paths = sorted(glob.glob(pattern))
     if not paths:
         raise FileNotFoundError(f"no files match {pattern!r}")
     latest = latest_by_id(read_many(paths))
     rows = [r for r in latest.values() if r.get("status", "ok") == "ok"]
-    prompts = {p.prompt_id: p for p in load_prompts(prompts_path)} if prompts_path else {}
+    prompts = {p.prompt_id: p for p in load_prompts(prompts_path)} if prompts_path else None
     out = []
     for r in rows:
         s = Sample.from_dict(r)
-        p = prompts.get(s.prompt_id)
-        if p is not None:
+        if prompts is not None:
+            p = prompts.get(s.prompt_id)
+            if p is None:
+                continue
             s.tags, s.spec = list(p.tags), p.spec
         out.append(s)
-    return out
+    return sorted(out, key=lambda s: s.sample_id)
 
 
 def run_scoring(
@@ -77,11 +84,12 @@ def run_scoring(
         return counts
 
     rid = run_id()
+    metric.setup(device)  # a failure here raises: nothing was scored, the job should fail
     fp = fingerprint()
     atomic_write_text(out / "runs" / f"score_{metric.name}_{tag}_{rid}.json",
                       json.dumps({"run_id": rid, "metric": metric.name, "metric_version": mversion,
-                                  "env": fp}, indent=2, default=str))
-    metric.setup(device)
+                                  "metric_info": getattr(metric, "info", {}), "env": fp},
+                                 indent=2, default=str))
     path = score_dir / f"{tag}_shard{shard:03d}of{num_shards:03d}.jsonl"
     with ManifestWriter(path) as w:
         for batch in chunks(todo, bs):
@@ -117,7 +125,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--metric", required=True, choices=sorted(REGISTRY) or None)
     ap.add_argument("--samples", required=True, help="glob of JSONL files with sample_id/path/prompt")
     ap.add_argument("--tag", required=True, help="name for this input set, e.g. the model name")
-    ap.add_argument("--prompts", default=None, help="prompts JSONL to join tags/spec from")
+    ap.add_argument("--prompts", default=None,
+                    help="prompts JSONL: keep only samples of these prompts and join their tags/spec")
     ap.add_argument("--shard", type=int, default=0)
     ap.add_argument("--num-shards", type=int, default=1)
     ap.add_argument("--batch-size", type=int, default=None)
@@ -127,6 +136,8 @@ def main(argv: list[str] | None = None) -> int:
 
     metric = REGISTRY[args.metric]()
     samples = load_samples(args.samples, args.prompts)
+    print(f"{len(samples)} samples from {args.samples}"
+          + (f" (prompts in {args.prompts})" if args.prompts else "") + f"; metric_version={metric.version}")
     counts = run_scoring(metric=metric, samples=samples, out=args.out, tag=args.tag, shard=args.shard,
                          num_shards=args.num_shards, batch_size=args.batch_size, device=args.device)
     return 1 if counts["error"] else 0

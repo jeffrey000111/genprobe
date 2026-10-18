@@ -26,8 +26,9 @@ step instead of loading the whole file. Progress and choices live in `docs/decis
 
 - Nothing heavy on the login node: no generation, scoring, or model loading there. Installing
   packages and running unit tests is fine. Everything else goes through `sbatch`.
-- Submit from the repo root (`cd ~/genprobe`). Generation runs on `nsfqs` H100 NVL 94 GB,
-  scoring on `gpuqs` A100 40 GB (D-009). Always pass an explicit `--time`; prefer short jobs.
+- Submit from the repo root (`cd ~/genprobe`). Generation and scoring run on `nsfqs` H100 NVL
+  94 GB; the gpuqs A100s fail with "CUDA device busy or unavailable" (D-009). CPU-only steps
+  (summaries) go to `cpuqs`. Always pass an explicit `--time`; prefer short jobs.
 - Paths are defined once in `scripts/paths.sh`: venvs in `~/envs`, weights in `~/hf_home`,
   uv's cache on coe-hpc1's local `/tmp`. `/home` is shared and ~99% full, so keep the
   footprint small and clean caches. Don't put anything that downloads or locks files on
@@ -55,5 +56,9 @@ step instead of loading the whole file. Progress and choices live in `docs/decis
 - New metrics: one file in `genprobe/metrics/`, subclass `Metric`, `@register`, import it in
   `genprobe/metrics/__init__.py`; heavy imports go inside `setup()`.
 - Keep `make test` green; add a test when changing sharding, resume, or record formats.
+  `make test` never loads real models (safe on a login node); real plugin tests need
+  `GENPROBE_TEST_REAL_METRICS=1` inside a GPU job.
+- Metric plugins check the local HF cache before loading (`genprobe/utils/hf.py`) and put
+  everything that changes scores (weights revision, template, attention) in `version`.
 - Commit before `hpc_sync.sh push` so manifests record a clean commit.
 - This repo is public: no personal identifiers, credentials, weights, images, or `data/`.

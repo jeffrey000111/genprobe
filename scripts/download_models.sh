@@ -1,11 +1,13 @@
 #!/bin/bash
-# Download generator weights on **coe-hpc1** (it has internet) into $HF_HOME (~/hf_home);
-# jobs on HPC3 then read them offline. Only the diffusers-format files that
-# configs/gen/*.yaml load are fetched, never the duplicate single-file checkpoints.
+# Download model weights on **coe-hpc1** (it has internet) into $HF_HOME (~/hf_home);
+# jobs on HPC3 then read them offline. Generators: only the diffusers-format files that
+# configs/gen/*.yaml load, never the duplicate single-file checkpoints. Scorers: only the
+# files genprobe/metrics/*.py load.
 #
 #   ssh -t sjsu "cd ~/genprobe && bash scripts/download_models.sh login"   once: paste an HF read token
 #   ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh sd15 sdxl"
-#   ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh all"
+#   ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh all"        the four generators
+#   ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh scorers"    clip_l14 + qwen25vl7b
 #
 # SD3.5 Medium and FLUX.1-schnell are gated: accept their terms on huggingface.co first.
 # Re-running is safe: files already in the cache are skipped.
@@ -40,8 +42,9 @@ download() {
   fi
 }
 
-[[ $# -gt 0 ]] || { sed -n '2,13p' "$0"; exit 2; }
+[[ $# -gt 0 ]] || { sed -n '2,15p' "$0"; exit 2; }
 if [[ "$1" == all ]]; then set -- sd15 sdxl sd35m flux_schnell; fi
+if [[ "$1" == scorers ]]; then set -- clip_l14 qwen25vl7b; fi
 
 for m in "$@"; do
   case "$m" in
@@ -66,7 +69,20 @@ for m in "$@"; do
       download flux_schnell black-forest-labs/FLUX.1-schnell \
         --include "*.json" "*.txt" "*.model" "*/*.safetensors"
       ;;
-    *) echo "unknown model '$m' (expected login, sd15, sdxl, sd35m, flux_schnell or all)" >&2; exit 2 ;;
+    clip_l14)
+      # CLIPScore (genprobe/metrics/clipscore.py): OpenAI CLIP ViT-L/14 as open_clip loads it.
+      # Only the safetensors copy; open_clip tries it before the .bin.
+      download clip_l14 timm/vit_large_patch14_clip_224.openai \
+        --include "open_clip_model.safetensors" "open_clip_config.json" \
+        --expect open_clip_model.safetensors
+      ;;
+    qwen25vl7b)
+      # VQAScore backbone (genprobe/metrics/vqascore.py), ~16.6 GB. Not gated.
+      download qwen25vl7b Qwen/Qwen2.5-VL-7B-Instruct \
+        --include "*.json" "*.txt" "*.safetensors" \
+        --expect config.json preprocessor_config.json tokenizer_config.json chat_template.json model.safetensors.index.json
+      ;;
+    *) echo "unknown model '$m' (expected login, sd15, sdxl, sd35m, flux_schnell, all, clip_l14, qwen25vl7b or scorers)" >&2; exit 2 ;;
   esac
 done
 

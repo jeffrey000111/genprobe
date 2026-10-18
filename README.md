@@ -8,8 +8,9 @@ metrics (VQAScore, CLIPScore, detector- and OCR-based checks, preference models,
 false positives, cost), meta-evaluates those metrics against human ratings by skill category,
 and uses the reliable ones in a generation-debugging agent.
 
-> **Status: in progress (M0 — infrastructure).** No results yet. Every number that appears
-> here later comes from a table in `results/`.
+> **Status: in progress (M1 — smoke run).** Four generators run end to end on the cluster;
+> CLIPScore and VQAScore are being wired up. No results yet. Every number that appears here
+> later comes from a table in `results/`.
 
 ## Quick start (no GPU needed)
 
@@ -33,12 +34,15 @@ Paths are set in `scripts/paths.sh`.
 bash scripts/setup_envs.sh gen            # uv venv in ~/envs/gen, wheels chosen for HPC3
 bash scripts/setup_envs.sh eval
 bash scripts/download_models.sh login     # once, HF read token (SD3.5 / FLUX are gated)
-bash scripts/download_models.sh all       # ~60 GB into ~/hf_home
+bash scripts/download_models.sh all       # generators, ~60 GB into ~/hf_home
+bash scripts/download_models.sh scorers   # CLIP ViT-L/14 + Qwen2.5-VL-7B, ~18 GB
 
 # on HPC3 (g17), from ~/genprobe
 bash scripts/hpc_check.sh                 # partitions, GPU nodes, storage -> docs/hpc_check.md
 sbatch slurm/probe_gpu.sbatch             # envs import torch and see the H100?
 sbatch --array=0-1 slurm/gen.sbatch configs/gen/sdxl.yaml data/prompts/smoke.jsonl 2 --seeds 0
+bash scripts/submit_smoke_scoring.sh      # CLIPScore + VQAScore on the smoke images, then
+                                          # results/smoke/summary.md (CPU job)
 ```
 
 Resubmitting any job is safe: finished samples are skipped, half-written files are cleaned up.
@@ -65,9 +69,10 @@ data/prompts/       prompt sets (in git); everything else under data/ is not
 genprobe/
   generate.py       batch generation: sharding + resume + manifests
   score.py          run one metric over a sample set: sharding + resume
-  metrics/          one plugin per metric, subclassing metrics/base.py
+  summarize.py      per-model / per-category tables with bootstrap CIs, cost table
+  metrics/          one plugin per metric (clipscore.py, vqascore.py), subclassing base.py
   backends.py       diffusers backend + CPU fake backend for testing
-  utils/            shard, manifest, atomic IO, environment fingerprint
+  utils/            shard, manifest, atomic IO, environment fingerprint, HF cache checks
 slurm/              job scripts (common.sh: job settings, GPU check, env activation)
 scripts/            paths, env build + model download (coe-hpc1), HPC checks, laptop sync
 docs/               hpc_notes.md (curated), hpc_check.md (raw), decisions.md
@@ -77,7 +82,9 @@ results/            small tables and figures that back REPORT.md
 ## Traceability
 
 Every generation record stores the config hash, git commit, GPU, run ID, seed, scheduler,
-timing and peak memory; every score record stores the metric version (including batch size).
+timing and peak memory; every score record stores the metric version (library version,
+weights revision, prompt template and batch size), so results from different scorer setups
+are never averaged together.
 A full environment fingerprint is written once per job to `data/runs/`.
 
 ## Models and licenses

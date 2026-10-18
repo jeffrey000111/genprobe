@@ -1,8 +1,8 @@
 #!/bin/bash
 # GPU probe on HPC3: which card did we get, can the envs built on coe-hpc1 import torch and
 # use the GPU here, are the downloaded models visible?
-#   cd ~/genprobe && sbatch slurm/probe_gpu.sbatch                                   H100 (generation)
-#   cd ~/genprobe && sbatch -p gpuqs --gres=gpu:a100:1 slurm/probe_gpu.sbatch        A100 (scoring)
+#   cd ~/genprobe && sbatch slurm/probe_gpu.sbatch                                   H100 NVL (all jobs)
+#   cd ~/genprobe && sbatch -p gpuqs --gres=gpu:a100:1 slurm/probe_gpu.sbatch        A100 (broken for us, D-009)
 # Output: logs/probe-gpu_<jobid>.out
 #SBATCH --job-name=probe-gpu
 #SBATCH --partition=nsfqs
@@ -29,11 +29,22 @@ for env in gen eval; do
   "$py" - <<'PY'
 import importlib.metadata as md, sys
 print("python", sys.version.split()[0])
-for p in ("torch", "diffusers", "transformers", "t2v-metrics", "open-clip-torch"):
+for p in ("torch", "diffusers", "transformers", "accelerate", "huggingface-hub", "t2v-metrics",
+          "open-clip-torch", "qwen-vl-utils", "decord", "flash-attn"):
     try:
         print(f"  {p}=={md.version(p)}")
     except md.PackageNotFoundError:
         pass
+for mod in ("diffusers", "open_clip", "t2v_metrics"):
+    try:
+        __import__(mod)
+        print(f"  import {mod}: ok")
+    except ModuleNotFoundError as e:
+        if e.name == mod:
+            continue  # not part of this env
+        print(f"  import {mod}: FAILED {type(e).__name__}: {e}")
+    except Exception as e:  # noqa: BLE001
+        print(f"  import {mod}: FAILED {type(e).__name__}: {e}")
 import torch
 print("torch cuda", torch.version.cuda, "available", torch.cuda.is_available())
 if torch.cuda.is_available():

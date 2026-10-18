@@ -59,6 +59,24 @@ class FakeBackend:
         return images, {"sec_per_img": sec, "peak_mem_gb": 0.0}
 
 
+def diffusers_version() -> str:
+    import importlib.metadata as md
+    return md.version("diffusers")
+
+
+def _version_tuple(v: str) -> tuple[int, ...]:
+    out = []
+    for part in v.split(".")[:3]:
+        digits = "".join(ch for ch in part if ch.isdigit())
+        out.append(int(digits) if digits else 0)
+    return tuple(out)
+
+
+def dtype_kwarg_name(version: tuple[int, ...]) -> str:
+    """`dtype` from diffusers 0.41 on, `torch_dtype` before."""
+    return "dtype" if version >= (0, 41) else "torch_dtype"
+
+
 class DiffusersBackend:
     """Loads one diffusers pipeline per job and generates batches with per-sample generators."""
 
@@ -85,10 +103,11 @@ class DiffusersBackend:
             kwargs["variant"] = cfg.variant
         if cfg.revision:
             kwargs["revision"] = cfg.revision
-        # `torch_dtype` is accepted across diffusers releases; newer releases may prefer
-        # `dtype`. Either way we verify the loaded dtype below instead of trusting the kwarg,
-        # because an ignored kwarg would silently load fp32 weights.
-        self.pipe = DiffusionPipeline.from_pretrained(cfg.repo, torch_dtype=dtype, **kwargs)
+        # diffusers 0.41 renamed `torch_dtype` to `dtype` (the old name warns until 1.0). Either
+        # way we verify the loaded dtype below instead of trusting the kwarg, because an
+        # ignored kwarg would silently load fp32 weights.
+        kwargs[dtype_kwarg_name(_version_tuple(diffusers_version()))] = dtype
+        self.pipe = DiffusionPipeline.from_pretrained(cfg.repo, **kwargs)
         if cfg.cpu_offload:
             self.pipe.enable_model_cpu_offload()
         else:

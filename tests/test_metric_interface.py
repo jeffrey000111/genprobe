@@ -1,10 +1,12 @@
 """Test 3 (guide §4.6): each metric plugin, run on 3 fake images, emits well-formed score records.
 
-Real plugins registered in genprobe.metrics are exercised too; ones whose models or packages
-aren't available here (no GPU, no t2v_metrics) are skipped rather than failed.
+Real plugins registered in genprobe.metrics load their models only when
+GENPROBE_TEST_REAL_METRICS=1 (inside a GPU job), never during a plain `make test`, which may
+run on a login node. Without it they are only checked for a well-formed declaration.
 """
 
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -126,6 +128,18 @@ class TestMetricInterface(unittest.TestCase):
         self.assertTrue(validate_record({**good, "extra": []}))
         self.assertTrue(validate_record({k: v for k, v in good.items() if k != "metric_version"}))
 
+    def test_registered_plugins_declared(self):
+        for name, cls in sorted(REGISTRY.items()):
+            with self.subTest(metric=name):
+                metric = cls()
+                self.assertEqual(metric.name, name)
+                self.assertTrue(isinstance(metric.version, str) and metric.version)
+                self.assertIn(metric.env, ("eval", "aux"))
+                self.assertGreater(metric.default_batch_size, 0)
+                self.assertTrue(metric.needs <= {"image", "prompt", "spec"}, metric.needs)
+
+    @unittest.skipUnless(os.environ.get("GENPROBE_TEST_REAL_METRICS") == "1",
+                         "loads real models; set GENPROBE_TEST_REAL_METRICS=1 inside a GPU job")
     def test_registered_plugins(self):
         for name, cls in sorted(REGISTRY.items()):
             with self.subTest(metric=name):

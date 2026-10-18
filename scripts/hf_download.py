@@ -23,6 +23,8 @@ def main() -> int:
     ap.add_argument("--include", nargs="+", required=True, help="glob patterns to download")
     ap.add_argument("--exclude", nargs="+", default=None, help="glob patterns to skip")
     ap.add_argument("--revision", default=None)
+    ap.add_argument("--expect", nargs="+", default=["model_index.json"],
+                    help="files that must exist afterwards (default: diffusers' model_index.json)")
     args = ap.parse_args()
 
     from huggingface_hub import snapshot_download
@@ -43,9 +45,7 @@ def main() -> int:
     for p in weights:
         print(f"  {p.relative_to(path)}  {os.path.getsize(p) / 1e9:.2f} GB")
 
-    problems = []
-    if not (path / "model_index.json").is_file():
-        problems.append("model_index.json missing (diffusers can't load the pipeline)")
+    problems = [f"{f} missing" for f in args.expect if not (path / f).is_file()]
     if not weights:
         problems.append("no .safetensors weights downloaded")
     for sub in sorted({p.relative_to(path).parts[0] for p in weights if len(p.relative_to(path).parts) > 1}):
