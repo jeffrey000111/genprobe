@@ -81,7 +81,15 @@ class VQAScore(Metric):
 
         if device.startswith("cuda") and not torch.cuda.is_available():
             raise RuntimeError("no CUDA device visible; VQAScore runs inside a GPU job, not on a login node")
-        import t2v_metrics
+        try:
+            import t2v_metrics
+        except RuntimeError as e:
+            if "ffmpeg" in str(e):
+                raise RuntimeError(
+                    "t2v_metrics won't import without an `ffmpeg` on PATH. Link the one bundled "
+                    "with imageio-ffmpeg into the env: rerun scripts/setup_envs.sh eval on coe-hpc1, "
+                    "or see docs/hpc_notes.md (eval env).") from e
+            raise
         from t2v_metrics.models.vqascore_models import qwen2vl_model
 
         repo = qwen2vl_model.QWEN2_VL_MODELS.get(BACKBONE, {}).get("model", {}).get("path")

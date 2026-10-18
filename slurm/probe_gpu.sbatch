@@ -26,7 +26,7 @@ for env in gen eval; do
   py="$GENPROBE_ENVS/$env/bin/python"
   echo "== env '$env'"
   if [[ ! -x "$py" ]]; then echo "(not built yet)"; continue; fi
-  "$py" - <<'PY'
+  PATH="$GENPROBE_ENVS/$env/bin:$PATH" "$py" - <<'PY'
 import importlib.metadata as md, sys
 print("python", sys.version.split()[0])
 for p in ("torch", "diffusers", "transformers", "accelerate", "huggingface-hub", "t2v-metrics",

@@ -67,6 +67,10 @@ rather than for the machine running the install; uv and its managed Python need 
 guide) is dropped: it can't install offline on HPC3, and on coe-hpc1 it would target CentOS 7.
 Source-only dependencies are built with `setuptools<82` (`scripts/build-constraints.txt`):
 image-reward, pulled in by t2v-metrics, still imports `pkg_resources`, removed in setuptools 82.
+PyPI's unrelated `apex` package (listed by t2v-metrics 3.0) is excluded (`scripts/excludes.txt`).
+The eval env gets an `ffmpeg` by linking imageio-ffmpeg's bundled static binary into the
+venv's `bin/` (2026-10-18): `import t2v_metrics` refuses to run without one, and HPC3 has no
+system ffmpeg or internet to fetch one. Only video scoring would actually call it.
 
 **D-006 (TODO) — Generation parameters.** Use each model card's recommended settings, no
 tuning, to represent out-of-the-box quality. Re-check the SDXL card for steps/cfg and record

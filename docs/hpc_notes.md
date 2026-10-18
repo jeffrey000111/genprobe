@@ -67,6 +67,19 @@ fine, since they only follow `refs/main` and the snapshot symlinks.
 The eval env pins an older torch because t2v-metrics 3.0 pins transformers 4.49; that is why
 generation and scoring live in separate envs.
 
+**ffmpeg.** `import t2v_metrics` (3.0) raises "ffmpeg is a required system requirement but
+not found" unless an `ffmpeg` program is on PATH, even though only video scoring uses it;
+HPC3 has none (first VQAScore job, 2026-10-18). imageio-ffmpeg, installed as a t2v-metrics
+dependency, bundles a static ffmpeg 7.0.2, so `setup_envs.sh eval` links it into the venv:
+`~/envs/eval/bin/ffmpeg -> .../site-packages/imageio_ffmpeg/binaries/ffmpeg-linux-x86_64-v7.0.2`.
+Activated envs (all job scripts) then find it. `scripts/check_eval_env.sh` checks this and
+the other eval-env assumptions on a CPU node in a few minutes.
+
+**Queue waits.** On the night of 2026-10-17/18, nsfqs was full: two 2-hour scoring jobs
+were estimated to start ~5.5 h after submission (gpuqs H100s: ~11 h), and actually started
+in the morning. Short `--time` limits help Slurm backfill; check env problems on `cpuqs`
+first so a long GPU wait isn't wasted on an import error.
+
 ## Decisions
 
 | Item | Value | How I know |
@@ -84,11 +97,14 @@ generation and scoring live in separate envs.
 
 ## GPU-hour estimates
 
-Fill in from the smoke run (`gen_seconds` in the manifests, warmup rows excluded):
+From the smoke run (20 images per model, seed 0; median of the non-warmup images), copied
+from `results/smoke/summary.md` (commit 7ec27f3). Smoke-set numbers, for planning only (D-010):
 
-| Model | Card | Batch | s / image | Full run (2,400 images) GPU-h |
-| --- | --- | --- | --- | --- |
-| sd15 | H100 NVL | | | |
-| sdxl | H100 NVL | | | |
-| sd35m | H100 NVL | | | |
-| flux_schnell | H100 NVL | | | |
+| Model | Card | Batch | Steps | s / image | Peak mem GB | Full run (2,400 images) GPU-h |
+| --- | --- | --- | --- | --- | --- | --- |
+| sd15 | H100 NVL | 4 | 50 | 0.53 | 4.3 | 0.35 |
+| sdxl | H100 NVL | 2 | 30 | 1.90 | 15.8 | 1.27 |
+| sd35m | H100 NVL | 2 | 40 | 4.65 | 20.7 | 3.10 |
+| flux_schnell | H100 NVL | 1 | 4 | 1.13 | 36.3 | 0.75 |
+
+All four generators together: ~5.5 GPU-hours for 2,400 images each, plus model loading.

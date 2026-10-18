@@ -1,0 +1,298 @@
+{
+  "prompts": "data/prompts/smoke.jsonl",
+  "created_at": "2026-10-18T09:18:54.252+00:00",
+  "git_commit": "7ec27f3",
+  "n_prompts": 20,
+  "models": [
+    "flux_schnell",
+    "sd15",
+    "sd35m",
+    "sdxl"
+  ],
+  "categories": [
+    "counting",
+    "spatial",
+    "text"
+  ],
+  "metrics": {
+    "clipscore": {
+      "metric_version": "open_clip==3.3.0/ViT-L-14:openai/cos/bs32",
+      "n_ok": 80,
+      "n_expected": 80,
+      "n_error": 0,
+      "versions_seen": 1,
+      "min": 0.19679851830005646,
+      "max": 0.334812194108963,
+      "std": 0.027411595514396765,
+      "n_truncated": 0
+    },
+    "vqascore": {
+      "metric_version": null,
+      "n_ok": 0,
+      "n_expected": 80,
+      "n_error": 0,
+      "versions_seen": 0,
+      "min": NaN,
+      "max": NaN,
+      "std": NaN,
+      "n_truncated": 0
+    }
+  },
+  "by_model": {
+    "clipscore": {
+      "flux_schnell": {
+        "mean": 0.2655040480196476,
+        "ci95": [
+          0.25769736303016544,
+          0.274001869559288
+        ],
+        "n_prompts": 20,
+        "n_images": 20
+      },
+      "sd15": {
+        "mean": 0.24452156946063042,
+        "ci95": [
+          0.23293107921257616,
+          0.25680714830756185
+        ],
+        "n_prompts": 20,
+        "n_images": 20
+      },
+      "sd35m": {
+        "mean": 0.2709922529757023,
+        "ci95": [
+          0.2597654057666659,
+          0.2827229205705225
+        ],
+        "n_prompts": 20,
+        "n_images": 20
+      },
+      "sdxl": {
+        "mean": 0.2584932573139668,
+        "ci95": [
+          0.24693751057609917,
+          0.2726446332409978
+        ],
+        "n_prompts": 20,
+        "n_images": 20
+      }
+    },
+    "vqascore": {
+      "flux_schnell": {
+        "mean": NaN,
+        "ci95": [
+          NaN,
+          NaN
+        ],
+        "n_prompts": 0,
+        "n_images": 0
+      },
+      "sd15": {
+        "mean": NaN,
+        "ci95": [
+          NaN,
+          NaN
+        ],
+        "n_prompts": 0,
+        "n_images": 0
+      },
+      "sd35m": {
+        "mean": NaN,
+        "ci95": [
+          NaN,
+          NaN
+        ],
+        "n_prompts": 0,
+        "n_images": 0
+      },
+      "sdxl": {
+        "mean": NaN,
+        "ci95": [
+          NaN,
+          NaN
+        ],
+        "n_prompts": 0,
+        "n_images": 0
+      }
+    }
+  },
+  "by_model_category": {
+    "clipscore": {
+      "flux_schnell": {
+        "counting": {
+          "mean": 0.2549826524087361,
+          "n": 7
+        },
+        "spatial": {
+          "mean": 0.2604633612292154,
+          "n": 7
+        },
+        "text": {
+          "mean": 0.28365981082121533,
+          "n": 6
+        }
+      },
+      "sd15": {
+        "counting": {
+          "mean": 0.2470857799053192,
+          "n": 7
+        },
+        "spatial": {
+          "mean": 0.2306193517787116,
+          "n": 7
+        },
+        "text": {
+          "mean": 0.2577492445707321,
+          "n": 6
+        }
+      },
+      "sd35m": {
+        "counting": {
+          "mean": 0.2596904933452606,
+          "n": 7
+        },
+        "spatial": {
+          "mean": 0.25693076636110035,
+          "n": 7
+        },
+        "text": {
+          "mean": 0.3005827069282532,
+          "n": 6
+        }
+      },
+      "sdxl": {
+        "counting": {
+          "mean": 0.250134140253067,
+          "n": 7
+        },
+        "spatial": {
+          "mean": 0.24332837760448456,
+          "n": 7
+        },
+        "text": {
+          "mean": 0.28593792021274567,
+          "n": 6
+        }
+      }
+    },
+    "vqascore": {
+      "flux_schnell": {
+        "counting": {
+          "mean": NaN,
+          "n": 0
+        },
+        "spatial": {
+          "mean": NaN,
+          "n": 0
+        },
+        "text": {
+          "mean": NaN,
+          "n": 0
+        }
+      },
+      "sd15": {
+        "counting": {
+          "mean": NaN,
+          "n": 0
+        },
+        "spatial": {
+          "mean": NaN,
+          "n": 0
+        },
+        "text": {
+          "mean": NaN,
+          "n": 0
+        }
+      },
+      "sd35m": {
+        "counting": {
+          "mean": NaN,
+          "n": 0
+        },
+        "spatial": {
+          "mean": NaN,
+          "n": 0
+        },
+        "text": {
+          "mean": NaN,
+          "n": 0
+        }
+      },
+      "sdxl": {
+        "counting": {
+          "mean": NaN,
+          "n": 0
+        },
+        "spatial": {
+          "mean": NaN,
+          "n": 0
+        },
+        "text": {
+          "mean": NaN,
+          "n": 0
+        }
+      }
+    }
+  },
+  "generation_cost": {
+    "flux_schnell": {
+      "gpu": "NVIDIA H100 NVL",
+      "batch_size": 1,
+      "steps": 4,
+      "n_images": 20,
+      "n_timed": 19,
+      "sec_per_image_median": 1.1316,
+      "peak_mem_gb_max": 36.32,
+      "n_blank": 0,
+      "n_error": 0,
+      "gpu_hours_for_2400": 0.7544
+    },
+    "sd15": {
+      "gpu": "NVIDIA H100 NVL",
+      "batch_size": 4,
+      "steps": 50,
+      "n_images": 20,
+      "n_timed": 16,
+      "sec_per_image_median": 0.5307999999999999,
+      "peak_mem_gb_max": 4.34,
+      "n_blank": 0,
+      "n_error": 0,
+      "gpu_hours_for_2400": 0.3538666666666666
+    },
+    "sd35m": {
+      "gpu": "NVIDIA H100 NVL",
+      "batch_size": 2,
+      "steps": 40,
+      "n_images": 20,
+      "n_timed": 18,
+      "sec_per_image_median": 4.6494,
+      "peak_mem_gb_max": 20.67,
+      "n_blank": 0,
+      "n_error": 0,
+      "gpu_hours_for_2400": 3.0995999999999997
+    },
+    "sdxl": {
+      "gpu": "NVIDIA H100 NVL",
+      "batch_size": 2,
+      "steps": 30,
+      "n_images": 20,
+      "n_timed": 18,
+      "sec_per_image_median": 1.8997,
+      "peak_mem_gb_max": 15.85,
+      "n_blank": 0,
+      "n_error": 0,
+      "gpu_hours_for_2400": 1.2664666666666666
+    }
+  },
+  "metric_agreement": {
+    "clipscore~vqascore": {
+      "spearman": NaN,
+      "n": 0
+    }
+  },
+  "bootstrap": {
+    "n_boot": 2000,
+    "seed": 0,
+    "unit": "prompt"
+  }
+}

@@ -55,6 +55,18 @@ case "$ENV" in
 esac
 "${INSTALL[@]}" -e ".[analysis]"
 
+if [[ "$ENV" == eval ]]; then
+  # t2v_metrics refuses to import unless an `ffmpeg` program is on PATH (it only uses it for
+  # video), and HPC3 has none. imageio-ffmpeg, a t2v-metrics dependency, ships a static build:
+  # link it into the venv's bin/, which is on PATH whenever the env is activated.
+  FF=$(ls "$VENV"/lib/python*/site-packages/imageio_ffmpeg/binaries/ffmpeg-* 2>/dev/null | head -1 || true)
+  if [[ -n "$FF" ]]; then
+    ln -sf "$FF" "$VENV/bin/ffmpeg" && echo "linked $VENV/bin/ffmpeg -> $FF"
+  else
+    echo "WARNING: imageio-ffmpeg's ffmpeg not found; t2v_metrics will refuse to import" >&2
+  fi
+fi
+
 uv pip freeze --python "$VENV/bin/python" --exclude-editable > "env/$ENV.lock.txt"
 grep -iE "^(torch|torchvision|diffusers|transformers|accelerate|t2v-metrics|open-clip-torch)==" "env/$ENV.lock.txt" || true
 echo
