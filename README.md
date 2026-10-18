@@ -70,6 +70,7 @@ genprobe/
   generate.py       batch generation: sharding + resume + manifests
   score.py          run one metric over a sample set: sharding + resume
   summarize.py      per-model / per-category tables with bootstrap CIs, cost table
+  contact_sheet.py  thumbnails of every image per category + a label template, for manual review
   metrics/          one plugin per metric (clipscore.py, vqascore.py), subclassing base.py
   backends.py       diffusers backend + CPU fake backend for testing
   utils/            shard, manifest, atomic IO, environment fingerprint, HF cache checks
