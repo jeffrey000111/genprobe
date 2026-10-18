@@ -47,8 +47,9 @@ case "$ENV" in
     "${INSTALL[@]}" torch torchvision diffusers transformers accelerate sentencepiece protobuf safetensors
     ;;
   eval)
-    # t2v-metrics 3.x needs torch>=2.7 and transformers>=5 (guide §7.4)
-    "${INSTALL[@]}" "torch>=2.7" torchvision t2v-metrics open_clip_torch
+    # Require t2v-metrics>=3.0 (Qwen2.5-VL backbones, transformers>=4.52). Left unpinned, the
+    # resolver kept the newest torch and fell back to t2v-metrics 1.2 + transformers 4.36.
+    "${INSTALL[@]}" "t2v-metrics>=3.0" torchvision open_clip_torch
     ;;
   *) echo "unknown env '$ENV' (expected gen or eval)" >&2; exit 2 ;;
 esac
