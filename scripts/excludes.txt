@@ -1,0 +1,4 @@
+# Packages dropped from every resolution (uv --excludes).
+# t2v-metrics 3.0 on PyPI lists `apex`, but PyPI's apex is an unrelated web package (not
+# NVIDIA Apex); it pulls in cryptacular, which fails to compile. t2v-metrics doesn't need it.
+apex
