@@ -1,6 +1,7 @@
 # Generated data stays out of git; prompt sets are small and part of the experiment.
 data/*
 !data/prompts/
+!data/labels/
 logs/*
 !logs/.gitkeep
 

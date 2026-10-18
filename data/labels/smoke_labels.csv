@@ -1,0 +1,81 @@
+sample_id,model,prompt_id,seed,category,prompt,correct,note
+flux_schnell__sm001__s0,flux_schnell,sm001,0,counting,a photo of 2 dogs,y,
+sd15__sm001__s0,sd15,sm001,0,counting,a photo of 2 dogs,y,
+sd35m__sm001__s0,sd35m,sm001,0,counting,a photo of 2 dogs,y,
+sdxl__sm001__s0,sdxl,sm001,0,counting,a photo of 2 dogs,y,
+flux_schnell__sm002__s0,flux_schnell,sm002,0,counting,a photo of 3 apples,y,
+sd15__sm002__s0,sd15,sm002,0,counting,a photo of 3 apples,y,
+sd35m__sm002__s0,sd35m,sm002,0,counting,a photo of 3 apples,n,
+sdxl__sm002__s0,sdxl,sm002,0,counting,a photo of 3 apples,y,
+flux_schnell__sm003__s0,flux_schnell,sm003,0,counting,a photo of 4 cups,y,
+sd15__sm003__s0,sd15,sm003,0,counting,a photo of 4 cups,?,很难判断中间三个是不是杯子
+sd35m__sm003__s0,sd35m,sm003,0,counting,a photo of 4 cups,n,
+sdxl__sm003__s0,sdxl,sm003,0,counting,a photo of 4 cups,n,
+flux_schnell__sm004__s0,flux_schnell,sm004,0,counting,a photo of 5 bicycles,n,
+sd15__sm004__s0,sd15,sm004,0,counting,a photo of 5 bicycles,n,
+sd35m__sm004__s0,sd35m,sm004,0,counting,a photo of 5 bicycles,n,
+sdxl__sm004__s0,sdxl,sm004,0,counting,a photo of 5 bicycles,n,
+flux_schnell__sm005__s0,flux_schnell,sm005,0,counting,a photo of 6 chairs,n,
+sd15__sm005__s0,sd15,sm005,0,counting,a photo of 6 chairs,n,
+sd35m__sm005__s0,sd35m,sm005,0,counting,a photo of 6 chairs,n,
+sdxl__sm005__s0,sdxl,sm005,0,counting,a photo of 6 chairs,y,
+flux_schnell__sm006__s0,flux_schnell,sm006,0,counting,a photo of 7 bananas,n,
+sd15__sm006__s0,sd15,sm006,0,counting,a photo of 7 bananas,n,
+sd35m__sm006__s0,sd35m,sm006,0,counting,a photo of 7 bananas,?,有的香蕉被挡住了
+sdxl__sm006__s0,sdxl,sm006,0,counting,a photo of 7 bananas,n,
+flux_schnell__sm007__s0,flux_schnell,sm007,0,counting,a photo of 8 oranges,?,橙子被切开了
+sd15__sm007__s0,sd15,sm007,0,counting,a photo of 8 oranges,?,橙子被切开了
+sd35m__sm007__s0,sd35m,sm007,0,counting,a photo of 8 oranges,n,多了
+sdxl__sm007__s0,sdxl,sm007,0,counting,a photo of 8 oranges,n,多了而且有的被切开了
+flux_schnell__sm008__s0,flux_schnell,sm008,0,spatial,a cat to the left of a dog,y,
+sd15__sm008__s0,sd15,sm008,0,spatial,a cat to the left of a dog,n,两只都是猫
+sd35m__sm008__s0,sd35m,sm008,0,spatial,a cat to the left of a dog,?,看不到右边的是不是狗
+sdxl__sm008__s0,sdxl,sm008,0,spatial,a cat to the left of a dog,n,两只都是狗
+flux_schnell__sm009__s0,flux_schnell,sm009,0,spatial,a cup to the right of a laptop,y,
+sd15__sm009__s0,sd15,sm009,0,spatial,a cup to the right of a laptop,n,没有杯子
+sd35m__sm009__s0,sd35m,sm009,0,spatial,a cup to the right of a laptop,n,在电脑上面
+sdxl__sm009__s0,sdxl,sm009,0,spatial,a cup to the right of a laptop,n,在电脑前面
+flux_schnell__sm010__s0,flux_schnell,sm010,0,spatial,a clock above a chair,y,
+sd15__sm010__s0,sd15,sm010,0,spatial,a clock above a chair,?,无法辨别是不是凳子
+sd35m__sm010__s0,sd35m,sm010,0,spatial,a clock above a chair,y,
+sdxl__sm010__s0,sdxl,sm010,0,spatial,a clock above a chair,?,无法辨别是不是椅子
+flux_schnell__sm011__s0,flux_schnell,sm011,0,spatial,a bicycle to the left of a car,y,
+sd15__sm011__s0,sd15,sm011,0,spatial,a bicycle to the left of a car,n,没有汽车
+sd35m__sm011__s0,sd35m,sm011,0,spatial,a bicycle to the left of a car,y,
+sdxl__sm011__s0,sdxl,sm011,0,spatial,a bicycle to the left of a car,n,不在汽车左侧
+flux_schnell__sm012__s0,flux_schnell,sm012,0,spatial,a vase to the right of a book,n,在书的左侧
+sd15__sm012__s0,sd15,sm012,0,spatial,a vase to the right of a book,n,在书的左侧
+sd35m__sm012__s0,sd35m,sm012,0,spatial,a vase to the right of a book,n,在书的上面
+sdxl__sm012__s0,sdxl,sm012,0,spatial,a vase to the right of a book,n,在书的后面
+flux_schnell__sm013__s0,flux_schnell,sm013,0,spatial,a dog below an umbrella,y,
+sd15__sm013__s0,sd15,sm013,0,spatial,a dog below an umbrella,y,
+sd35m__sm013__s0,sd35m,sm013,0,spatial,a dog below an umbrella,y,
+sdxl__sm013__s0,sdxl,sm013,0,spatial,a dog below an umbrella,y,
+flux_schnell__sm014__s0,flux_schnell,sm014,0,spatial,a teddy bear above a bench,y,
+sd15__sm014__s0,sd15,sm014,0,spatial,a teddy bear above a bench,n,没有长椅
+sd35m__sm014__s0,sd35m,sm014,0,spatial,a teddy bear above a bench,y,
+sdxl__sm014__s0,sdxl,sm014,0,spatial,a teddy bear above a bench,y,熊坐在长椅上，按规则 2 算上方 [复核后修改]
+flux_schnell__sm015__s0,flux_schnell,sm015,0,text,"a storefront sign that says ""OPEN""",y,
+sd15__sm015__s0,sd15,sm015,0,text,"a storefront sign that says ""OPEN""",?,无法辨别
+sd35m__sm015__s0,sd35m,sm015,0,text,"a storefront sign that says ""OPEN""",y,
+sdxl__sm015__s0,sdxl,sm015,0,text,"a storefront sign that says ""OPEN""",n,不是open
+flux_schnell__sm016__s0,flux_schnell,sm016,0,text,"a storefront sign that says ""FRESH BREAD""",y,
+sd15__sm016__s0,sd15,sm016,0,text,"a storefront sign that says ""FRESH BREAD""",n,不是fresh bread
+sd35m__sm016__s0,sd35m,sm016,0,text,"a storefront sign that says ""FRESH BREAD""",y,
+sdxl__sm016__s0,sdxl,sm016,0,text,"a storefront sign that says ""FRESH BREAD""",n,不是fresh bread
+flux_schnell__sm017__s0,flux_schnell,sm017,0,text,"a storefront sign that says ""BOOKS AND COFFEE""",y,
+sd15__sm017__s0,sd15,sm017,0,text,"a storefront sign that says ""BOOKS AND COFFEE""",n,"不是BOOKS AND COFFEE"""
+sd35m__sm017__s0,sd35m,sm017,0,text,"a storefront sign that says ""BOOKS AND COFFEE""",y,
+sdxl__sm017__s0,sdxl,sm017,0,text,"a storefront sign that says ""BOOKS AND COFFEE""",y,
+flux_schnell__sm018__s0,flux_schnell,sm018,0,text,"a storefront sign that says ""OPEN 24 HOURS DAILY""",y,
+sd15__sm018__s0,sd15,sm018,0,text,"a storefront sign that says ""OPEN 24 HOURS DAILY""",n,"OPEN 24 HOURS DAILY"""
+sd35m__sm018__s0,sd35m,sm018,0,text,"a storefront sign that says ""OPEN 24 HOURS DAILY""",?,无法辨别open的n是不是“n”
+sdxl__sm018__s0,sdxl,sm018,0,text,"a storefront sign that says ""OPEN 24 HOURS DAILY""",?,顺序非常杂论
+flux_schnell__sm019__s0,flux_schnell,sm019,0,text,"a storefront sign that says ""PLEASE WAIT HERE TO BE SEATED""",n,WAIT 重复（WAIT WAIT HERE） [复核后修改]
+sd15__sm019__s0,sd15,sm019,0,text,"a storefront sign that says ""PLEASE WAIT HERE TO BE SEATED""",n,不是
+sd35m__sm019__s0,sd35m,sm019,0,text,"a storefront sign that says ""PLEASE WAIT HERE TO BE SEATED""",y,
+sdxl__sm019__s0,sdxl,sm019,0,text,"a storefront sign that says ""PLEASE WAIT HERE TO BE SEATED""",n,不是
+flux_schnell__sm020__s0,flux_schnell,sm020,0,text,"a storefront sign that says ""NO PARKING IN FRONT OF THE GATE""",n,"拼写错误（NO…NG, OT THE GATE），按规则算 n [复核后修改]"
+sd15__sm020__s0,sd15,sm020,0,text,"a storefront sign that says ""NO PARKING IN FRONT OF THE GATE""",n,不是
+sd35m__sm020__s0,sd35m,sm020,0,text,"a storefront sign that says ""NO PARKING IN FRONT OF THE GATE""",n,多了 he（in front he of the） [复核后修改]
+sdxl__sm020__s0,sdxl,sm020,0,text,"a storefront sign that says ""NO PARKING IN FRONT OF THE GATE""",?,看不清

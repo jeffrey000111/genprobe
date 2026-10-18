@@ -9,6 +9,8 @@ and the label file go under data/ (not in git).
 
 On HPC3 run it through scripts/make_contact_sheets.sh (CPU node). The label template is
 never overwritten, so labels typed into it survive re-running the sheets with new scores.
+Once filled in, the labels go to data/labels/<prompts stem>_labels.csv (tracked in git and
+pushed to the cluster), where genprobe.summarize picks them up.
 """
 
 from __future__ import annotations

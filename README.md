@@ -65,7 +65,8 @@ cancelling cluster jobs always asks for confirmation.
 
 ```text
 configs/gen/        one YAML per model (validated by pydantic; hashed into every record)
-data/prompts/       prompt sets (in git); everything else under data/ is not
+data/prompts/       prompt sets (in git); everything else under data/ is not, except
+data/labels/        human labels (sample_id, correct = y/n/?, note), in git
 genprobe/
   generate.py       batch generation: sharding + resume + manifests
   score.py          run one metric over a sample set: sharding + resume

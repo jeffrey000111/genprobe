@@ -63,7 +63,7 @@ case "$CMD" in
     ;;
   push)
     check
-    CODE_PATHS=(genprobe configs slurm scripts data/prompts pyproject.toml)
+    CODE_PATHS=(genprobe configs slurm scripts data/prompts data/labels pyproject.toml)
     existing=(); for p in "${CODE_PATHS[@]}"; do [[ -e $p ]] && existing+=("$p"); done
     if git rev-parse --git-dir >/dev/null 2>&1 && [[ -n "$(git status --porcelain -- "${existing[@]}")" ]] \
        && [[ "${FORCE:-0}" != 1 ]]; then
@@ -71,7 +71,7 @@ case "$CMD" in
       git status --short -- "${existing[@]}" >&2
       exit 4
     fi
-    [[ "${DRY_RUN:-0}" == 1 ]] || ssh "$HOST" "mkdir -p '$DIR/data/prompts' '$DIR/logs'"
+    [[ "${DRY_RUN:-0}" == 1 ]] || ssh "$HOST" "mkdir -p '$DIR/data/prompts' '$DIR/data/labels' '$DIR/logs'"
     # No --delete anywhere: a sync can add or update files on the other side, never remove them.
     "${RS[@]}" \
       --exclude='/data/' --exclude='/results/' --exclude='/logs/' \
@@ -79,6 +79,7 @@ case "$CMD" in
       --exclude='__pycache__/' --exclude='*.egg-info/' --exclude='.DS_Store' \
       ./ "$HOST:$DIR/"
     "${RS[@]}" data/prompts/ "$HOST:$DIR/data/prompts/"
+    [[ -d data/labels ]] && "${RS[@]}" data/labels/ "$HOST:$DIR/data/labels/"
     echo "${DRY_RUN:+[dry run] }pushed $(git rev-parse --short HEAD 2>/dev/null || echo 'working tree') to $HOST:$DIR"
     ;;
   pull)

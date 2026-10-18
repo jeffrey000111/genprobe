@@ -3,7 +3,8 @@
 Reads the generation manifests and data/scores/<metric>/*.jsonl, keeps the samples of the
 given prompts file, and writes to --out (default results/<prompts stem>/):
 
-    summary.md       tables for people (scores with bootstrap CIs, cost, sanity checks)
+    summary.md       tables for people (scores with bootstrap CIs, cost, sanity checks, and
+                     agreement with human labels when data/labels/<stem>_labels.csv exists)
     summary.json     the same numbers for scripts
     per_sample.csv   one row per image with every metric, for looking at examples
 
@@ -84,6 +85,53 @@ def pick_scores(records: list[dict[str, Any]], ids: set[str]) -> tuple[dict[str,
     return ok, version, Counter({"versions_seen": len(versions), "errors": errors.get(version, 0)})
 
 
+LABEL_VALUES = ("y", "n", "?")
+
+
+def load_labels(path: str | Path) -> dict[str, dict[str, str]]:
+    """Human labels: CSV with sample_id, correct (y / n / ?), note. Full-width ？ is accepted."""
+    out = {}
+    with open(path, encoding="utf-8-sig", newline="") as f:
+        for row in csv.DictReader(f):
+            c = (row.get("correct") or "").strip().replace("？", "?").lower()
+            if c not in LABEL_VALUES:
+                raise ValueError(f"{path}: {row.get('sample_id')}: correct={row.get('correct')!r}, "
+                                 f"expected one of {LABEL_VALUES}")
+            out[row["sample_id"]] = {"correct": c, "note": row.get("note", "")}
+    return out
+
+
+def pairwise_agreement(values: dict[str, float], labels: dict[str, str], prompt_of: dict[str, str],
+                       n_boot: int = N_BOOT, seed: int = 0) -> dict[str, Any]:
+    """Within each prompt, every pair (image labelled y, image labelled n): does the metric score
+    the y image higher? Ties count 1/2. Pairs never cross prompts, so prompt difficulty cancels
+    out. CI: resample prompts with replacement, pool their pairs."""
+    per_prompt: dict[str, list[tuple[float, str, str]]] = defaultdict(list)
+    by_prompt: dict[str, dict[str, list[str]]] = defaultdict(lambda: {"y": [], "n": []})
+    for sid, lab in labels.items():
+        if lab in ("y", "n") and sid in values:
+            by_prompt[prompt_of[sid]][lab].append(sid)
+    for pid, d in by_prompt.items():
+        for a in d["y"]:
+            for b in d["n"]:
+                diff = values[a] - values[b]
+                per_prompt[pid].append((1.0 if diff > 0 else 0.5 if diff == 0 else 0.0, a, b))
+    pids = sorted(per_prompt)
+    sums = np.array([sum(x for x, _, _ in per_prompt[p]) for p in pids], float)
+    counts = np.array([len(per_prompt[p]) for p in pids], float)
+    if not len(pids):
+        return {"pairs": 0, "n_prompts": 0, "agreement": float("nan"), "ci95": [float("nan")] * 2, "worst": []}
+    rng = np.random.default_rng(seed)
+    idx = rng.integers(0, len(pids), size=(n_boot, len(pids)))
+    boots = sums[idx].sum(axis=1) / counts[idx].sum(axis=1)
+    lo, hi = np.quantile(boots, [0.025, 0.975])
+    wrong = sorted(((values[b] - values[a], a, b) for p in pids for x, a, b in per_prompt[p] if x < 1.0),
+                   reverse=True)
+    return {"pairs": int(counts.sum()), "n_prompts": len(pids), "agreement": float(sums.sum() / counts.sum()),
+            "ci95": [float(lo), float(hi)],
+            "worst": [{"labelled_correct": a, "labelled_wrong": b, "margin": round(m, 4)} for m, a, b in wrong[:5]]}
+
+
 def category(tags: list[str]) -> str:
     return tags[0] if tags else "untagged"
 
@@ -93,7 +141,7 @@ def fmt(x: float, nd: int = 3) -> str:
 
 
 def summarize(*, prompts_path: str, manifests: str, data: str, metrics: list[str], out: str,
-              full_run_images: int) -> dict[str, Any]:
+              full_run_images: int, labels_path: str | None = None) -> dict[str, Any]:
     prompts = {p.prompt_id: p for p in load_prompts(prompts_path)}
     gen = latest_by_id(read_many(sorted(glob.glob(manifests))))
     gen = {sid: r for sid, r in gen.items() if r.get("prompt_id") in prompts}
@@ -160,16 +208,38 @@ def summarize(*, prompts_path: str, manifests: str, data: str, metrics: list[str
                                                           [scores[b][s]["value"] for s in common]),
                                      "n": len(common)}
 
+    # agreement with human labels (y / n per image), within prompts
+    human: dict[str, Any] = {}
+    labels = {}
+    if labels_path:
+        labels = {sid: d for sid, d in load_labels(labels_path).items() if sid in gen}
+        lab = {sid: d["correct"] for sid, d in labels.items()}
+        prompt_of = {sid: gen[sid]["prompt_id"] for sid in gen}
+        human = {"path": str(labels_path), "counts": dict(Counter(lab.values())), "by_metric": {}}
+        for m in metrics:
+            vals = {sid: r["value"] for sid, r in scores[m].items()}
+            entry = {"all": pairwise_agreement(vals, lab, prompt_of)}
+            for c in cats:
+                entry[c] = pairwise_agreement(vals, {s: v for s, v in lab.items()
+                                                     if category(prompts[gen[s]["prompt_id"]].tags) == c},
+                                              prompt_of)
+            ys = [vals[s] for s, v in lab.items() if v == "y" and s in vals]
+            ns = [vals[s] for s, v in lab.items() if v == "n" and s in vals]
+            entry["mean_if_y"] = float(np.mean(ys)) if ys else float("nan")
+            entry["mean_if_n"] = float(np.mean(ns)) if ns else float("nan")
+            human["by_metric"][m] = entry
+
     result = {"prompts": prompts_path, "created_at": now_iso(), "git_commit": git_commit(),
               "n_prompts": len(prompts), "models": models, "categories": cats, "metrics": meta,
               "by_model": by_model, "by_model_category": by_cat, "generation_cost": cost,
-              "metric_agreement": agreement, "bootstrap": {"n_boot": N_BOOT, "seed": 0, "unit": "prompt"}}
+              "metric_agreement": agreement, "human_agreement": human,
+              "bootstrap": {"n_boot": N_BOOT, "seed": 0, "unit": "prompt"}}
 
     outdir = Path(out)
     outdir.mkdir(parents=True, exist_ok=True)
     atomic_write_text(outdir / "summary.json", json.dumps(result, indent=2, default=str))
     atomic_write_text(outdir / "summary.md", render_md(result, full_run_images))
-    write_per_sample(outdir / "per_sample.csv", gen, prompts, scores, metrics)
+    write_per_sample(outdir / "per_sample.csv", gen, prompts, scores, metrics, labels)
     return result
 
 
@@ -205,6 +275,26 @@ def render_md(res: dict[str, Any], full_run_images: int) -> str:
               "the metrics agree with each other, not which one agrees with people.", ""]
         for k, d in res["metric_agreement"].items():
             L.append(f"- {k}: ρ = {fmt(d['spearman'])} (n = {d['n']})")
+    h = res.get("human_agreement") or {}
+    if h:
+        L += ["", "## Agreement with human labels", "",
+              f"Labels: `{h['path']}` ({', '.join(f'{k}={v}' for k, v in sorted(h['counts'].items()))}; "
+              "`?` excluded). Within each prompt, every pair of one image labelled correct and one labelled "
+              "wrong: how often the metric scores the correct one higher (ties = 1/2). 95% CI from "
+              "resampling prompts. One annotator, small sample: a sanity check, not a result (D-010, D-015).", "",
+              "| Metric | all | " + " | ".join(cats) + " | mean score if correct / wrong |",
+              "| --- | --- |" + " --- |" * len(cats) + " --- |"]
+        for m, e in h["by_metric"].items():
+            def cell(d):
+                return "–" if not d["pairs"] else (f"{fmt(d['agreement'], 2)} [{fmt(d['ci95'][0], 2)}, "
+                                                   f"{fmt(d['ci95'][1], 2)}] ({d['pairs']} pairs)")
+            L.append(f"| {m} | {cell(e['all'])} | " + " | ".join(cell(e[c]) for c in cats) +
+                     f" | {fmt(e['mean_if_y'])} / {fmt(e['mean_if_n'])} |")
+        for m, e in h["by_metric"].items():
+            if e["all"]["worst"]:
+                L += ["", f"Largest {m} mistakes (image labelled wrong scored above one labelled correct, same prompt):", ""]
+                L += [f"- `{w['labelled_wrong']}` > `{w['labelled_correct']}` by {w['margin']}"
+                      for w in e["all"]["worst"]]
     L += ["", "## Generation cost", "",
           f"Median seconds per image from the manifests, warmup batches excluded (D-004). "
           f"GPU-hours = median × {full_run_images} images / 3600.", "",
@@ -218,9 +308,11 @@ def render_md(res: dict[str, Any], full_run_images: int) -> str:
     return "\n".join(L) + "\n"
 
 
-def write_per_sample(path: Path, gen: dict, prompts: dict, scores: dict, metrics: list[str]) -> None:
+def write_per_sample(path: Path, gen: dict, prompts: dict, scores: dict, metrics: list[str],
+                     labels: dict | None = None) -> None:
+    labels = labels or {}
     cols = ["sample_id", "model", "prompt_id", "seed", "category", "prompt", "status", "gen_seconds",
-            "warmup", *metrics, "clip_truncated"]
+            "warmup", *metrics, "clip_truncated", "human_correct", "human_note"]
     tmp = path.with_suffix(".csv.tmp")
     with open(tmp, "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
@@ -232,6 +324,7 @@ def write_per_sample(path: Path, gen: dict, prompts: dict, scores: dict, metrics
             row += [scores[m][sid]["value"] if sid in scores[m] else "" for m in metrics]
             clip = scores.get("clipscore", {}).get(sid)
             row.append(clip["extra"].get("truncated") if clip else "")
+            row += [labels.get(sid, {}).get("correct", ""), labels.get(sid, {}).get("note", "")]
             w.writerow(row)
     tmp.replace(path)
 
@@ -244,10 +337,17 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--data", default="data")
     ap.add_argument("--out", default=None, help="default: results/<prompts file stem>")
     ap.add_argument("--full-run-images", type=int, default=2400)
+    ap.add_argument("--labels", default=None,
+                    help="human labels CSV (sample_id, correct=y/n/?); default data/labels/<prompts stem>_labels.csv "
+                         "if it exists")
     args = ap.parse_args(argv)
-    out = args.out or str(Path("results") / Path(args.prompts).stem)
+    stem = Path(args.prompts).stem
+    out = args.out or str(Path("results") / stem)
+    labels = args.labels
+    if labels is None and (Path("data/labels") / f"{stem}_labels.csv").is_file():
+        labels = str(Path("data/labels") / f"{stem}_labels.csv")
     res = summarize(prompts_path=args.prompts, manifests=args.manifests, data=args.data,
-                    metrics=args.metrics, out=out, full_run_images=args.full_run_images)
+                    metrics=args.metrics, out=out, full_run_images=args.full_run_images, labels_path=labels)
     missing = {m: d for m, d in res["metrics"].items() if d["n_ok"] < d["n_expected"]}
     print(f"wrote {out}/summary.md, summary.json, per_sample.csv")
     for m, d in res["metrics"].items():

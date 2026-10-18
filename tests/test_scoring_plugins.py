@@ -23,7 +23,8 @@ from genprobe.generate import run_generation
 from genprobe.metrics import REGISTRY
 from genprobe.metrics import clipscore, vqascore
 from genprobe.score import load_samples
-from genprobe.summarize import bootstrap_mean_ci, pick_scores, spearman, summarize
+from genprobe.summarize import (bootstrap_mean_ci, load_labels, pairwise_agreement, pick_scores, spearman,
+                                summarize)
 from genprobe.utils.hf import cached_revision, require_cached
 from tests.helpers import make_cfg, make_prompts, quiet
 
@@ -352,6 +353,33 @@ class TestStats(unittest.TestCase):
         self.assertEqual(info["versions_seen"], 2)
 
 
+class TestHumanAgreement(unittest.TestCase):
+    def test_pairs_stay_within_prompts(self):
+        prompt_of = {"a1": "p1", "a2": "p1", "b1": "p2", "b2": "p2"}
+        labels = {"a1": "y", "a2": "n", "b1": "y", "b2": "n"}
+        # p1: correct image scores higher; p2: wrong image scores higher. Cross-prompt values
+        # would rank differently, which must not matter.
+        values = {"a1": 0.9, "a2": 0.8, "b1": 0.1, "b2": 0.2}
+        r = pairwise_agreement(values, labels, prompt_of)
+        self.assertEqual((r["pairs"], r["n_prompts"], r["agreement"]), (2, 2, 0.5))
+        self.assertEqual(r["worst"][0], {"labelled_correct": "b1", "labelled_wrong": "b2", "margin": 0.1})
+
+    def test_ties_and_unknowns(self):
+        prompt_of = {"a": "p", "b": "p", "c": "p"}
+        r = pairwise_agreement({"a": 0.5, "b": 0.5, "c": 0.9}, {"a": "y", "b": "n", "c": "?"}, prompt_of)
+        self.assertEqual((r["pairs"], r["agreement"]), (1, 0.5))
+        self.assertEqual(pairwise_agreement({"a": 1.0}, {"a": "y"}, prompt_of)["pairs"], 0)
+
+    def test_load_labels_validates(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "l.csv"
+            p.write_text("\ufeffsample_id,correct,note\nx,y,\nz,？,unsure\n", encoding="utf-8")
+            self.assertEqual({k: v["correct"] for k, v in load_labels(p).items()}, {"x": "y", "z": "?"})
+            p.write_text("sample_id,correct,note\nx,,\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "expected one of"):
+                load_labels(p)
+
+
 class TestSelectionAndSummary(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
@@ -411,6 +439,24 @@ class TestSelectionAndSummary(unittest.TestCase):
         self.assertEqual({r["clip_truncated"] for r in rows}, {"True", "False"})
         md = (self.out / "res" / "summary.md").read_text()
         self.assertIn("| toy | 0.200 [0.200, 0.200] (n=4)", md)
+
+    def test_summary_with_labels(self):
+        self.write_scores("clipscore", lambda s: 0.3 if s.model == "toy" else 0.2)
+        labels = self.out / "labels.csv"
+        rows = ["sample_id,correct,note"]
+        for s in load_samples(self.manifests, str(self.ppath)):
+            rows.append(f"{s.sample_id},{'y' if s.model == 'toy' else 'n'},")
+        labels.write_text("\n".join(rows) + "\n")
+        res = summarize(prompts_path=str(self.ppath), manifests=self.manifests, data=str(self.out),
+                        metrics=["clipscore"], out=str(self.out / "res"), full_run_images=2400,
+                        labels_path=str(labels))
+        e = res["human_agreement"]["by_metric"]["clipscore"]
+        self.assertEqual((e["all"]["pairs"], e["all"]["agreement"]), (4, 1.0))
+        self.assertEqual(e["spatial"]["pairs"], 1)
+        md = (self.out / "res" / "summary.md").read_text()
+        self.assertIn("## Agreement with human labels", md)
+        with open(self.out / "res" / "per_sample.csv", newline="") as f:
+            self.assertEqual({r["human_correct"] for r in csv.DictReader(f)}, {"y", "n"})
 
     def test_summary_flags_missing_scores(self):
         self.write_scores("clipscore", lambda s: 0.2)

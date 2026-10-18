@@ -113,6 +113,22 @@ t2v_metrics itself on ~20 images once an env where it imports exists (3.1 from s
 report the max absolute difference. A second backbone from another family will be added as a
 control before module B (guide §7.4).
 
+**D-015 (2026-10-18) — Human correctness labels for template prompts: one label per image,
+`y` / `n` / `?`, by these rules.** (1) Counting: `y` only if exactly the requested number can
+be counted; partly hidden but recognisable objects count; `?` if they can't be counted.
+(2) Spatial: both objects must be present (otherwise `n`); left/right from the viewer;
+"above" means higher in the image, resting on top included (the same convention as
+box-centre checks with a detector). (3) Text: every requested word spelled correctly, none
+missing or repeated; case and punctuation ignored. Agreement with a metric is measured within
+prompts: over pairs (one `y` image, one `n` image) of the same prompt, the share where the
+metric scores the `y` image higher (ties = 1/2), CI by resampling prompts. Within-prompt pairs
+cancel out prompt difficulty, which shifts every metric's absolute level. Labels live in
+`data/labels/<prompt set>_labels.csv` (tracked). **Smoke labels (80 images):** one annotator
+(the project author), from the contact sheets, 2026-10-18. Afterwards 5 blank cells were filled
+from the annotator's own notes, and 4 cells were changed by the annotator after a consistency
+check against the rules (marked `[复核后修改]` in the note). Smoke numbers stay a pipeline
+check (D-010); the real meta-evaluation uses GenAI-Bench's multi-rater human scores (guide §9).
+
 ## Prompt set
 
 **D-010 (2026-10-16) — `data/prompts/smoke.jsonl` (20 template prompts: 7 counting,
