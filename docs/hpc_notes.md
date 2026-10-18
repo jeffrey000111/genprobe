@@ -67,13 +67,17 @@ fine, since they only follow `refs/main` and the snapshot symlinks.
 The eval env pins an older torch because t2v-metrics 3.0 pins transformers 4.49; that is why
 generation and scoring live in separate envs.
 
-**ffmpeg.** `import t2v_metrics` (3.0) raises "ffmpeg is a required system requirement but
-not found" unless an `ffmpeg` program is on PATH, even though only video scoring uses it;
-HPC3 has none (first VQAScore job, 2026-10-18). imageio-ffmpeg, installed as a t2v-metrics
-dependency, bundles a static ffmpeg 7.0.2, so `setup_envs.sh eval` links it into the venv:
-`~/envs/eval/bin/ffmpeg -> .../site-packages/imageio_ffmpeg/binaries/ffmpeg-linux-x86_64-v7.0.2`.
-Activated envs (all job scripts) then find it. `scripts/check_eval_env.sh` checks this and
-the other eval-env assumptions on a CPU node in a few minutes.
+**t2v_metrics 3.0 doesn't import here (2026-10-18), and the plugins no longer need it.**
+First error: "ffmpeg is a required system requirement but not found" (it checks PATH at
+import, even for images). imageio-ffmpeg, installed as a t2v-metrics dependency, bundles a
+static ffmpeg 7.0.2, so `setup_envs.sh eval` links it into the venv
+(`~/envs/eval/bin/ffmpeg -> .../site-packages/imageio_ffmpeg/binaries/ffmpeg-linux-x86_64-v7.0.2`).
+Second error: `No module named 'llava'`: the PyPI release imports every backbone up front and
+expects git-only packages (LLaVA-NeXT, OpenAI CLIP, a pytorchvideo fork) per its
+V_3.0_README. VQAScore is therefore computed by our own port of its Qwen path (D-014).
+`scripts/check_eval_env.sh` checks everything the plugins need on a CPU node in minutes
+(weights cached, weight names match transformers 4.49, processor and chat template on real
+smoke images), so a long GPU wait is never wasted on an import or loading error.
 
 **Queue waits.** On the night of 2026-10-17/18, nsfqs was full: two 2-hour scoring jobs
 were estimated to start ~5.5 h after submission (gpuqs H100s: ~11 h), and actually started

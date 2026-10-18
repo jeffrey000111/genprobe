@@ -43,23 +43,6 @@ class TestRegistry(unittest.TestCase):
 
 
 class TestVQAScoreConfig(unittest.TestCase):
-    def models(self):
-        return {"qwen2.5-vl-7b": {"tokenizer": {"path": "Qwen/Qwen2.5-VL-7B-Instruct"},
-                                  "model": {"path": "Qwen/Qwen2.5-VL-7B-Instruct",
-                                            "attn_implementation": "flash_attention_2"}}}
-
-    def test_force_attention_overrides_in_place(self):
-        models = self.models()
-        old = vqascore.force_attention(models, "qwen2.5-vl-7b", "sdpa")
-        self.assertEqual(old, "flash_attention_2")
-        self.assertEqual(models["qwen2.5-vl-7b"]["model"]["attn_implementation"], "sdpa")
-
-    def test_force_attention_fails_loudly(self):
-        with self.assertRaises(KeyError):
-            vqascore.force_attention(self.models(), "qwen9-vl", "sdpa")
-        with self.assertRaises(KeyError):
-            vqascore.force_attention({"qwen2.5-vl-7b": {"model": {"path": "x"}}}, "qwen2.5-vl-7b")
-
     def test_template_is_part_of_version(self):
         a = vqascore.template_id()
         self.assertEqual(a, vqascore.template_id(vqascore.QUESTION_TEMPLATE, vqascore.ANSWER_TEMPLATE))
@@ -68,28 +51,56 @@ class TestVQAScoreConfig(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d, mock.patch.dict(os.environ, {"HF_HOME": d}, clear=False):
             os.environ.pop("HF_HUB_CACHE", None)
             v = vqascore.VQAScore().version
+        self.assertTrue(v.startswith("vqascore-port-of-t2v_metrics-qwen2vl/transformers=="), v)
         self.assertIn("qwen2.5-vl-7b@nocache", v)
-        self.assertIn(f"tmpl-{a}", v)
-        self.assertIn("/sdpa/", v)
+        self.assertIn(f"/sdpa/tmpl-{a}", v)
 
-    def test_score_batch_scores_pairs(self):
+    def test_messages_match_t2v_metrics(self):
+        img = object()
+        self.assertEqual(vqascore.build_messages(img, "Q?"),
+                         [{"role": "user", "content": [{"type": "image", "image": img},
+                                                       {"type": "text", "text": "Q?"}]}])
+        self.assertEqual(vqascore.QUESTION_TEMPLATE.format("two dogs"),
+                         'Does this figure show "two dogs"? Please answer Yes or No.')
+
+    def test_single_token_answers_only(self):
+        tok = types.SimpleNamespace(encode=lambda t, add_special_tokens: [7] if t == "Yes" else [1, 2])
+        self.assertEqual(vqascore.single_token_id(tok, "Yes"), 7)
+        with self.assertRaisesRegex(ValueError, "single-token"):
+            vqascore.single_token_id(tok, "Absolutely yes")
+
+    def test_score_one_takes_softmax_of_first_generated_step(self):
         try:
             import torch
         except ImportError:
             self.skipTest("torch not installed here")
-        calls = []
-
-        def fake_scorer(images, texts, **kw):
-            calls.append((images, texts, kw))
-            return torch.tensor([[0.25]])
-
         m = vqascore.VQAScore()
-        m.scorer, m.kwargs = fake_scorer, {"question_template": "Q {}", "answer_template": "Yes"}
-        s = mock.Mock(sample_id="a__p1__s0", path="x.png", prompt="two dogs")
-        out = m.score_batch([s, s])
-        self.assertEqual([r["value"] for r in out], [0.25, 0.25])
-        self.assertEqual(calls[0][:2], (["x.png"], ["two dogs"]))
-        self.assertEqual(calls[0][2]["answer_template"], "Yes")
+        logits = torch.full((1, 10), -1e4)
+        logits[0, 3], logits[0, 4] = 0.0, 0.0          # 'Yes' and 'No' equally likely
+        calls = {}
+
+        class Inputs(dict):
+            def to(self, device):
+                return self
+
+        def generate(**kw):
+            calls.update(kw)
+            return types.SimpleNamespace(scores=(logits,))
+
+        m.model = types.SimpleNamespace(generate=generate)
+        m.processor = mock.Mock()
+        m.processor.apply_chat_template.return_value = "<prompt>assistant\n"
+        m.processor.return_value = Inputs(input_ids=torch.zeros(1, 5), image_grid_thw=torch.tensor([[1, 4, 4]]))
+        m.processor.tokenizer.decode.return_value = "Yes"
+        m.process_vision_info = lambda messages: (["img"], None)
+        m.yes_id, m.no_id, m.device = 3, 4, "cpu"
+        value, extra = m.score_one("PIL", "two dogs")
+        self.assertAlmostEqual(value, 0.5, places=5)
+        self.assertAlmostEqual(extra["p_no"], 0.5, places=5)
+        self.assertEqual(extra["n_image_tokens"], 4)
+        self.assertEqual((calls["max_new_tokens"], calls["do_sample"], calls["output_scores"]), (1, False, True))
+        kw = m.processor.call_args.kwargs
+        self.assertEqual((kw["do_resize"], kw["images"], kw["videos"]), (False, ["img"], None))
 
 
 def fake_hf_cache(home: Path, repo: str, files: tuple[str, ...], sha: str = "cc5948981374") -> None:
@@ -105,12 +116,13 @@ def fake_hf_cache(home: Path, repo: str, files: tuple[str, ...], sha: str = "cc5
 def fake_torch(cuda: bool = True) -> types.ModuleType:
     t = types.ModuleType("torch")
     t.cuda = types.SimpleNamespace(is_available=lambda: cuda)
+    t.bfloat16, t.float32 = "bf16", "fp32"
     return t
 
 
 class TestVQAScoreSetupWithFakes(unittest.TestCase):
-    """setup() against a stand-in for t2v_metrics 3.0: the override must land before the
-    model is built, and every check must fire when its assumption breaks."""
+    """setup() against stand-ins for transformers / qwen_vl_utils: every check must fire when
+    its assumption breaks, and nothing loads before the cache check passes."""
 
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
@@ -118,40 +130,36 @@ class TestVQAScoreSetupWithFakes(unittest.TestCase):
         self.env = mock.patch.dict(os.environ, {"HF_HOME": str(self.home)})
         self.env.start()
         os.environ.pop("HF_HUB_CACHE", None)
-        self.models = {"qwen2.5-vl-7b": {"tokenizer": {"path": vqascore.HF_REPO},
-                                         "model": {"path": vqascore.HF_REPO,
-                                                   "attn_implementation": "flash_attention_2"}}}
-        self.seen_attn = []
+        self.loading = {"missing_keys": [], "unexpected_keys": [], "mismatched_keys": [], "error_msgs": []}
+        self.attn = "sdpa"
+        self.loads = []
         test = self
 
+        class FakeModel:
+            def __init__(self):
+                self.config = types.SimpleNamespace(_attn_implementation=test.attn)
+                self.generation_config = types.SimpleNamespace(repetition_penalty=1.05, temperature=0.1,
+                                                               top_k=1, top_p=0.001, do_sample=True)
+
+            def to(self, device):
+                return self
+
+            def eval(self):
+                return self
+
         class FakeQwen:
-            def __init__(self, attn):
-                self.model = types.SimpleNamespace(
-                    config=types.SimpleNamespace(_attn_implementation=attn),
-                    parameters=lambda: iter([types.SimpleNamespace(dtype="torch.bfloat16")]))
+            @classmethod
+            def from_pretrained(cls, repo, **kw):
+                test.loads.append((repo, kw))
+                return FakeModel(), test.loading
 
-            def forward(self, images, texts, question_template="x", answer_template="Yes"):
-                return None
-
-        class FakeVQAScore:
-            def __init__(self, model, device, cache_dir):
-                attn = test.models[model]["model"]["attn_implementation"]
-                test.seen_attn.append(attn)
-                test.cache_dir = cache_dir
-                self.model = FakeQwen(test.loaded_attn or attn)
-
-        self.loaded_attn = None
-        q = types.ModuleType("t2v_metrics.models.vqascore_models.qwen2vl_model")
-        q.QWEN2_VL_MODELS = self.models
-        vm = types.ModuleType("t2v_metrics.models.vqascore_models")
-        vm.qwen2vl_model = q
-        models = types.ModuleType("t2v_metrics.models")
-        models.vqascore_models = vm
-        t2v = types.ModuleType("t2v_metrics")
-        t2v.models, t2v.VQAScore = models, FakeVQAScore
-        self.mods = mock.patch.dict(sys.modules, {
-            "torch": fake_torch(), "t2v_metrics": t2v, "t2v_metrics.models": models,
-            "t2v_metrics.models.vqascore_models": vm, "t2v_metrics.models.vqascore_models.qwen2vl_model": q})
+        tokenizer = types.SimpleNamespace(encode=lambda t, add_special_tokens: {"Yes": [9454], "No": [2753]}[t])
+        tf = types.ModuleType("transformers")
+        tf.Qwen2_5_VLForConditionalGeneration = FakeQwen
+        tf.AutoProcessor = types.SimpleNamespace(from_pretrained=lambda repo: types.SimpleNamespace(tokenizer=tokenizer))
+        qvu = types.ModuleType("qwen_vl_utils")
+        qvu.process_vision_info = lambda messages: ([], None)
+        self.mods = mock.patch.dict(sys.modules, {"torch": fake_torch(), "transformers": tf, "qwen_vl_utils": qvu})
         self.mods.start()
 
     def tearDown(self):
@@ -160,31 +168,41 @@ class TestVQAScoreSetupWithFakes(unittest.TestCase):
         self.tmp.cleanup()
 
     def cache(self):
-        fake_hf_cache(self.home, vqascore.HF_REPO,
-                      ("config.json", "preprocessor_config.json", "tokenizer_config.json"))
+        fake_hf_cache(self.home, vqascore.HF_REPO, vqascore.REQUIRED_FILES)
 
-    def test_override_before_load(self):
+    def test_loads_bf16_sdpa_and_records_info(self):
         self.cache()
         m = vqascore.VQAScore()
         m.setup("cuda")
-        self.assertEqual(self.seen_attn, ["sdpa"])
-        self.assertEqual(m.info["attn_overridden_from"], "flash_attention_2")
+        repo, kw = self.loads[0]
+        self.assertEqual(repo, vqascore.HF_REPO)
+        self.assertEqual((kw["torch_dtype"], kw["attn_implementation"], kw["output_loading_info"]),
+                         ("bf16", "sdpa", True))
+        self.assertEqual((m.yes_id, m.no_id), (9454, 2753))
         self.assertEqual(m.info["revision"], "cc5948981374")
-        self.assertEqual(self.cache_dir, str(self.home / "hub"))
-        self.assertEqual(m.kwargs["question_template"], vqascore.QUESTION_TEMPLATE)
+        self.assertEqual(m.info["generation_config"]["repetition_penalty"], 1.05)
 
     def test_missing_weights_say_how_to_download(self):
         with self.assertRaisesRegex(FileNotFoundError, "download_models.sh qwen25vl7b"):
             vqascore.VQAScore().setup("cuda")
-        self.assertEqual(self.seen_attn, [])
+        self.assertEqual(self.loads, [])
 
-    def test_wrong_repo_or_attention_fails(self):
+    def test_partial_load_fails(self):
         self.cache()
-        self.models["qwen2.5-vl-7b"]["model"]["path"] = "Qwen/Qwen2.5-VL-7B-Instruct-v2"
-        with self.assertRaisesRegex(RuntimeError, "expected"):
+        self.loading["missing_keys"] = ["model.layers.0.mlp.up_proj.weight"]
+        with self.assertRaisesRegex(RuntimeError, "did not load cleanly"):
             vqascore.VQAScore().setup("cuda")
-        self.models["qwen2.5-vl-7b"]["model"]["path"] = vqascore.HF_REPO
-        self.loaded_attn = "eager"
+
+    def test_unexpected_keys_are_only_recorded(self):
+        self.cache()
+        self.loading["unexpected_keys"] = ["some.extra.tensor"]
+        m = vqascore.VQAScore()
+        m.setup("cuda")
+        self.assertEqual(m.info["unexpected_keys"], 1)
+
+    def test_wrong_attention_fails(self):
+        self.cache()
+        self.attn = "eager"
         with self.assertRaisesRegex(RuntimeError, "attention 'eager'"):
             vqascore.VQAScore().setup("cuda")
 

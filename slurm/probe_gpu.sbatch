@@ -35,7 +35,7 @@ for p in ("torch", "diffusers", "transformers", "accelerate", "huggingface-hub",
         print(f"  {p}=={md.version(p)}")
     except md.PackageNotFoundError:
         pass
-for mod in ("diffusers", "open_clip", "t2v_metrics"):
+for mod in ("diffusers", "open_clip", "qwen_vl_utils"):
     try:
         __import__(mod)
         print(f"  import {mod}: ok")

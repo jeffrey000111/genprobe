@@ -91,19 +91,27 @@ forces it, turns that warning into an error and checks the built model. Prompts 
 tokens are truncated by CLIP and flagged `extra["truncated"]`. Weights:
 `timm/vit_large_patch14_clip_224.openai` (the HF copy open_clip itself loads).
 
-**D-014 (2026-10-17) — VQAScore = t2v_metrics 3.0 with the `qwen2.5-vl-7b` backbone
-(Qwen/Qwen2.5-VL-7B-Instruct, bf16), SDPA attention, question template
-`Does this figure show "{}"? Please answer Yes or No.` and answer `Yes`.** 3.0 is the newest
-release on PyPI (the guide's 3.1 is GitHub-only). Qwen2.5-VL-7B is the guide's main
-backbone (§7.4); the paper's CLIP-FlanT5 stays optional. t2v_metrics 3.0 hard-codes
-FlashAttention-2 for Qwen, which isn't installed (it must be compiled for the exact
-torch/CUDA); SDPA computes the same attention and is what 3.1 uses, so the plugin overrides
-the entry before loading and verifies it. The template is the t2v_metrics default, passed
-explicitly; the template hash and the weights' commit hash are part of `metric_version`,
-so a change in either is a different metric and is rescored, never mixed. Each image is
-scored only against its own prompt (t2v_metrics' `scorer(images, texts)` computes the full
-image × text matrix). A second backbone from another family will be added as a control
-before module B (guide §7.4).
+**D-014 (2026-10-17, revised 2026-10-18) — VQAScore = P("Yes") from Qwen2.5-VL-7B-Instruct
+(bf16, SDPA attention) for the question `Does this figure show "{}"? Please answer Yes or No.`,
+computed by `genprobe/metrics/vqascore.py`, a direct port of t2v_metrics' Qwen scoring path.**
+Qwen2.5-VL-7B is the guide's main backbone (§7.4); the paper's CLIP-FlanT5 stays optional.
+The first plan was to call t2v_metrics 3.0 (the newest release on PyPI; the guide's 3.1 is
+GitHub-only and needs transformers 5). On HPC3 its import failed twice before reaching any
+model: first it requires an `ffmpeg` program on PATH (fixed by linking imageio-ffmpeg's
+binary), then `No module named 'llava'`: the PyPI package imports every backbone at import
+time, and some need git-only packages (LLaVA-NeXT, which pins torch 2.1; OpenAI CLIP; a
+pytorchvideo fork) that the Qwen path never uses. Rather than install conflicting packages
+the Qwen backbone doesn't need, the plugin reproduces t2v_metrics' `Qwen2VLModel.forward`
+on transformers 4.49 + qwen-vl-utils: same chat message (image, then question; no system
+message), `process_vision_info` resizing with `do_resize=False`, `generate(max_new_tokens=1,
+do_sample=False, temperature=1.0, output_scores=True)` and the softmax over the full
+vocabulary at the "Yes" token. Using `generate` (not raw forward logits) keeps the model's
+generation-config processors (`repetition_penalty=1.05`), as t2v_metrics does. The template
+hash and the weights' commit are part of `metric_version`; the plugin also refuses a partial
+weight load and records P("No") per image as a diagnostic. **Open item:** check parity with
+t2v_metrics itself on ~20 images once an env where it imports exists (3.1 from source), and
+report the max absolute difference. A second backbone from another family will be added as a
+control before module B (guide §7.4).
 
 ## Prompt set
 

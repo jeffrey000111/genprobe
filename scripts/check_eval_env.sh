@@ -1,7 +1,8 @@
 #!/bin/bash
-# Check the eval env on a CPU node (cpuqs: short queue, no GPU needed): ffmpeg on PATH,
-# open_clip and t2v_metrics import, the t2v_metrics internals the VQAScore plugin relies on,
-# and the scoring weights in the HF cache. Loads no weights. Run on HPC3 before queueing
+# Check the eval env on a CPU node (cpuqs: short queue, no GPU needed): scoring weights in the
+# HF cache, open_clip's CLIP config, Qwen2.5-VL weight names vs this transformers version,
+# and the Qwen processor / chat template / image preprocessing on real smoke images.
+# Loads no weights (the model is built on the meta device). Run on HPC3 before queueing
 # scoring jobs for an H100:
 #
 #   ssh sjsu3 "cd ~/genprobe && bash scripts/check_eval_env.sh"
