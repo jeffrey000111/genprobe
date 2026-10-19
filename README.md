@@ -86,6 +86,8 @@ genprobe/
   generate.py       batch generation: sharding + resume + manifests
   score.py          run one metric over a sample set: sharding + resume
   summarize.py      per-model / per-category tables with bootstrap CIs, cost table
+  figures.py        leaderboard, paired model comparisons, category heatmap, quality-cost
+                    frontier, text-length figure (run by slurm/summarize.sbatch)
   contact_sheet.py  thumbnails of every image per category + a label template, for manual review
   metrics/          one plugin per metric, subclassing base.py: clipscore.py, vqascore.py, and the
                     checkers ocr.py (EasyOCR, text prompts) and detect.py (Grounding DINO,

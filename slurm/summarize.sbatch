@@ -4,8 +4,9 @@
 #   sbatch slurm/summarize.sbatch data/prompts/smoke.jsonl clipscore vqascore
 #   args: <prompts.jsonl> <metric>...      SPLIT=test|dev (env) restricts to one split
 #
-# Output: results/<prompts stem>/summary.md, summary.json, per_sample.csv. Bring them to the
-# laptop with scripts/hpc_sync.sh pull.
+# Output: results/<prompts stem>[_<split>]/summary.md, summary.json, per_sample.csv, then the
+# leaderboard, paired comparisons and figures (genprobe.figures). Bring them to the laptop with
+# scripts/hpc_sync.sh pull.
 #SBATCH --job-name=summarize
 #SBATCH --partition=cpuqs
 #SBATCH --cpus-per-task=1
@@ -19,4 +20,9 @@ source "${SLURM_SUBMIT_DIR:-$PWD}/slurm/common.sh"
 activate_env "${GENPROBE_ENV:-eval}"
 cd "$GENPROBE_ROOT"
 METRICS=("$@"); [[ ${#METRICS[@]} -gt 0 ]] || METRICS=(clipscore vqascore)
-python -m genprobe.summarize --prompts "$PROMPTS" --metrics "${METRICS[@]}" ${SPLIT:+--split "$SPLIT"}
+status=0
+python -m genprobe.summarize --prompts "$PROMPTS" --metrics "${METRICS[@]}" ${SPLIT:+--split "$SPLIT"} || status=$?
+# Figures even when some scores are missing (the summary says which), so partial runs are visible.
+OUT="results/$(basename "$PROMPTS" .jsonl)${SPLIT:+_$SPLIT}"
+python -m genprobe.figures --results "$OUT" --prompts "$PROMPTS" ${SPLIT:+--split "$SPLIT"} || status=$?
+exit $status

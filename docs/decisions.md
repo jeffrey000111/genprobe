@@ -185,6 +185,19 @@ two hours on CPU, they move to the H100s (same code, `--device cuda`). The devic
 in each run's `metric_info`, not in `metric_version`: CPU and GPU give near-identical numbers,
 and mixing them within one version is accepted.
 
+**D-020 (2026-10-19) — How results are tabulated and drawn (`genprobe/figures.py`, guide §8).**
+Every mean is over prompts (each prompt first averaged over its seeds), with 95 % CIs from 2000
+bootstrap resamples of prompts. Models are compared on the same prompts: the paired mean
+difference with its CI, plus the share of prompts where A beats B; "A is better" only when
+the CI excludes 0. Next to each overall mean the leaderboard gives a category-weighted mean
+(every category counts once) to expose Simpson-type reversals. Metrics are never averaged into
+one score. The category heatmap has one column per template category and one per GenAI-Bench
+skill (prompts carry several skills, so those columns overlap); columns with fewer than 30
+prompts are flagged. The quality–cost figure uses the median generation seconds per image
+(warmup excluded, all on H100 NVL) on a log axis and marks the Pareto front. Figure titles
+are computed from the numbers they show. The same model keeps the same colour (validated
+categorical palette) and marker in every figure.
+
 ## Prompt set
 
 **D-016 (2026-10-19) — Prompt set v1 = 400 GenAI-Bench prompts + 200 template prompts, built by
