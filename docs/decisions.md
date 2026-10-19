@@ -377,3 +377,23 @@ Metric versions are those of D-013, D-014 and D-021; nothing about them is tuned
 **Ceiling.** Human–human agreement on the same pairs, computed the same way: each rater's score
 against the mean of the other two (leave-one-rater-out), averaged over the three raters; plus
 Krippendorff's α (ordinal) over the three ratings. Metric numbers are read against this ceiling.
+
+## Meta-evaluation (module B)
+
+**D-026 (2026-10-19) — How the pre-registered method is implemented (`genprobe/meta_eval.py`),
+written and tested on synthetic data before any metric was scored on GenAI-Bench.** Details the
+hypotheses section leaves open, fixed now: (1) "all GenAI-Bench prompts" means all 1,600,
+including the 80 that are in prompt set v1's dev split (they are reserved for the VLM judge's
+rubric, not for the metrics, which are not tuned here); the seven prompts with no skill tag are
+in "all" only. (2) Two metrics are compared on the pairs where both scored both images; the
+analysis refuses to run until every metric has scored all 9,600 images, so the results are
+computed once, on the full set. (3) Ceiling: "each rater" is each rating position (we do not
+assume position 1 is the same person across images); on the metric pairs, a
+position's rating is compared with the mean of the other two, pairs where those two tie are
+skipped, equal ratings count 1/2, and images left with two valid ratings (the two dropped
+out-of-range ratings) are not used for the ceiling. Its CI resamples prompts. (4) Krippendorff's
+α uses the ordinal distance on all valid ratings (checked against the worked example in
+Krippendorff 2011: 0.815). (5) Kendall's τ-b within prompts (6 images), averaged, is
+exploratory. (6) The smoke run on 20 GenAI-Bench prompts (120 images) is checked for counts,
+errors, value ranges and timing only (`genprobe/score_check.py`); agreement with people is not
+computed on it.
