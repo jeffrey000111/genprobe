@@ -101,7 +101,7 @@ class TestRun(unittest.TestCase):
             self.assertAlmostEqual(pair["mean_diff"], -0.5)
             self.assertTrue(pair["ci_excludes_0"])
             self.assertIn("Highest vqascore: FLUX.1 schnell", res["titles"]["fig_frontier.png"])
-            self.assertIn("Exact text: 50% for both 1–2 words and 5–8 words", res["titles"]["fig_text_length.png"])
+            self.assertIn("Text right: 50% for both 1–2 words and 5–8 words", res["titles"]["fig_text_length.png"])
 
 
 if __name__ == "__main__":

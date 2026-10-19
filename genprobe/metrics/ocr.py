@@ -7,8 +7,8 @@ requested text is matched against the best-matching stretch of what was read
 
 ``value`` = 1 - edit distance / length of the requested text, in [0, 1] (1 = spelled exactly,
 ignoring case, punctuation and spaces); ``extra`` has ``exact``, ``word_recall``, the
-normalized strings and every OCR box with its confidence. Images count as correct for the
-human-agreement table when ``value`` is 1 (``decision_threshold``).
+normalized strings and every OCR box with its confidence. An image counts as having the text
+right when ``value`` >= 0.85 (``decision_threshold``; chosen on dev labels, D-017 revision).
 
 Runs in the ``aux`` env so EasyOCR's dependencies (opencv, scikit-image, ...) stay out of the
 eval env. Weights come from ``download_models.sh easyocr`` (on coe-hpc1) in
@@ -74,7 +74,7 @@ class OCRScore(Metric):
     env = "aux"
     higher_is_better = True
     default_batch_size = 16
-    decision_threshold = 1.0
+    decision_threshold = 0.85   # D-017 revision: 1.0 (exact) until the dev check of 2026-10-19
 
     def __init__(self) -> None:
         self.version = f"easyocr=={_pkg_version('easyocr')}/{DETECTOR}+{RECOGNIZER}/{MATCH_VERSION}"

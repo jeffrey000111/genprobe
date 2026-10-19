@@ -122,7 +122,7 @@ class TestPlugins(unittest.TestCase):
     def test_registered_with_env_and_threshold(self):
         self.assertEqual(REGISTRY["ocr"].env, "aux")
         self.assertEqual(REGISTRY["detect"].env, "eval")
-        self.assertEqual(REGISTRY["ocr"].decision_threshold, 1.0)
+        self.assertEqual(REGISTRY["ocr"].decision_threshold, 0.85)     # D-017 revision
         self.assertIsNone(REGISTRY["vqascore"].decision_threshold)
 
     def test_applies_to(self):

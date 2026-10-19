@@ -174,6 +174,14 @@ none of the 27 images labelled wrong and failed 11 of the 23 labelled correct, a
 0.86 (3 wrong images pass, 4 correct ones fail), 0.75 → 0.88. A one-letter OCR misread and a
 one-letter misspelling get the same value (e.g. 0.929 for "RROGRESS", labelled y, and
 "PPROGRESS", labelled n), so no threshold separates them fully.
+*Revised 2026-10-19: the OCR verdict threshold is now 0.85* (project author's decision, on the
+dev numbers above). At 1.0 the checker misses about half of the correctly written images, so the
+share of "text right" would be underestimated by about a factor of two; 0.85 is the first value
+of the 0.80–0.85 plateau (0.86 on dev, 3 false passes and 4 false fails, roughly balanced).
+0.75 scored 0.88 but with more false passes, and 2 images of 50 are within noise. The dev
+accuracy at the chosen threshold is measured on the same 50 images used to choose it, so it is
+optimistic; REPORT.md says so. The threshold only changes the verdicts (the "text right" rates and
+the text-length figure); the OCR value and every model comparison made on it are unchanged.
 
 **D-018 (2026-10-19) — Detector checker for counting and spatial prompts = Grounding DINO tiny
 (`IDEA-Research/grounding-dino-tiny`, main at a2bb814 when chosen), one text query per object

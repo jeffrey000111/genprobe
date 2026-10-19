@@ -319,37 +319,41 @@ def frontier(models, board, cost, metric, gpu: str | None, out: Path, pairs: lis
     return title
 
 
-def text_length(models, rows, prompts, out: Path, n_boot: int = N_BOOT) -> tuple[str | None, list[dict]]:
+def text_length(models, rows, prompts, out: Path, n_boot: int = N_BOOT,
+                threshold: float | None = None) -> tuple[str | None, list[dict]]:
+    """Share of images whose OCR value passes the OCR checker's threshold, by text length."""
+    from .metrics import REGISTRY
+    thr = REGISTRY["ocr"].decision_threshold if threshold is None else threshold
     vals = per_prompt_values(rows, "ocr")
     bins = [b[2] for b in TEXT_BINS]
     table = []
     for model in models:
         for b in bins:
-            pp = {pid: [float(v == 1.0) for v in vs] for pid, vs in vals.get(model, {}).items()
+            pp = {pid: [float(v >= thr) for v in vs] for pid, vs in vals.get(model, {}).items()
                   if text_bin(prompts[pid]) == b}
             mean, lo, hi = bootstrap_mean_ci(pp, n_boot=n_boot)
-            table.append({"model": model, "words": b, "exact_rate": mean, "ci95_lo": lo, "ci95_hi": hi,
+            table.append({"model": model, "words": b, "text_ok_rate": mean, "ci95_lo": lo, "ci95_hi": hi,
                           "n_prompts": len(pp)})
-    if all(math.isnan(r["exact_rate"]) for r in table):
+    if all(math.isnan(r["text_ok_rate"]) for r in table):
         return None, table
     avg = {}
     for b in bins:
-        v = [r["exact_rate"] for r in table if r["words"] == b and not math.isnan(r["exact_rate"])]
+        v = [r["text_ok_rate"] for r in table if r["words"] == b and not math.isnan(r["text_ok_rate"])]
         if v:
             avg[b] = float(np.mean(v))
     b0, b1 = min(avg, key=bins.index), max(avg, key=bins.index)
     first, last = avg[b0], avg[b1]
     if first == last:
-        title = f"Exact text: {first:.0%} for both {b0} and {b1}, averaged over models"
+        title = f"Text right: {first:.0%} for both {b0} and {b1}, averaged over models"
     else:
         verb = "falls" if last < first else "rises"
-        title = f"Exact text {verb} from {first:.0%} ({b0}) to {last:.0%} ({b1}), averaged over models"
+        title = f"Text right {verb} from {first:.0%} ({b0}) to {last:.0%} ({b1}), averaged over models"
     plt, fig, ax = _fig(7.0, 4.4)
     x = np.arange(len(bins))
     ends = []
     for k, model in enumerate(models):
         r = [t for t in table if t["model"] == model]
-        y = np.array([t["exact_rate"] for t in r])
+        y = np.array([t["text_ok_rate"] for t in r])
         if np.all(np.isnan(y)):
             continue
         off = (k - (len(models) - 1) / 2) * 0.06       # small dodge so error bars don't overlap
@@ -371,12 +375,13 @@ def text_length(models, rows, prompts, out: Path, n_boot: int = N_BOOT) -> tuple
     ax.set_ylim(-0.03, 1.12)
     from matplotlib.ticker import PercentFormatter
     ax.yaxis.set_major_formatter(PercentFormatter(1.0))
-    ax.set_ylabel("images with the text exactly right (OCR checker)", fontsize=8.5, color=INK2)
+    ax.set_ylabel(f"images with the text right (OCR value ≥ {thr:g})", fontsize=8.5, color=INK2)
     ax.set_title(title, fontsize=10, color=INK, loc="left", pad=26)
     ax.legend(fontsize=8, frameon=False, labelcolor=INK2, ncol=len(models), loc="lower left",
               bbox_to_anchor=(0, 1.0), borderaxespad=0.2, handlelength=1.6)
-    _footnote(fig, "Exact = OCR finds the requested text with case, punctuation and spaces ignored (D-017). "
-              "95% CI over prompts. The OCR checker's own error rate is in the summary.")
+    _footnote(fig, f"OCR value = 1 − edit distance / text length, case, punctuation and spaces ignored; an image "
+              f"counts as right at ≥ {thr:g}, the threshold chosen on 50 blind-labelled dev images (D-017). "
+              "95% CI over prompts. The OCR checker's own error rate is in the dev summary.")
     fig.savefig(out, facecolor=SURFACE)
     plt.close(fig)
     return title, table
