@@ -20,7 +20,7 @@ from typing import Any
 PACKAGES = (
     "torch", "torchvision", "diffusers", "transformers", "accelerate",
     "t2v-metrics", "open-clip-torch", "huggingface-hub", "qwen-vl-utils", "flash-attn",
-    "pydantic", "numpy", "pillow",
+    "easyocr", "opencv-python-headless", "pydantic", "numpy", "pillow",
 )
 
 

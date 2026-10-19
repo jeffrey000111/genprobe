@@ -27,6 +27,9 @@ class Metric(ABC):
     env: ClassVar[str] = "eval"             # virtualenv it runs in: "eval" or "aux"
     higher_is_better: ClassVar[bool] = True
     default_batch_size: ClassVar[int] = 16
+    # Checkers (ocr, detect) give a per-image verdict: an image passes when value >= this.
+    # Summaries then also report agreement with human y/n labels as a classifier.
+    decision_threshold: ClassVar[float | None] = None
     # Filled by setup(): what was actually loaded (weights revision, dtype, attention, templates).
     # The runner stores it in data/runs/score_*.json next to the package versions.
     info: dict[str, Any] = {}

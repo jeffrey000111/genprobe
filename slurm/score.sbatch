@@ -23,7 +23,12 @@ source "${SLURM_SUBMIT_DIR:-$PWD}/slurm/common.sh"
 # 7B VLM scorers need bf16 and ~20 GB; P100s (16 GB, no bf16) are rejected.
 export GENPROBE_GPU_REGEX="${SCORE_GPU_REGEX:-H100}"
 require_gpu
-activate_env "${GENPROBE_ENV:-eval}"
+# The env each metric runs in (Metric.env; tests/test_checkers.py keeps the two in sync).
+case "$METRIC" in
+  ocr) DEFAULT_ENV=aux ;;
+  *) DEFAULT_ENV=eval ;;
+esac
+activate_env "${GENPROBE_ENV:-$DEFAULT_ENV}"
 cd "$GENPROBE_ROOT"
 python -m genprobe.score --metric "$METRIC" --samples "$SAMPLES" --tag "$TAG" \
   --shard "${SLURM_ARRAY_TASK_ID:-0}" --num-shards "$NUM_SHARDS" "$@"

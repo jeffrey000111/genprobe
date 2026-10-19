@@ -94,7 +94,7 @@ first so a long GPU wait isn't wasted on an import error.
 | Max job time | 2 days on gpuqs / nsfqs (jobs use ≤ 6 h) | `sinfo` |
 | Driver / CUDA | 590.44.01 / CUDA 13.1 — any current PyPI torch wheel works | probe job 91208 |
 | Internet | coe-hpc1: yes. g17 and compute nodes: no → `HF_HUB_OFFLINE=1` in jobs | curl tests |
-| Python envs | uv venvs in `~/envs/{gen,eval}`, built on coe-hpc1 for `x86_64-manylinux_2_34` | D-012 |
+| Python envs | uv venvs in `~/envs/{gen,eval,aux}` (aux: EasyOCR), built on coe-hpc1 for `x86_64-manylinux_2_34` | D-012, D-017 |
 | `HF_HOME` | `~/hf_home` (not scratch: locks hang from coe-hpc1) | lock test 2026-10-16 |
 | uv cache | coe-hpc1 local `/tmp/$USER-uv-cache` | lock test 2026-10-16 |
 | Typical queue wait | | `squeue -u $USER --start` |

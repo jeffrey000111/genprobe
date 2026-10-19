@@ -4,6 +4,7 @@
 #
 #   ssh sjsu "cd ~/genprobe && bash scripts/setup_envs.sh gen"
 #   ssh sjsu "cd ~/genprobe && bash scripts/setup_envs.sh eval"
+#   ssh sjsu "cd ~/genprobe && bash scripts/setup_envs.sh aux"    EasyOCR for the OCR checker
 #
 # coe-hpc1 runs CentOS 7 (glibc 2.17) and HPC3 runs glibc 2.34, so packages are selected for
 # HPC3's platform with uv's --python-platform, not for the machine doing the install. uv and
@@ -11,7 +12,7 @@
 # Afterwards, test the env on a GPU node: sbatch slurm/probe_gpu.sbatch (on HPC3).
 set -euo pipefail
 cd "$(dirname "$0")/.."
-ENV=${1:?usage: setup_envs.sh gen|eval}
+ENV=${1:?usage: setup_envs.sh gen|eval|aux}
 # shellcheck disable=SC1091
 source scripts/paths.sh
 TARGET_PLATFORM=${TARGET_PLATFORM:-x86_64-manylinux_2_34}   # HPC3's glibc
@@ -51,7 +52,12 @@ case "$ENV" in
     # resolver kept the newest torch and fell back to t2v-metrics 1.2 + transformers 4.36.
     "${INSTALL[@]}" "t2v-metrics>=3.0" torchvision open_clip_torch
     ;;
-  *) echo "unknown env '$ENV' (expected gen or eval)" >&2; exit 2 ;;
+  aux)
+    # Scorers whose dependencies shouldn't touch the eval env: EasyOCR (opencv, scikit-image,
+    # shapely, ...) for the OCR checker. Its weights: download_models.sh easyocr.
+    "${INSTALL[@]}" torch torchvision easyocr
+    ;;
+  *) echo "unknown env '$ENV' (expected gen, eval or aux)" >&2; exit 2 ;;
 esac
 "${INSTALL[@]}" -e ".[analysis]"
 
@@ -68,7 +74,7 @@ if [[ "$ENV" == eval ]]; then
 fi
 
 uv pip freeze --python "$VENV/bin/python" --exclude-editable > "env/$ENV.lock.txt"
-grep -iE "^(torch|torchvision|diffusers|transformers|accelerate|t2v-metrics|open-clip-torch)==" "env/$ENV.lock.txt" || true
+grep -iE "^(torch|torchvision|diffusers|transformers|accelerate|t2v-metrics|open-clip-torch|easyocr)==" "env/$ENV.lock.txt" || true
 echo
 echo "Built $VENV for $TARGET_PLATFORM; locked to env/$ENV.lock.txt."
 echo "Packages were chosen for HPC3, so test there, not here:"

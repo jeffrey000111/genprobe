@@ -27,6 +27,7 @@ from typing import Any
 
 import numpy as np
 
+from .metrics import REGISTRY
 from .samples import load_prompts
 from .utils.env import git_commit, now_iso
 from .utils.io import atomic_write_text
@@ -132,6 +133,38 @@ def pairwise_agreement(values: dict[str, float], labels: dict[str, str], prompt_
             "worst": [{"labelled_correct": a, "labelled_wrong": b, "margin": round(m, 4)} for m, a, b in wrong[:5]]}
 
 
+def decision_agreement(values: dict[str, float], labels: dict[str, str], prompt_of: dict[str, str],
+                       threshold: float, n_boot: int = N_BOOT, seed: int = 0) -> dict[str, Any]:
+    """Checker verdict (value >= threshold) against the human y/n label, image by image.
+    Accuracy CI: resample prompts with replacement, pool their images."""
+    per_prompt: dict[str, list[tuple[bool, bool]]] = defaultdict(list)
+    for sid, lab in labels.items():
+        if lab in ("y", "n") and sid in values:
+            per_prompt[prompt_of[sid]].append((values[sid] >= threshold, lab == "y"))
+    pairs = [x for v in per_prompt.values() for x in v]
+    cm = Counter(("t" if pred == truth else "f") + ("p" if pred else "n") for pred, truth in pairs)
+    out: dict[str, Any] = {"threshold": threshold, "images": len(pairs), "n_prompts": len(per_prompt),
+                           "tp": cm["tp"], "fp": cm["fp"], "fn": cm["fn"], "tn": cm["tn"]}
+    if not pairs:
+        return {**out, "accuracy": float("nan"), "ci95": [float("nan")] * 2}
+    pids = sorted(per_prompt)
+    hits = np.array([sum(p == t for p, t in per_prompt[k]) for k in pids], float)
+    counts = np.array([len(per_prompt[k]) for k in pids], float)
+    rng = np.random.default_rng(seed)
+    idx = rng.integers(0, len(pids), size=(n_boot, len(pids)))
+    lo, hi = np.quantile(hits[idx].sum(axis=1) / counts[idx].sum(axis=1), [0.025, 0.975])
+    return {**out, "accuracy": float(hits.sum() / counts.sum()), "ci95": [float(lo), float(hi)]}
+
+
+def metric_applies(name: str):
+    """Which prompts a metric scores (OCR only text prompts, ...); unknown metrics: all."""
+    cls = REGISTRY.get(name)
+    if cls is None:
+        return lambda prompt: True
+    inst = cls()
+    return lambda prompt: inst.applies_to(prompt)
+
+
 def category(tags: list[str]) -> str:
     return tags[0] if tags else "untagged"
 
@@ -153,10 +186,12 @@ def summarize(*, prompts_path: str, manifests: str, data: str, metrics: list[str
     meta: dict[str, dict[str, Any]] = {}
     for m in metrics:
         recs = read_many(sorted((Path(data) / "scores" / m).glob("*.jsonl")))
-        ok, version, info = pick_scores(recs, ok_ids)
+        applies = metric_applies(m)
+        expected = {sid for sid in ok_ids if applies(prompts[gen[sid]["prompt_id"]])}
+        ok, version, info = pick_scores(recs, expected)
         scores[m] = ok
         vals = np.array([r["value"] for r in ok.values()], float)
-        meta[m] = {"metric_version": version, "n_ok": len(ok), "n_expected": len(ok_ids),
+        meta[m] = {"metric_version": version, "n_ok": len(ok), "n_expected": len(expected),
                    "n_error": info.get("errors", 0), "versions_seen": info.get("versions_seen", 0),
                    "min": float(vals.min()) if len(vals) else float("nan"),
                    "max": float(vals.max()) if len(vals) else float("nan"),
@@ -227,6 +262,9 @@ def summarize(*, prompts_path: str, manifests: str, data: str, metrics: list[str
             ns = [vals[s] for s, v in lab.items() if v == "n" and s in vals]
             entry["mean_if_y"] = float(np.mean(ys)) if ys else float("nan")
             entry["mean_if_n"] = float(np.mean(ns)) if ns else float("nan")
+            thr = getattr(REGISTRY.get(m), "decision_threshold", None)
+            if thr is not None:
+                entry["verdict"] = decision_agreement(vals, lab, prompt_of, thr)
             human["by_metric"][m] = entry
 
     result = {"prompts": prompts_path, "split": split or "all", "created_at": now_iso(), "git_commit": git_commit(),
@@ -290,6 +328,16 @@ def render_md(res: dict[str, Any], full_run_images: int) -> str:
                                                    f"{fmt(d['ci95'][1], 2)}] ({d['pairs']} pairs)")
             L.append(f"| {m} | {cell(e['all'])} | " + " | ".join(cell(e[c]) for c in cats) +
                      f" | {fmt(e['mean_if_y'])} / {fmt(e['mean_if_n'])} |")
+        verdicts = {m: e["verdict"] for m, e in h["by_metric"].items() if e.get("verdict")}
+        if verdicts:
+            L += ["", "Checker verdicts against the same labels, image by image (an image passes when the "
+                  "checker's value ≥ its threshold). Accuracy CI from resampling prompts.", "",
+                  "| Checker | threshold | images | accuracy | passes & correct | passes & wrong | "
+                  "fails & correct | fails & wrong |", "| --- | --- | --- | --- | --- | --- | --- | --- |"]
+            for m, v in verdicts.items():
+                L.append(f"| {m} | {v['threshold']} | {v['images']} | {fmt(v['accuracy'], 2)} "
+                         f"[{fmt(v['ci95'][0], 2)}, {fmt(v['ci95'][1], 2)}] | {v['tp']} | {v['fp']} | "
+                         f"{v['fn']} | {v['tn']} |")
         for m, e in h["by_metric"].items():
             if e["all"]["worst"]:
                 L += ["", f"Largest {m} mistakes (image labelled wrong scored above one labelled correct, same prompt):", ""]

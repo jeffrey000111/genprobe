@@ -143,6 +143,48 @@ from the annotator's own notes, and 4 cells were changed by the annotator after 
 check against the rules (marked `[复核后修改]` in the note). Smoke numbers stay a pipeline
 check (D-010); the real meta-evaluation uses GenAI-Bench's multi-rater human scores (guide §9).
 
+**D-017 (2026-10-19) — OCR checker for text prompts = EasyOCR (CRAFT detector + `english_g2`
+recognizer) plus a semi-global edit distance; an image passes only on an exact match.**
+`genprobe/metrics/ocr.py`. EasyOCR reads every text box; boxes are grouped into lines (top to
+bottom, each left to right) and joined. The requested text is aligned against its
+best-matching stretch of that string, so other text in the picture costs nothing.
+`value = 1 − distance / length` after removing case, punctuation and spaces: the human rule
+(D-015) ignores case and punctuation, and OCR often merges or splits words ("THANKYOU"), which
+says nothing about spelling. The verdict threshold is `value = 1` (exact), fixed before any
+v1 output; it may be re-tuned on dev only. `word_recall` and every OCR box are kept in `extra`.
+EasyOCR rather than PaddleOCR: plain pip install, small weights, English recognizer. It runs in
+its own `aux` env so the eval env (in use by queued v1 scoring jobs) is untouched; weights are
+fetched on coe-hpc1 from the URLs and md5 sums in the installed EasyOCR's own config, and
+EasyOCR re-checks the md5 and never downloads inside a job. Quantization is off, so CPU and GPU
+runs use the same fp32 recognizer. Known blind spots, accepted: a phrase written twice still
+passes (people mark it wrong), and stylised lettering that people can read but OCR can't
+counts as wrong.
+
+**D-018 (2026-10-19) — Detector checker for counting and spatial prompts = Grounding DINO tiny
+(`IDEA-Research/grounding-dino-tiny`, main at a2bb814 when chosen), one text query per object
+name (`"<name>."`), box score ≥ 0.35, text score ≥ 0.25.** `genprobe/metrics/detect.py`.
+Counting: duplicates merged by NMS (IoU 0.5); a box that covers ≥ 90 % of the area of two or
+more other boxes is dropped as the detector outlining the whole group; pass iff the number of
+boxes equals the requested count. Spatial: the best box for each object, required to be two
+different boxes (IoU < 0.8); pass iff the box centres satisfy the relation by more than 5 % of
+the image width (left/right) or height (above/below), from the viewer, as in the human rule
+(D-015); a missing object fails. Thresholds are the Grounding DINO authors' demo defaults
+(box 0.35, text 0.25); the margin and group rule were set here, before any v1 checker output.
+All of them may be re-tuned on dev only, and the values are part of `metric_version`.
+Grounding DINO because it is open-vocabulary (no mapping to COCO class ids) and already
+supported by the eval env's transformers 4.49, so no new install. Known weaknesses, accepted:
+open-vocabulary detectors miscount small clustered objects and can label a similar object as
+the queried one (e.g. a cat as "dog"); the checker is itself measured against human labels
+before its numbers are used (smoke labels now, dev later).
+
+**D-019 (2026-10-19) — The checkers run on CPU nodes (cpuqs, 8 cores) through
+`slurm/score_cpu.sbatch`; CLIPScore and VQAScore stay on the H100s.** Both checker models are
+small, and nsfqs queue waits have been hours (D-009); cpuqs jobs have started within a minute.
+CPU speed is measured on the smoke images first: if one v1 shard would need more than about
+two hours on CPU, they move to the H100s (same code, `--device cuda`). The device is recorded
+in each run's `metric_info`, not in `metric_version`: CPU and GPU give near-identical numbers,
+and mixing them within one version is accepted.
+
 ## Prompt set
 
 **D-016 (2026-10-19) — Prompt set v1 = 400 GenAI-Bench prompts + 200 template prompts, built by

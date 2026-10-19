@@ -8,6 +8,8 @@
 #   ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh sd15 sdxl"
 #   ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh all"        the four generators
 #   ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh scorers"    clip_l14 + qwen25vl7b
+#   ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh checkers"   grounding_dino_tiny + easyocr
+#                                                                          (easyocr needs the aux env)
 #
 # SD3.5 Medium and FLUX.1-schnell are gated: accept their terms on huggingface.co first.
 # Re-running is safe: files already in the cache are skipped.
@@ -42,9 +44,10 @@ download() {
   fi
 }
 
-[[ $# -gt 0 ]] || { sed -n '2,15p' "$0"; exit 2; }
+[[ $# -gt 0 ]] || { sed -n '2,17p' "$0"; exit 2; }
 if [[ "$1" == all ]]; then set -- sd15 sdxl sd35m flux_schnell; fi
 if [[ "$1" == scorers ]]; then set -- clip_l14 qwen25vl7b; fi
+if [[ "$1" == checkers ]]; then set -- grounding_dino_tiny easyocr; fi
 
 for m in "$@"; do
   case "$m" in
@@ -82,13 +85,34 @@ for m in "$@"; do
         --include "*.json" "*.txt" "*.safetensors" \
         --expect config.json preprocessor_config.json tokenizer_config.json chat_template.json model.safetensors.index.json
       ;;
-    *) echo "unknown model '$m' (expected login, sd15, sdxl, sd35m, flux_schnell, all, clip_l14, qwen25vl7b or scorers)" >&2; exit 2 ;;
+    grounding_dino_tiny)
+      # Detector checker (genprobe/metrics/detect.py), ~0.7 GB. Not gated. Skips the .bin copy.
+      download grounding_dino_tiny IDEA-Research/grounding-dino-tiny \
+        --include "*.json" "*.txt" "*.safetensors" \
+        --expect config.json preprocessor_config.json tokenizer_config.json model.safetensors
+      ;;
+    easyocr)
+      # OCR checker (genprobe/metrics/ocr.py): CRAFT detector + english_g2 recognizer, ~100 MB,
+      # into $EASYOCR_MODULE_PATH/model. URLs and md5 sums come from the installed EasyOCR's
+      # own config file (aux env), so they match the version the jobs run.
+      echo "== easyocr"
+      cfg=$(ls "$GENPROBE_ENVS"/aux/lib/python*/site-packages/easyocr/config.py 2>/dev/null | head -1 || true)
+      if [[ -z "$cfg" ]]; then
+        echo "!! easyocr: build the aux env first: bash scripts/setup_envs.sh aux" >&2
+        FAILED+=(easyocr)
+      elif ! uv run --no-project --python 3.11 python scripts/easyocr_download.py "$cfg" \
+          "$EASYOCR_MODULE_PATH/model" craft english_g2; then
+        FAILED+=(easyocr)
+      fi
+      ;;
+    *) echo "unknown model '$m' (expected login, sd15, sdxl, sd35m, flux_schnell, all, clip_l14, qwen25vl7b," \
+            "scorers, grounding_dino_tiny, easyocr or checkers)" >&2; exit 2 ;;
   esac
 done
 
 echo
 echo "== cache contents ($HF_HOME/hub, apparent size)"
-du -sh --apparent-size "$HF_HOME"/hub/models--* 2>/dev/null || true
+du -sh --apparent-size "$HF_HOME"/hub/models--* "$EASYOCR_MODULE_PATH"/model 2>/dev/null || true
 if [[ ${#FAILED[@]} -gt 0 ]]; then
   echo "FAILED: ${FAILED[*]} — fix the cause and rerun just those (finished files are reused)" >&2
   exit 1

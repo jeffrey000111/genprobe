@@ -13,7 +13,7 @@ step instead of loading the whole file. Progress and choices live in `docs/decis
   `ssh sjsu3 "cd ~/genprobe && <command>"`. HPC3 and its compute nodes have **no internet**.
 - **coe-hpc1** (SSH alias `sjsu`): no working Slurm, but it **has internet** and shares
   `/home` with HPC3. All installs and downloads happen there:
-  `ssh sjsu "cd ~/genprobe && bash scripts/setup_envs.sh <gen|eval>"` and
+  `ssh sjsu "cd ~/genprobe && bash scripts/setup_envs.sh <gen|eval|aux>"` and
   `ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh <models>"`. It runs CentOS 7, so
   never install packages there with plain pip; setup_envs.sh targets HPC3's platform (D-012).
 - Sync with `scripts/hpc_sync.sh push` (code -> HPC; requires committed code) and

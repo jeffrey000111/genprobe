@@ -45,6 +45,7 @@ sbatch --array=0-1 slurm/gen.sbatch configs/gen/sdxl.yaml data/prompts/smoke.jso
 bash scripts/submit_scoring.sh data/prompts/smoke.jsonl   # CLIPScore + VQAScore, then
                                           # results/smoke/summary.md (CPU job)
 bash scripts/check_gen_env.sh && bash scripts/run_v1.sh   # M2: prompt set v1, 9,600 images
+METRICS="ocr detect" bash scripts/submit_scoring.sh data/prompts/prompts_v1.jsonl   # checkers, CPU nodes
 ```
 
 Resubmitting any job is safe: finished samples are skipped, half-written files are cleaned up.
@@ -86,7 +87,9 @@ genprobe/
   score.py          run one metric over a sample set: sharding + resume
   summarize.py      per-model / per-category tables with bootstrap CIs, cost table
   contact_sheet.py  thumbnails of every image per category + a label template, for manual review
-  metrics/          one plugin per metric (clipscore.py, vqascore.py), subclassing base.py
+  metrics/          one plugin per metric, subclassing base.py: clipscore.py, vqascore.py, and the
+                    checkers ocr.py (EasyOCR, text prompts) and detect.py (Grounding DINO,
+                    counting / spatial prompts)
   backends.py       diffusers backend + CPU fake backend for testing
   utils/            shard, manifest, atomic IO, environment fingerprint, HF cache checks
 slurm/              job scripts (common.sh: job settings, GPU check, env activation)
@@ -111,5 +114,9 @@ A full environment fingerprint is written once per job to `data/runs/`.
 | SDXL base 1.0 | CreativeML OpenRAIL++-M |
 | Stable Diffusion 3.5 Medium | Stability AI Community License |
 | FLUX.1 [schnell] | Apache-2.0 |
+| Scoring: OpenAI CLIP ViT-L/14 (CLIPScore) | MIT |
+| Scoring: Qwen2.5-VL-7B-Instruct (VQAScore) | Apache-2.0 |
+| Scoring: Grounding DINO tiny (detector checker) | Apache-2.0 |
+| Scoring: EasyOCR CRAFT + english_g2 (OCR checker) | Apache-2.0 |
 
 No model weights or generated images are committed to this repository.

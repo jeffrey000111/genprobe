@@ -22,7 +22,7 @@ echo "== glibc: $(ldd --version | head -1)"
 echo "== models in $HF_HOME/hub"
 ls "$HF_HOME/hub" 2>/dev/null | grep '^models--' || echo "(none yet: run scripts/download_models.sh on coe-hpc1)"
 
-for env in gen eval; do
+for env in gen eval aux; do
   py="$GENPROBE_ENVS/$env/bin/python"
   echo "== env '$env'"
   if [[ ! -x "$py" ]]; then echo "(not built yet)"; continue; fi
@@ -30,12 +30,12 @@ for env in gen eval; do
 import importlib.metadata as md, sys
 print("python", sys.version.split()[0])
 for p in ("torch", "diffusers", "transformers", "accelerate", "huggingface-hub", "t2v-metrics",
-          "open-clip-torch", "qwen-vl-utils", "decord", "flash-attn"):
+          "open-clip-torch", "qwen-vl-utils", "easyocr", "opencv-python-headless", "decord", "flash-attn"):
     try:
         print(f"  {p}=={md.version(p)}")
     except md.PackageNotFoundError:
         pass
-for mod in ("diffusers", "open_clip", "qwen_vl_utils"):
+for mod in ("diffusers", "open_clip", "qwen_vl_utils", "easyocr"):
     try:
         __import__(mod)
         print(f"  import {mod}: ok")

@@ -14,6 +14,8 @@ export GENPROBE_ENVS="${GENPROBE_ENVS:-$HOME/envs}"
 # Model weights (~60 GB for the four generators). Downloaded on coe-hpc1, read offline on HPC3.
 export HF_HOME="${HF_HOME:-$HOME/hf_home}"
 export HF_TOKEN_PATH="${HF_TOKEN_PATH:-$HOME/.cache/huggingface/token}"
+# EasyOCR (the OCR checker) keeps its weights in $EASYOCR_MODULE_PATH/model, not in the HF cache.
+export EASYOCR_MODULE_PATH="${EASYOCR_MODULE_PATH:-$HF_HOME/easyocr}"
 # uv's download cache is disposable, so it goes on the local disk of whichever machine runs
 # uv (in practice coe-hpc1): fast, private to that machine, and no NFS locking involved.
 export UV_CACHE_DIR="${UV_CACHE_DIR:-/tmp/$USER-uv-cache}"
