@@ -288,11 +288,12 @@ counting 8 y / 17 n (a count written for 20 of 25), spatial 9 y / 16 n, text 23 
 decision. The report and the README need to show what "right" and "wrong" look like (guide
 §8.3); everything else under `data/images/` stays out of git as before. The images are picked by
 rule, not by hand (`genprobe/examples.py`): at random with seed 0 from the test split among images
-that clearly pass or clearly fail (checker verdict and VQAScore agreeing; OCR ≥ 0.85 vs < 0.5;
-VQAScore ≥ 0.95 vs ≤ 0.05 for GenAI-Bench), spread over the four models, plus "pretty but wrong"
+that clearly pass or clearly fail, the checker and VQAScore agreeing (detector pass and VQAScore ≥
+0.9 vs fail and ≤ 0.1; OCR ≥ 0.85 and VQAScore ≥ 0.9 vs OCR < 0.5 and ≤ 0.1; VQAScore ≥ 0.95 vs
+≤ 0.05 for GenAI-Bench), spread over the four models, plus "pretty but wrong"
 images (top-10 % PickScore with VQAScore ≤ 0.05). Every image is listed with its sample_id in
-`results/examples/index.md`. Safety-filter flags are not illustrated, and prompts about children are
-left out of the panels. All four generators'
+`results/examples/index.md`. Safety-filter flags are not illustrated, and prompts about children or
+students are left out of the panels. All four generators'
 licences allow sharing outputs.
 
 **D-020 (2026-10-19) — How results are tabulated and drawn (`genprobe/figures.py`, guide §8).**

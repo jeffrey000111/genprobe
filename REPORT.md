@@ -80,8 +80,9 @@ Pre-registered hypotheses: see `docs/decisions.md`. — TODO (M3)
 ## 4. Limitations
 - Detector and OCR checks have their own error rates (§1), measured on 50 dev images each by one
   annotator; the OCR threshold was chosen on the same images.
-- The OCR check ignores extra text, so a phrase written with repeats still passes (SD 1.5's
-  "SALE SAL SALE" in `results/examples/text.jpg` scores OCR 1.00; VQAScore gives it 0.18).
+- The OCR check ignores extra text, so a phrase written with repeats still passes: SD 1.5's
+  "SALE SAL SALE" for "SALE" (`sd15__tt0002__s0` in `results/prompts_v1_test/per_sample.csv`)
+  scores OCR 1.00, VQAScore 0.18.
 - All checker labels and the smoke labels come from one annotator, the author.
 - Main meta-evaluation (M3) uses GenAI-Bench images from other models.
 - One seed set (4 seeds) and one card type; generation settings are each model's defaults, not

@@ -32,7 +32,8 @@ from .utils.io import atomic_write_text
 
 TILE, PAD, CAP, HEAD = 256, 10, 88, 30
 # The panels are public: prompts about children are left out of them (D-025).
-NO_PUBLIC = re.compile(r"\b(child|children|kids?|bab(y|ies)|toddlers?|boys?|girls?|teen\w*|infants?)\b", re.I)
+NO_PUBLIC = re.compile(r"\b(child|children|kids?|bab(y|ies)|toddlers?|boys?|girls?|teen\w*|infants?|students?|pupils?|"
+                       r"school\w*|classrooms?)\b", re.I)
 PER_ROW = 4
 
 
@@ -60,8 +61,10 @@ def panels(pick_hi: float) -> list[tuple[str, str, list[tuple[str, Callable[[dic
             ("wrong (detector disagrees, VQAScore <= 0.1)",
              lambda r: r["category"] == "spatial" and ok(num(r, "detect"), lambda v: v == 0) and ok(vqa(r), lambda v: v <= 0.1))]),
         ("text", "Text prompts", [
-            ("right (OCR >= 0.85)", lambda r: r["category"] == "text" and ok(num(r, "ocr"), lambda v: v >= 0.85)),
-            ("wrong (OCR < 0.5)", lambda r: r["category"] == "text" and ok(num(r, "ocr"), lambda v: v < 0.5))]),
+            ("right (OCR >= 0.85, VQAScore >= 0.9)",
+             lambda r: r["category"] == "text" and ok(num(r, "ocr"), lambda v: v >= 0.85) and ok(vqa(r), lambda v: v >= 0.9)),
+            ("wrong (OCR < 0.5, VQAScore <= 0.1)",
+             lambda r: r["category"] == "text" and ok(num(r, "ocr"), lambda v: v < 0.5) and ok(vqa(r), lambda v: v <= 0.1))]),
         ("genai_bench", "GenAI-Bench prompts", [
             ("VQAScore >= 0.95", lambda r: r["category"] in ("basic", "advanced") and ok(vqa(r), lambda v: v >= 0.95)),
             ("VQAScore <= 0.05", lambda r: r["category"] in ("basic", "advanced") and ok(vqa(r), lambda v: v <= 0.05))]),
