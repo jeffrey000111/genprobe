@@ -229,6 +229,15 @@ class TestVerdicts(unittest.TestCase):
                                                    "centre_b": [0.5, 0.8]}), "above: a at (0.50,0.20) b at (0.50,0.80)")
         self.assertEqual(checker_detail("vqascore", {}), "")
 
+    def test_count_agreement(self):
+        from genprobe.summarize import count_agreement
+        scores = {"a": {"extra": {"check": "count", "count_pred": 3}}, "b": {"extra": {"check": "count", "count_pred": 5}},
+                  "c": {"extra": {"check": "left_of"}}, "d": {"extra": {"check": "count", "count_pred": 2}}}
+        labels = {"a": {"true_count": "3"}, "b": {"true_count": "4"}, "c": {"true_count": ""}, "d": {"true_count": ""}}
+        r = count_agreement(scores, labels)
+        self.assertEqual((r["images"], r["exact"], r["over"], r["under"]), (2, 0.5, 1, 0))
+        self.assertEqual(count_agreement({}, {})["images"], 0)
+
     def test_worst_pairs_are_strict_mistakes(self):
         values = {"a": 1.0, "b": 1.0, "c": 0.0, "d": 1.0}
         labels = {"a": "y", "b": "n", "c": "y", "d": "n"}

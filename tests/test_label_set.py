@@ -33,6 +33,13 @@ class TestChoose(unittest.TestCase):
         self.assertEqual(picked, label_set.choose(fake_samples(), {"count": 8, "spatial": 4, "text": 6}, seed=0))
         self.assertEqual(len({s.sample_id for _, s in picked}), 18)
 
+    def test_any_prefix_is_balanced(self):
+        picked = label_set.choose(fake_samples(), {"count": 6, "spatial": 6, "text": 12}, seed=1)
+        first = Counter(k for k, _ in picked[:8])
+        self.assertEqual(first, {"text": 4, "count": 2, "spatial": 2})
+        texts = [s.model for k, s in picked if k == "text"]
+        self.assertEqual(sorted(texts[:4]), ["a", "b", "c", "d"])     # every run of 4 has each model once
+
     def test_kind_of(self):
         self.assertEqual(label_set.kind_of(Sample("x", "m", "p", "t", 0, "", spec={"text": "A"})), "text")
         self.assertIsNone(label_set.kind_of(Sample("x", "m", "p", "t", 0, "", spec=None)))
@@ -63,21 +70,30 @@ class TestMakeAndFinalize(unittest.TestCase):
             with self.assertRaises(SystemExit):                 # never replaces a label file
                 label_set.make(str(ppath), str(d / "manifests" / "gen_*.jsonl"), str(out), "dev",
                                {"count": 1}, seed=0)
-            with self.assertRaises(SystemExit):                 # unfilled labels are refused
+            with self.assertRaises(SystemExit):                 # nothing labelled yet
                 label_set.finalize(str(out), str(d / "labels.csv"))
-            for r in rows:
+
+            def write(rows):
+                with open(out / "labels.csv", "w", newline="") as f:
+                    w = csv.DictWriter(f, fieldnames=label_set.LABEL_FIELDS)
+                    w.writeheader()
+                    w.writerows(rows)
+            for r in rows[:2]:                                  # label the first two, stop
                 r["correct"] = "y" if r["kind"] == "count" else "？"
                 r["true_count"] = "2" if r["kind"] == "count" else ""
-            with open(out / "labels.csv", "w", newline="") as f:
-                w = csv.DictWriter(f, fieldnames=label_set.LABEL_FIELDS)
-                w.writeheader()
-                w.writerows(rows)
-            self.assertEqual(label_set.finalize(str(out), str(d / "labels.csv")), 4)
+            write(rows)
+            self.assertEqual(label_set.finalize(str(out), str(d / "labels.csv")), 2)
+            for r in rows[2:]:                                  # continue later
+                r["correct"] = "n"
+            write(rows)
+            self.assertEqual(label_set.finalize(str(out), str(d / "labels.csv")), 2)
             with open(d / "labels.csv", newline="") as f:
                 final = list(csv.DictReader(f))
-            self.assertEqual({r["correct"] for r in final}, {"y", "?"})
+            self.assertEqual(len(final), 4)
             self.assertTrue(all(r["sample_id"].startswith("toy__") for r in final))
-            with self.assertRaises(SystemExit):                 # second finalize would overwrite
+            rows[0]["correct"] = "n" if rows[0]["correct"] != "n" else "y"
+            write(rows)
+            with self.assertRaises(SystemExit):                 # changing a stored label is refused
                 label_set.finalize(str(out), str(d / "labels.csv"))
 
 

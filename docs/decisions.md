@@ -248,6 +248,8 @@ checker and the checker's own accuracy on them. For counting images the annotato
 count they see (`true_count`), so the detector's count error can be measured, not just its
 verdict. Same rules as D-015; labels go to `data/labels/prompts_v1_labels.csv` and are never
 overwritten. The labelling set was drawn and sheeted before anyone looked at dev checker outputs.
+*Labelled 2026-10-19* by the project author, from the four blind sheets, all 100 images:
+counting 8 y / 17 n (a count written for 20 of 25), spatial 9 y / 16 n, text 23 y / 27 n, no `?`.
 
 **D-020 (2026-10-19) — How results are tabulated and drawn (`genprobe/figures.py`, guide §8).**
 Every mean is over prompts (each prompt first averaged over its seeds), with 95 % CIs from 2000

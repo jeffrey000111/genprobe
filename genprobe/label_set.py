@@ -47,6 +47,10 @@ correct: y / n / ?   (? = can't tell from the picture)
             punctuation don't matter.
 note: anything worth remembering (optional).
 
+Label in order from #1. The order is balanced: any first N items mix the kinds and models
+evenly, so you can stop at any point (at least #50 is recommended); blank rows are skipped,
+and you can continue later and finalize again.
+
 Judge only the picture and its prompt. No scores or model names are shown on purpose.
 
 标注说明（规则见 D-015）。在 labels.csv 里每张编号图片填一行：
@@ -58,6 +62,9 @@ correct：y / n / ?（? = 从图上判断不了）
             "above" = 在图里更高的位置，放在上面也算。
   text    - 要求的每个词都拼对，不缺不重复；大小写和标点不管。
 note：想记下的任何情况（可不填）。
+
+请按编号从 #1 往后标。编号已经排好：任何前 N 张在题型和模型上都是均衡的，所以可以
+随时停下（建议至少标到 #50），空着的行会被跳过；以后接着标，再合并一次就行。
 
 只看图片和它的提示词。故意不显示任何分数和模型名。
 """
@@ -72,9 +79,12 @@ def kind_of(s: Sample) -> str | None:
 
 
 def choose(samples: list[Sample], n_per_kind: dict[str, int], seed: int) -> list[tuple[str, Sample]]:
-    """n images per kind, as evenly spread over models as possible, in shuffled order."""
+    """n images per kind, spread evenly over models, ordered so that ANY first k items are as
+    balanced as possible over kinds and models: the labeller can stop early and still have a fair
+    sample. Within each run of one-image-per-model the order is shuffled, so the model sequence
+    can't be guessed."""
     rng = random.Random(seed)
-    out: list[tuple[str, Sample]] = []
+    per_kind: dict[str, list[Sample]] = {}
     for kind, n in n_per_kind.items():
         pool = sorted((s for s in samples if kind_of(s) == kind), key=lambda s: s.sample_id)
         by_model: dict[str, list[Sample]] = {}
@@ -85,11 +95,18 @@ def choose(samples: list[Sample], n_per_kind: dict[str, int], seed: int) -> list
         picked: list[Sample] = []
         models = sorted(by_model)
         while len(picked) < n and any(by_model.values()):
-            for m in models:                      # round robin over models
-                if by_model[m] and len(picked) < n:
-                    picked.append(by_model[m].pop())
-        rng.shuffle(picked)
-        out += [(kind, s) for s in picked]
+            block = [by_model[m].pop() for m in models if by_model[m]][: n - len(picked)]
+            rng.shuffle(block)                    # one per model, in random order
+            picked += block
+        per_kind[kind] = picked
+    # interleave kinds in proportion: always take from the kind furthest behind its share
+    out: list[tuple[str, Sample]] = []
+    taken = {k: 0 for k in per_kind}
+    while any(taken[k] < len(v) for k, v in per_kind.items()):
+        k = min((k for k, v in per_kind.items() if taken[k] < len(v)),
+                key=lambda k: (taken[k] + 1) / len(per_kind[k]))
+        out.append((k, per_kind[k][taken[k]]))
+        taken[k] += 1
     return out
 
 
@@ -145,10 +162,13 @@ def finalize(out: str, labels_path: str) -> int:
     outdir = Path(out)
     with open(outdir / "key.csv", newline="", encoding="utf-8") as f:
         key = {r["item"]: r["sample_id"] for r in csv.DictReader(f)}
-    rows = []
+    rows, blank = [], 0
     with open(outdir / "labels.csv", newline="", encoding="utf-8-sig") as f:
         for r in csv.DictReader(f):
             c = (r.get("correct") or "").strip().replace("？", "?").lower()
+            if not c:
+                blank += 1                        # not labelled (yet): skipped
+                continue
             if c not in ("y", "n", "?"):
                 raise SystemExit(f"item {r['item']}: correct={r.get('correct')!r}, expected y / n / ?")
             tc = (r.get("true_count") or "").strip()
@@ -156,17 +176,21 @@ def finalize(out: str, labels_path: str) -> int:
                 raise SystemExit(f"item {r['item']}: true_count={tc!r} is not a whole number")
             rows.append({"sample_id": key[r["item"]], "correct": c, "note": (r.get("note") or "").strip(),
                          "true_count": tc})
-    if len(rows) != len(key):
-        raise SystemExit(f"labels.csv has {len(rows)} rows, key.csv {len(key)}: every item needs a label")
+    if not rows:
+        raise SystemExit("labels.csv has no labels yet (column 'correct' is empty everywhere)")
     dest = Path(labels_path)
     existing: list[dict] = []
     if dest.exists():
         with open(dest, newline="", encoding="utf-8-sig") as f:
             existing = list(csv.DictReader(f))
-    clash = {r["sample_id"] for r in existing} & {r["sample_id"] for r in rows}
-    if clash:
-        raise SystemExit(f"{len(clash)} images already have labels in {dest} (e.g. {sorted(clash)[0]}); "
+    old = {r["sample_id"]: r for r in existing}
+    changed = [r["sample_id"] for r in rows if r["sample_id"] in old
+               and (old[r["sample_id"]]["correct"], old[r["sample_id"]].get("true_count", ""))
+               != (r["correct"], r["true_count"])]
+    if changed:
+        raise SystemExit(f"{len(changed)} images already have different labels in {dest} (e.g. {changed[0]}); "
                          "labels are never overwritten (D-015)")
+    rows = [r for r in rows if r["sample_id"] not in old]    # labelled before: same label, keep the old row
     fields = ["sample_id", "correct", "note", "true_count"]
     dest.parent.mkdir(parents=True, exist_ok=True)
     with open(dest, "w", newline="", encoding="utf-8") as f:
@@ -174,7 +198,8 @@ def finalize(out: str, labels_path: str) -> int:
         w.writeheader()
         for r in existing + rows:
             w.writerow({k: r.get(k, "") for k in fields})
-    print(f"added {len(rows)} labels to {dest} ({len(existing) + len(rows)} in total)")
+    print(f"added {len(rows)} labels to {dest} ({len(existing) + len(rows)} in total; "
+          f"{blank} items left blank)")
     return len(rows)
 
 

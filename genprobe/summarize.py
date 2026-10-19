@@ -90,7 +90,8 @@ LABEL_VALUES = ("y", "n", "?")
 
 
 def load_labels(path: str | Path) -> dict[str, dict[str, str]]:
-    """Human labels: CSV with sample_id, correct (y / n / ?), note. Full-width ？ is accepted."""
+    """Human labels: CSV with sample_id, correct (y / n / ?), note, and optionally true_count (the
+    number of objects the annotator counted). Full-width ？ is accepted."""
     out = {}
     with open(path, encoding="utf-8-sig", newline="") as f:
         for row in csv.DictReader(f):
@@ -98,7 +99,8 @@ def load_labels(path: str | Path) -> dict[str, dict[str, str]]:
             if c not in LABEL_VALUES:
                 raise ValueError(f"{path}: {row.get('sample_id')}: correct={row.get('correct')!r}, "
                                  f"expected one of {LABEL_VALUES}")
-            out[row["sample_id"]] = {"correct": c, "note": row.get("note", "")}
+            out[row["sample_id"]] = {"correct": c, "note": row.get("note", ""),
+                                     "true_count": (row.get("true_count") or "").strip()}
     return out
 
 
@@ -155,6 +157,20 @@ def decision_agreement(values: dict[str, float], labels: dict[str, str], prompt_
     idx = rng.integers(0, len(pids), size=(n_boot, len(pids)))
     lo, hi = np.quantile(hits[idx].sum(axis=1) / counts[idx].sum(axis=1), [0.025, 0.975])
     return {**out, "accuracy": float(hits.sum() / counts.sum()), "ci95": [float(lo), float(hi)]}
+
+
+def count_agreement(detect_scores: dict[str, dict], labels: dict[str, dict]) -> dict[str, Any]:
+    """Detector count vs the count the annotator wrote down (labels' true_count), counting images
+    only: exact-match share, mean |difference|, and how often the detector over- / under-counts."""
+    pairs = [(int(r["extra"]["count_pred"]), int(labels[sid]["true_count"]))
+             for sid, r in detect_scores.items()
+             if sid in labels and labels[sid].get("true_count", "").isdigit()
+             and r.get("extra", {}).get("check") == "count" and r["extra"].get("count_pred") is not None]
+    if not pairs:
+        return {"images": 0}
+    d = np.array([p - t for p, t in pairs])
+    return {"images": len(pairs), "exact": float((d == 0).mean()), "mean_abs_diff": float(np.abs(d).mean()),
+            "over": int((d > 0).sum()), "under": int((d < 0).sum())}
 
 
 def metric_applies(name: str):
@@ -282,6 +298,8 @@ def summarize(*, prompts_path: str, manifests: str, data: str, metrics: list[str
             thr = getattr(REGISTRY.get(m), "decision_threshold", None)
             if thr is not None:
                 entry["verdict"] = decision_agreement(vals, lab, prompt_of, thr)
+            if m == "detect":
+                entry["counts"] = count_agreement(scores[m], labels)
             human["by_metric"][m] = entry
 
     result = {"prompts": prompts_path, "split": split or "all", "created_at": now_iso(), "git_commit": git_commit(),
@@ -365,6 +383,11 @@ def render_md(res: dict[str, Any], full_run_images: int) -> str:
                 L.append(f"| {m} | {v['threshold']} | {v['images']} | {fmt(v['accuracy'], 2)} "
                          f"[{fmt(v['ci95'][0], 2)}, {fmt(v['ci95'][1], 2)}] | {v['tp']} | {v['fp']} | "
                          f"{v['fn']} | {v['tn']} |")
+        c = (h["by_metric"].get("detect") or {}).get("counts") or {}
+        if c.get("images"):
+            L += ["", f"Detector count vs the count the annotator wrote down ({c['images']} counting images): "
+                  f"same number on {c['exact']:.0%}, mean |difference| {c['mean_abs_diff']:.2f}; "
+                  f"more than the annotator on {c['over']}, fewer on {c['under']}."]
         for m, e in h["by_metric"].items():
             if e["all"]["worst"]:
                 L += ["", f"Largest {m} mistakes (image labelled wrong scored above one labelled correct, same prompt):", ""]
