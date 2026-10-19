@@ -10,8 +10,9 @@
 # slurm/score_cpu.sbatch and CPU_SCORE_TIME (01:00:00); the rest on the H100s (D-019).
 #
 # Knobs (env): METRICS, SUMMARY_METRICS, SCORE_SHARDS (1), SCORE_TIME (00:45:00), SPLITS (all;
-# e.g. "test dev" writes results/<set>_test and results/<set>_dev), and DEPENDENCY=afterany:<ids>
-# to wait for other jobs (scripts/run_prompt_set.sh uses it). Scoring resumes: samples already
+# e.g. "test dev" writes results/<set>_test and results/<set>_dev), DEPENDENCY=afterany:<ids>
+# to wait for other jobs (scripts/run_prompt_set.sh uses it), and SUMMARY_AFTER=<id>:<id> for
+# summaries that must also wait for scoring jobs submitted earlier (e.g. the H100 metrics). Scoring resumes: samples already
 # scored with the same metric_version are skipped.
 # Logs: logs/score-<metric>_<id>_<shard>.out, logs/summarize_<id>.out
 set -euo pipefail
@@ -47,7 +48,7 @@ for m in "${METRICS[@]}"; do
   echo "submitted $m ($SCORE_SHARDS shard(s), $where): job $id"
   ids+=("$id")
 done
-dep=$(IFS=:; echo "${ids[*]}")
+dep=$(IFS=:; echo "${ids[*]}")${SUMMARY_AFTER:+:$SUMMARY_AFTER}
 for s in "${SPLITS[@]}"; do
   split=$s; [[ "$s" == all ]] && split=""
   sid=$(sbatch --parsable --dependency="afterany:$dep" --export=ALL,SPLIT="$split" \

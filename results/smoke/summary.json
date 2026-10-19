@@ -1,7 +1,8 @@
 {
   "prompts": "data/prompts/smoke.jsonl",
-  "created_at": "2026-10-19T03:58:02.251+00:00",
-  "git_commit": "c28a4a6",
+  "split": "all",
+  "created_at": "2026-10-19T08:08:53.975+00:00",
+  "git_commit": "9546265",
   "n_prompts": 20,
   "models": [
     "flux_schnell",
@@ -35,6 +36,28 @@
       "min": 7.433979044435546e-05,
       "max": 0.9999337196350098,
       "std": 0.407262682273647,
+      "n_truncated": 0
+    },
+    "ocr": {
+      "metric_version": "easyocr==1.7.2/craft+english_g2/semiglobal-nospace-v1/bs16",
+      "n_ok": 24,
+      "n_expected": 24,
+      "n_error": 0,
+      "versions_seen": 1,
+      "min": 0.24,
+      "max": 1.0,
+      "std": 0.26787267109421004,
+      "n_truncated": 0
+    },
+    "detect": {
+      "metric_version": "transformers==4.49.0/grounding-dino-tiny@a2bb814/box0.35-text0.25-nms0.5-group0.9-margin0.05/bs16",
+      "n_ok": 56,
+      "n_expected": 56,
+      "n_error": 0,
+      "versions_seen": 1,
+      "min": 0.0,
+      "max": 1.0,
+      "std": 0.49872285870603367,
       "n_truncated": 0
     }
   },
@@ -113,6 +136,82 @@
         ],
         "n_prompts": 20,
         "n_images": 20
+      }
+    },
+    "ocr": {
+      "flux_schnell": {
+        "mean": 0.8540277777777779,
+        "ci95": [
+          0.6977777777777779,
+          0.9895833333333334
+        ],
+        "n_prompts": 6,
+        "n_images": 6
+      },
+      "sd15": {
+        "mean": 0.3286904761904762,
+        "ci95": [
+          0.2645238095238095,
+          0.4120238095238095
+        ],
+        "n_prompts": 6,
+        "n_images": 6
+      },
+      "sd35m": {
+        "mean": 0.9244444444444445,
+        "ci95": [
+          0.8411111111111111,
+          0.9861111111111112
+        ],
+        "n_prompts": 6,
+        "n_images": 6
+      },
+      "sdxl": {
+        "mean": 0.5887301587301587,
+        "ci95": [
+          0.5099166666666667,
+          0.6787023809523803
+        ],
+        "n_prompts": 6,
+        "n_images": 6
+      }
+    },
+    "detect": {
+      "flux_schnell": {
+        "mean": 0.6428571428571429,
+        "ci95": [
+          0.35714285714285715,
+          0.8571428571428571
+        ],
+        "n_prompts": 14,
+        "n_images": 14
+      },
+      "sd15": {
+        "mean": 0.2857142857142857,
+        "ci95": [
+          0.07142857142857142,
+          0.5714285714285714
+        ],
+        "n_prompts": 14,
+        "n_images": 14
+      },
+      "sd35m": {
+        "mean": 0.35714285714285715,
+        "ci95": [
+          0.14285714285714285,
+          0.6428571428571429
+        ],
+        "n_prompts": 14,
+        "n_images": 14
+      },
+      "sdxl": {
+        "mean": 0.5714285714285714,
+        "ci95": [
+          0.2857142857142857,
+          0.8571428571428571
+        ],
+        "n_prompts": 14,
+        "n_images": 14
       }
     }
   },
@@ -232,6 +331,122 @@
           "n": 6
         }
       }
+    },
+    "ocr": {
+      "flux_schnell": {
+        "counting": {
+          "mean": NaN,
+          "n": 0
+        },
+        "spatial": {
+          "mean": NaN,
+          "n": 0
+        },
+        "text": {
+          "mean": 0.8540277777777779,
+          "n": 6
+        }
+      },
+      "sd15": {
+        "counting": {
+          "mean": NaN,
+          "n": 0
+        },
+        "spatial": {
+          "mean": NaN,
+          "n": 0
+        },
+        "text": {
+          "mean": 0.3286904761904762,
+          "n": 6
+        }
+      },
+      "sd35m": {
+        "counting": {
+          "mean": NaN,
+          "n": 0
+        },
+        "spatial": {
+          "mean": NaN,
+          "n": 0
+        },
+        "text": {
+          "mean": 0.9244444444444445,
+          "n": 6
+        }
+      },
+      "sdxl": {
+        "counting": {
+          "mean": NaN,
+          "n": 0
+        },
+        "spatial": {
+          "mean": NaN,
+          "n": 0
+        },
+        "text": {
+          "mean": 0.5887301587301587,
+          "n": 6
+        }
+      }
+    },
+    "detect": {
+      "flux_schnell": {
+        "counting": {
+          "mean": 0.42857142857142855,
+          "n": 7
+        },
+        "spatial": {
+          "mean": 0.8571428571428571,
+          "n": 7
+        },
+        "text": {
+          "mean": NaN,
+          "n": 0
+        }
+      },
+      "sd15": {
+        "counting": {
+          "mean": 0.2857142857142857,
+          "n": 7
+        },
+        "spatial": {
+          "mean": 0.2857142857142857,
+          "n": 7
+        },
+        "text": {
+          "mean": NaN,
+          "n": 0
+        }
+      },
+      "sd35m": {
+        "counting": {
+          "mean": 0.14285714285714285,
+          "n": 7
+        },
+        "spatial": {
+          "mean": 0.5714285714285714,
+          "n": 7
+        },
+        "text": {
+          "mean": NaN,
+          "n": 0
+        }
+      },
+      "sdxl": {
+        "counting": {
+          "mean": 0.42857142857142855,
+          "n": 7
+        },
+        "spatial": {
+          "mean": 0.7142857142857143,
+          "n": 7
+        },
+        "text": {
+          "mean": NaN,
+          "n": 0
+        }
+      }
     }
   },
   "generation_cost": {
@@ -288,6 +503,26 @@
     "clipscore~vqascore": {
       "spearman": 0.22859821847163625,
       "n": 80
+    },
+    "clipscore~ocr": {
+      "spearman": 0.42993622831894207,
+      "n": 24
+    },
+    "clipscore~detect": {
+      "spearman": 0.015506814408281028,
+      "n": 56
+    },
+    "vqascore~ocr": {
+      "spearman": 0.8730337697496884,
+      "n": 24
+    },
+    "vqascore~detect": {
+      "spearman": 0.7155287219821103,
+      "n": 56
+    },
+    "ocr~detect": {
+      "spearman": NaN,
+      "n": 0
     }
   },
   "human_agreement": {
@@ -471,6 +706,174 @@
         },
         "mean_if_y": 0.9042184649395847,
         "mean_if_n": 0.43780800436587397
+      },
+      "ocr": {
+        "all": {
+          "pairs": 13,
+          "n_prompts": 5,
+          "agreement": 1.0,
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "worst": []
+        },
+        "counting": {
+          "pairs": 0,
+          "n_prompts": 0,
+          "agreement": NaN,
+          "ci95": [
+            NaN,
+            NaN
+          ],
+          "worst": []
+        },
+        "spatial": {
+          "pairs": 0,
+          "n_prompts": 0,
+          "agreement": NaN,
+          "ci95": [
+            NaN,
+            NaN
+          ],
+          "worst": []
+        },
+        "text": {
+          "pairs": 13,
+          "n_prompts": 5,
+          "agreement": 1.0,
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "worst": []
+        },
+        "mean_if_y": 0.9599867724867726,
+        "mean_if_n": 0.5050432900432901,
+        "verdict": {
+          "threshold": 1.0,
+          "images": 20,
+          "n_prompts": 6,
+          "tp": 6,
+          "fp": 0,
+          "fn": 3,
+          "tn": 11,
+          "accuracy": 0.85,
+          "ci95": [
+            0.7058823529411765,
+            0.9545454545454546
+          ]
+        }
+      },
+      "detect": {
+        "all": {
+          "pairs": 20,
+          "n_prompts": 7,
+          "agreement": 0.85,
+          "ci95": [
+            0.6956521739130435,
+            0.975
+          ],
+          "worst": [
+            {
+              "labelled_correct": "sd35m__sm011__s0",
+              "labelled_wrong": "sdxl__sm011__s0",
+              "margin": 0.0
+            },
+            {
+              "labelled_correct": "sd35m__sm011__s0",
+              "labelled_wrong": "sd15__sm011__s0",
+              "margin": 0.0
+            },
+            {
+              "labelled_correct": "flux_schnell__sm011__s0",
+              "labelled_wrong": "sdxl__sm011__s0",
+              "margin": 0.0
+            },
+            {
+              "labelled_correct": "flux_schnell__sm011__s0",
+              "labelled_wrong": "sd15__sm011__s0",
+              "margin": 0.0
+            },
+            {
+              "labelled_correct": "flux_schnell__sm009__s0",
+              "labelled_wrong": "sdxl__sm009__s0",
+              "margin": 0.0
+            }
+          ]
+        },
+        "counting": {
+          "pairs": 8,
+          "n_prompts": 3,
+          "agreement": 1.0,
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "worst": []
+        },
+        "spatial": {
+          "pairs": 12,
+          "n_prompts": 4,
+          "agreement": 0.75,
+          "ci95": [
+            0.5666666666666667,
+            0.9545454545454546
+          ],
+          "worst": [
+            {
+              "labelled_correct": "sd35m__sm011__s0",
+              "labelled_wrong": "sdxl__sm011__s0",
+              "margin": 0.0
+            },
+            {
+              "labelled_correct": "sd35m__sm011__s0",
+              "labelled_wrong": "sd15__sm011__s0",
+              "margin": 0.0
+            },
+            {
+              "labelled_correct": "flux_schnell__sm011__s0",
+              "labelled_wrong": "sdxl__sm011__s0",
+              "margin": 0.0
+            },
+            {
+              "labelled_correct": "flux_schnell__sm011__s0",
+              "labelled_wrong": "sd15__sm011__s0",
+              "margin": 0.0
+            },
+            {
+              "labelled_correct": "flux_schnell__sm009__s0",
+              "labelled_wrong": "sdxl__sm009__s0",
+              "margin": 0.0
+            }
+          ]
+        },
+        "text": {
+          "pairs": 0,
+          "n_prompts": 0,
+          "agreement": NaN,
+          "ci95": [
+            NaN,
+            NaN
+          ],
+          "worst": []
+        },
+        "mean_if_y": 0.9090909090909091,
+        "mean_if_n": 0.1111111111111111,
+        "verdict": {
+          "threshold": 1.0,
+          "images": 49,
+          "n_prompts": 14,
+          "tp": 20,
+          "fp": 3,
+          "fn": 2,
+          "tn": 24,
+          "accuracy": 0.8979591836734694,
+          "ci95": [
+            0.8,
+            0.9795918367346939
+          ]
+        }
       }
     }
   },

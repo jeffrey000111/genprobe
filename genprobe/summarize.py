@@ -126,10 +126,11 @@ def pairwise_agreement(values: dict[str, float], labels: dict[str, str], prompt_
     idx = rng.integers(0, len(pids), size=(n_boot, len(pids)))
     boots = sums[idx].sum(axis=1) / counts[idx].sum(axis=1)
     lo, hi = np.quantile(boots, [0.025, 0.975])
-    wrong = sorted(((values[b] - values[a], a, b) for p in pids for x, a, b in per_prompt[p] if x < 1.0),
+    # strict mistakes only (the wrong image scored higher); ties are counted as 1/2 above
+    wrong = sorted(((values[b] - values[a], a, b) for p in pids for x, a, b in per_prompt[p] if x == 0.0),
                    reverse=True)
     return {"pairs": int(counts.sum()), "n_prompts": len(pids), "agreement": float(sums.sum() / counts.sum()),
-            "ci95": [float(lo), float(hi)],
+            "ci95": [float(lo), float(hi)], "ties": int(sum(x == 0.5 for p in pids for x, _, _ in per_prompt[p])),
             "worst": [{"labelled_correct": a, "labelled_wrong": b, "margin": round(m, 4)} for m, a, b in wrong[:5]]}
 
 
@@ -356,11 +357,31 @@ def render_md(res: dict[str, Any], full_run_images: int) -> str:
     return "\n".join(L) + "\n"
 
 
+def checker_detail(metric: str, extra: dict) -> str:
+    """One readable cell per checker verdict, for looking at examples in per_sample.csv."""
+    if metric == "ocr":
+        return extra.get("ocr_norm", "")
+    if metric == "detect":
+        if extra.get("check") == "count":
+            return f"count {extra.get('count_pred')}/{extra.get('count_target')}"
+        if extra.get("missing"):
+            return f"{extra.get('check')}: missing {','.join(extra['missing'])}"
+        a, b = extra.get("centre_a"), extra.get("centre_b")
+        if a and b:
+            return f"{extra.get('check')}: a at ({a[0]:.2f},{a[1]:.2f}) b at ({b[0]:.2f},{b[1]:.2f})"
+    return ""
+
+
+DETAIL_COLUMNS = {"ocr": "ocr_read", "detect": "detect_detail"}
+
+
 def write_per_sample(path: Path, gen: dict, prompts: dict, scores: dict, metrics: list[str],
                      labels: dict | None = None) -> None:
     labels = labels or {}
+    details = [m for m in metrics if m in DETAIL_COLUMNS]
     cols = ["sample_id", "model", "prompt_id", "seed", "category", "prompt", "status", "gen_seconds",
-            "warmup", *metrics, "clip_truncated", "human_correct", "human_note"]
+            "warmup", *metrics, *(DETAIL_COLUMNS[m] for m in details), "clip_truncated", "human_correct",
+            "human_note"]
     tmp = path.with_suffix(".csv.tmp")
     with open(tmp, "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
@@ -370,6 +391,7 @@ def write_per_sample(path: Path, gen: dict, prompts: dict, scores: dict, metrics
             row = [sid, g["model"], g["prompt_id"], g.get("seed"), category(prompts[g["prompt_id"]].tags),
                    g.get("prompt"), g.get("status"), g.get("gen_seconds"), g.get("warmup")]
             row += [scores[m][sid]["value"] if sid in scores[m] else "" for m in metrics]
+            row += [checker_detail(m, scores[m][sid].get("extra", {})) if sid in scores[m] else "" for m in details]
             clip = scores.get("clipscore", {}).get(sid)
             row.append(clip["extra"].get("truncated") if clip else "")
             row += [labels.get(sid, {}).get("correct", ""), labels.get(sid, {}).get("note", "")]

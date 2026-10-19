@@ -18,7 +18,7 @@ from PIL import Image
 
 from genprobe.metrics import REGISTRY, detect, ocr
 from genprobe.metrics.textmatch import normalize, semiglobal_distance, text_match
-from genprobe.summarize import decision_agreement, summarize
+from genprobe.summarize import checker_detail, decision_agreement, pairwise_agreement, summarize
 from genprobe.backends import FakeBackend
 from genprobe.generate import run_generation
 from genprobe.score import load_samples
@@ -219,6 +219,22 @@ class TestVerdicts(unittest.TestCase):
         self.assertLessEqual(r["ci95"][0], 0.5)
         self.assertEqual(decision_agreement({}, {}, {}, 1.0)["images"], 0)
 
+    def test_checker_detail(self):
+        self.assertEqual(checker_detail("ocr", {"ocr_norm": "HOT COFFEE"}), "HOT COFFEE")
+        self.assertEqual(checker_detail("detect", {"check": "count", "count_pred": 3, "count_target": 2}),
+                         "count 3/2")
+        self.assertEqual(checker_detail("detect", {"check": "left_of", "missing": ["b"]}), "left_of: missing b")
+        self.assertEqual(checker_detail("detect", {"check": "above", "missing": [], "centre_a": [0.5, 0.2],
+                                                   "centre_b": [0.5, 0.8]}), "above: a at (0.50,0.20) b at (0.50,0.80)")
+        self.assertEqual(checker_detail("vqascore", {}), "")
+
+    def test_worst_pairs_are_strict_mistakes(self):
+        values = {"a": 1.0, "b": 1.0, "c": 0.0, "d": 1.0}
+        labels = {"a": "y", "b": "n", "c": "y", "d": "n"}
+        r = pairwise_agreement(values, labels, {"a": "p1", "b": "p1", "c": "p2", "d": "p2"})
+        self.assertEqual((r["pairs"], r["ties"]), (2, 1))
+        self.assertEqual([(w["labelled_correct"], w["labelled_wrong"]) for w in r["worst"]], [("c", "d")])
+
     def test_summary_counts_only_applicable_images(self):
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp)
@@ -250,7 +266,10 @@ class TestVerdicts(unittest.TestCase):
             md = (out / "res" / "summary.md").read_text()
             self.assertIn("| detect | 1.0 | 4 | 1.00", md)
             with open(out / "res" / "per_sample.csv", newline="") as f:
-                self.assertEqual(len(list(csv.DictReader(f))), 4)
+                rows = list(csv.DictReader(f))
+            self.assertEqual(len(rows), 4)
+            self.assertIn("detect_detail", rows[0])
+            self.assertIn("ocr_read", rows[0])
 
 
 class TestEasyOCRDownload(unittest.TestCase):

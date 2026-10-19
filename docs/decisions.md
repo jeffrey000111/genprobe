@@ -159,6 +159,11 @@ EasyOCR re-checks the md5 and never downloads inside a job. Quantization is off,
 runs use the same fp32 recognizer. Known blind spots, accepted: a phrase written twice still
 passes (people mark it wrong), and stylised lettering that people can read but OCR can't
 counts as wrong.
+*Smoke check (2026-10-19, pipeline check only, D-010):* on the 20 smoke text images with a
+y/n label, the exact-match verdict agreed with the label on 17 (0.85, CI 0.71–0.95). It passed
+none of the 11 images labelled wrong and failed 3 of the 9 labelled correct (values 0.79–0.94:
+OCR misread a letter or two). Within-prompt pairwise agreement 1.00 (13 pairs). The threshold is
+not changed on this (smoke is not dev); the dev check in M2 decides whether near-misses count.
 
 **D-018 (2026-10-19) — Detector checker for counting and spatial prompts = Grounding DINO tiny
 (`IDEA-Research/grounding-dino-tiny`, main at a2bb814 when chosen), one text query per object
@@ -176,6 +181,13 @@ supported by the eval env's transformers 4.49, so no new install. Known weakness
 open-vocabulary detectors miscount small clustered objects and can label a similar object as
 the queried one (e.g. a cat as "dog"); the checker is itself measured against human labels
 before its numbers are used (smoke labels now, dev later).
+*Smoke check (2026-10-19, pipeline check only, D-010):* on the 49 smoke counting/spatial
+images with a y/n label, the verdict agreed on 44 (0.90, CI 0.80–0.98). It passed 3 images
+labelled wrong, all spatial (annotator notes: "both are dogs" for cat-left-of-dog; the vase is
+left of the book; the cup is in front of the laptop, not beside it) and failed 2 labelled correct
+(both "a bicycle to the left of a car"). Counting verdicts matched every label. Pairwise
+agreement 0.85 (CI 0.70–0.97, 20 pairs). No threshold changed; causes are checked in the
+per-image details (`detect_detail` in per_sample.csv).
 
 **D-019 (2026-10-19) — The checkers run on CPU nodes (cpuqs, 8 cores) through
 `slurm/score_cpu.sbatch`; CLIPScore and VQAScore stay on the H100s.** Both checker models are

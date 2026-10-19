@@ -58,9 +58,9 @@ def read_per_sample(path: str | Path) -> list[dict[str, str]]:
 
 
 def metric_columns(rows: list[dict[str, str]]) -> list[str]:
-    fixed = {"sample_id", "model", "prompt_id", "seed", "category", "prompt", "status", "gen_seconds",
-             "warmup", "clip_truncated", "human_correct", "human_note"}
-    return [c for c in (rows[0].keys() if rows else []) if c not in fixed]
+    """Columns of per_sample.csv that hold a registered metric's value (not details or labels)."""
+    from .metrics import REGISTRY
+    return [c for c in (rows[0].keys() if rows else []) if c in REGISTRY]
 
 
 def ordered_models(models) -> list[str]:
