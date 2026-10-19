@@ -2,7 +2,8 @@
 # Download GenAI-Bench-1600 (Apache-2.0) on **coe-hpc1** into data/external/genai_bench/ (not in git).
 #
 #   ssh sjsu "cd ~/genprobe && bash scripts/fetch_genai_bench.sh"          prompts, skill tags, human ratings (~1.5 MB)
-#   ssh sjsu "cd ~/genprobe && bash scripts/fetch_genai_bench.sh images"   + the 6 models' image zips (~3.5 GB, module B)
+#   ssh sjsu "cd ~/genprobe && bash scripts/fetch_genai_bench.sh images"   + the 6 models' image zips (~3.5 GB, module B),
+#                                                                          unzipped to images/<model>/<index>.jpeg (~5.7 GB)
 #
 # genai_image.json: {"00000": {"id", "prompt", "prompt in Chinese", "models": {model: [3 ratings 1-5]}}, ...}
 # genai_skills.json: {skill name: [prompt indices]}
@@ -31,3 +32,10 @@ done
 echo "$REPO@$REV" > "$OUT/SOURCE"
 (cd "$OUT" && sha256sum "${files[@]}" > SHA256SUMS)
 echo "sha256 recorded in $OUT/SHA256SUMS"
+if [[ "${1:-}" == images ]]; then
+  mkdir -p "$OUT/images"
+  for z in "$OUT"/*.zip; do
+    unzip -q -n "$z" -d "$OUT/images"      # -n: never overwrite, so re-running is cheap
+    echo "unzipped $(basename "$z"): $(ls "$OUT/images/$(basename "$z" .zip)" | wc -l) files"
+  done
+fi

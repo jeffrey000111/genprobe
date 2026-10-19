@@ -13,7 +13,8 @@
 # e.g. "test dev" writes results/<set>_test and results/<set>_dev), DEPENDENCY=afterany:<ids>
 # to wait for other jobs (scripts/run_prompt_set.sh uses it), and SUMMARY_AFTER=<id>:<id> for
 # summaries that must also wait for scoring jobs submitted earlier (e.g. the H100 metrics), and
-# IDS_FILE=<path> to append the scoring job ids there (for jobs that must wait for them). Scoring resumes: samples already
+# IDS_FILE=<path> to append the scoring job ids there (for jobs that must wait for them), and
+# SUMMARY=0 to skip the summary jobs (e.g. for GenAI-Bench images, which genprobe.meta_eval reads). Scoring resumes: samples already
 # scored with the same metric_version are skipped.
 # Logs: logs/score-<metric>_<id>_<shard>.out, logs/summarize_<id>.out
 set -euo pipefail
@@ -51,6 +52,7 @@ for m in "${METRICS[@]}"; do
   ids+=("$id")
 done
 dep=$(IFS=:; echo "${ids[*]}")${SUMMARY_AFTER:+:$SUMMARY_AFTER}
+[[ "${SUMMARY:-1}" == 0 ]] && { echo "no summary (SUMMARY=0); follow with: squeue -u \$USER"; exit 0; }
 for s in "${SPLITS[@]}"; do
   split=$s; [[ "$s" == all ]] && split=""
   sid=$(sbatch --parsable --dependency="afterany:$dep" --export=ALL,SPLIT="$split" \
