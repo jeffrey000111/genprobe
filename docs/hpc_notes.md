@@ -119,8 +119,10 @@ shard (16 shards) ≈ 7 GPU-h; scoring 9,600 images with CLIPScore + VQAScore �
 
 **Prompt set v1, measured (2026-10-19, `sacct` elapsed times).** Generation: SD1.5 4 shards ×
 ~7 min (0.46 GPU-h), SDXL 4 × ~38 min (2.53), SD3.5M 4 × ~53 min (3.52), FLUX 3 × ~18 min plus
-one failed shard (0.92): 7.4 GPU-h, as estimated. Scoring on the H100s: CLIPScore 2 × ~5 min
-(0.16 GPU-h), VQAScore 2 × ~50 min (1.68). On cpuqs (8 cores): OCR 4 × ~7 min, detector
+one failed shard (0.92): 7.4 GPU-h, as estimated, plus 0.33 to re-run the failed FLUX shard.
+Scoring on the H100s: CLIPScore 2 × ~5 min (0.16 GPU-h), VQAScore 2 × ~50 min (1.68), plus
+~10 min to score the re-run shard; PickScore and HPSv2.1 ~10 min each, the two safety filters
+~7 min each for all 9,600 images. On cpuqs (8 cores): OCR 4 × ~7 min, detector
 4 × ~46 min. nsfqs runs at most 2 of our jobs at once (`QOSMaxNodePerUserLimit`), so the four
 generators ran one after another, ~3.5 h end to end overnight.
 

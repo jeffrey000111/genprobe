@@ -99,7 +99,8 @@ class OCRScore(Metric):
                                      detect_network=DETECTOR, recog_network=RECOGNIZER,
                                      download_enabled=False, quantize=False, verbose=False)
         self.info = {"easyocr": _pkg_version("easyocr"), "torch": _pkg_version("torch"),
-                     "model_dir": str(mdir), "device": "cuda" if use_gpu else "cpu",
+                     "model_dir": str(mdir).replace(os.path.expanduser("~"), "~"),   # no user name in results
+                     "device": "cuda" if use_gpu else "cpu",
                      "detector": DETECTOR, "recognizer": RECOGNIZER, "match": MATCH_VERSION,
                      "quantize": False}
 

@@ -283,6 +283,17 @@ overwritten. The labelling set was drawn and sheeted before anyone looked at dev
 *Labelled 2026-10-19* by the project author, from the four blind sheets, all 100 images:
 counting 8 y / 17 n (a count written for 20 of 25), spatial 9 y / 16 n, text 23 y / 27 n, no `?`.
 
+**D-025 (2026-10-19) — A few generated images go into git after all: example panels in
+`results/examples/` (256 px JPEG thumbnails, about 40 images), nothing else.** Project author's
+decision. The report and the README need to show what "right" and "wrong" look like (guide
+§8.3); everything else under `data/images/` stays out of git as before. The images are picked by
+rule, not by hand (`genprobe/examples.py`): at random with seed 0 from the test split among images
+that clearly pass or clearly fail (checker verdict and VQAScore agreeing; OCR ≥ 0.85 vs < 0.5;
+VQAScore ≥ 0.95 vs ≤ 0.05 for GenAI-Bench), spread over the four models, plus "pretty but wrong"
+images (top-10 % PickScore with VQAScore ≤ 0.05). Every image is listed with its sample_id in
+`results/examples/index.md`. Safety-filter flags are not illustrated. All four generators'
+licences allow sharing outputs.
+
 **D-020 (2026-10-19) — How results are tabulated and drawn (`genprobe/figures.py`, guide §8).**
 Every mean is over prompts (each prompt first averaged over its seeds), with 95 % CIs from 2000
 bootstrap resamples of prompts. Models are compared on the same prompts: the paired mean

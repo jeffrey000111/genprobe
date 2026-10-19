@@ -220,6 +220,10 @@ def heatmap(models, vals, prompts, metric, out: Path) -> str | None:
                 grid[i, j] = np.mean(v)
     if np.all(np.isnan(grid)):
         return None
+    # the numbers behind the figure, for the report
+    write_csv(out.with_suffix(".csv"), [{"model": models[i], "column": cols[j], "n_prompts": len(groups[cols[j]]),
+                                         f"mean_{metric}": float(grid[i, j])}
+                                        for i in range(len(models)) for j in range(len(cols))])
     lo_i, lo_j = np.unravel_index(np.nanargmin(grid), grid.shape)
     title = (f"{metric} by prompt category: lowest is {MODEL_LABEL.get(models[lo_i], models[lo_i])} on "
              f"{cols[lo_j].split(' · ')[1]} ({grid[lo_i, lo_j]:.2f})")

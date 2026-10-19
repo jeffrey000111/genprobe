@@ -89,7 +89,7 @@ class TestRun(unittest.TestCase):
                                         "ocr": (1.0 if model == "flux_schnell" else 0.5) if p["tags"] == ["text"] else "",
                                         "clip_truncated": False, "human_correct": "", "human_note": ""})
             res = figures.run(d, str(d / "p.jsonl"), split="test")
-            for f in ("leaderboard.csv", "pairwise.csv", "figures.md", "fig_category_heatmap.png",
+            for f in ("leaderboard.csv", "pairwise.csv", "figures.md", "fig_category_heatmap.png", "fig_category_heatmap.csv",
                       "fig_frontier.png", "fig_text_length.png", "text_length.csv"):
                 self.assertTrue((d / f).is_file(), f)
             board = {(r["model"], r["metric"]): r for r in res["leaderboard"]}

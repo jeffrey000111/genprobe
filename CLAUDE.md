@@ -61,4 +61,5 @@ step instead of loading the whole file. Progress and choices live in `docs/decis
 - Metric plugins check the local HF cache before loading (`genprobe/utils/hf.py`) and put
   everything that changes scores (weights revision, template, attention) in `version`.
 - Commit before `hpc_sync.sh push` so manifests record a clean commit.
-- This repo is public: no personal identifiers, credentials, weights, images, or `data/`.
+- This repo is public: no personal identifiers, credentials, weights, images, or `data/`. The one
+  exception is the small example panels in `results/examples/` (D-025).
