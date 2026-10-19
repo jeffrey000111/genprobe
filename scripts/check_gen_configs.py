@@ -1,6 +1,11 @@
 """Before queueing generation on H100s: every generator config resolves offline to its pinned
 weights (model_index.json, every component folder, the fp16 variant files), and the prompt
 set loads. CPU only, loads no weights. Run through scripts/check_gen_env.sh (gen env, cpuqs).
+
+Resolution goes through ``DiffusionPipeline.download``, the exact call ``from_pretrained``
+makes, because huggingface_hub >= 1.22 checks offline snapshots for completeness against the
+file patterns the caller asks for: a bare ``snapshot_download`` reports our deliberately
+partial downloads (no README, no duplicate single-file checkpoints) as incomplete.
 """
 
 from __future__ import annotations
@@ -15,7 +20,7 @@ sys.path.insert(0, str(ROOT))
 
 
 def main() -> int:
-    from huggingface_hub import snapshot_download
+    from diffusers import DiffusionPipeline
 
     from genprobe.config import load_gen_config
     from genprobe.samples import load_prompts
@@ -25,7 +30,9 @@ def main() -> int:
     for path in sorted((ROOT / "configs" / "gen").glob("*.yaml")):
         cfg = load_gen_config(path)
         try:
-            snap = Path(snapshot_download(cfg.repo, revision=cfg.revision, local_files_only=True))
+            skipped = {k: v for k, v in cfg.load_kwargs.items() if v is None}   # e.g. safety_checker
+            snap = Path(DiffusionPipeline.download(cfg.repo, revision=cfg.revision, variant=cfg.variant,
+                                                   local_files_only=True, **skipped))
             index = json.loads((snap / "model_index.json").read_text())
             parts = [k for k, v in index.items() if isinstance(v, list) and v[0] is not None]
             missing = [k for k in parts if not (snap / k).is_dir()]
