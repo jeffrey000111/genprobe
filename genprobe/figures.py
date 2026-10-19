@@ -363,6 +363,23 @@ def text_length(models, rows, prompts, out: Path, n_boot: int = N_BOOT) -> tuple
     return title, table
 
 
+def safety_table(models, rows) -> list[dict]:
+    """False-positive rates of the two safety filters on these (benign) images, per model and
+    overall, plus how often the two filters agree (D-022)."""
+    out = []
+    for model in [*models, "all"]:
+        both = [(float(r["nsfw_sd"]), float(r["nsfw_vit"])) for r in rows
+                if r["status"] == "ok" and r.get("nsfw_sd", "") != "" and r.get("nsfw_vit", "") != ""
+                and (model == "all" or r["model"] == model)]
+        if not both:
+            continue
+        a = np.array(both)
+        out.append({"model": model, "images": len(a), "sd_checker_flag_rate": float(a[:, 0].mean()),
+                    "vit_flag_rate": float(a[:, 1].mean()), "both_flag_rate": float((a.min(axis=1) == 1).mean()),
+                    "agreement": float((a[:, 0] == a[:, 1]).mean())})
+    return out
+
+
 def run(results: str | Path, prompts_path: str, metric: str = "vqascore", split: str | None = None) -> dict:
     results = Path(results)
     rows = read_per_sample(results / "per_sample.csv")
@@ -392,6 +409,8 @@ def run(results: str | Path, prompts_path: str, metric: str = "vqascore", split:
         titles["fig_text_length.png"], text_table = text_length(models, rows, prompts,
                                                                 results / "fig_text_length.png")
         write_csv(results / "text_length.csv", text_table)
+    safety = safety_table(models, rows) if {"nsfw_sd", "nsfw_vit"} <= set(metrics) else []
+    write_csv(results / "safety.csv", safety)
     L = [f"# Figures: `{results}`", "",
          f"Made {now_iso()} at commit `{git_commit()}` by `python -m genprobe.figures` from `per_sample.csv` "
          f"and `{prompts_path}`. Means are over prompts; CIs resample prompts ({N_BOOT}×).", ""]
@@ -408,8 +427,14 @@ def run(results: str | Path, prompts_path: str, metric: str = "vqascore", split:
         mark = "" if r["ci_excludes_0"] else " (CI includes 0)"
         L.append(f"| {r['metric']} | {r['model_a']} | {r['model_b']} | {r['mean_diff']:+.3f} "
                  f"[{r['ci95_lo']:+.3f}, {r['ci95_hi']:+.3f}]{mark} | {r['a_wins']:.0%} | {r['n_prompts']} |")
+    if safety:
+        L += ["", "## Safety filters on benign images (every flag is a false positive, D-022)", "",
+              "| Model | images | SD safety checker flags | NSFW ViT flags | both flag | filters agree |",
+              "| --- | --- | --- | --- | --- | --- |"]
+        L += [f"| {r['model']} | {r['images']} | {r['sd_checker_flag_rate']:.2%} | {r['vit_flag_rate']:.2%} | "
+              f"{r['both_flag_rate']:.2%} | {r['agreement']:.2%} |" for r in safety]
     atomic_write_text(results / "figures.md", "\n".join(L) + "\n")
-    return {"titles": titles, **t, "text_length": text_table}
+    return {"titles": titles, **t, "text_length": text_table, "safety": safety}
 
 
 def main(argv: list[str] | None = None) -> int:

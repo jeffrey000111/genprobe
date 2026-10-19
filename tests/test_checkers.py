@@ -196,7 +196,8 @@ class TestJobScripts(unittest.TestCase):
         return mapping, default
 
     def test_env_matches_plugins(self):
-        for script in ("slurm/score.sbatch", "slurm/score_cpu.sbatch"):
+        for script in ("slurm/score.sbatch", "slurm/score_cpu.sbatch", "slurm/sanity.sbatch",
+                       "slurm/sanity_cpu.sbatch"):
             mapping, default = self.env_map(script)
             for name, cls in REGISTRY.items():
                 self.assertEqual(mapping.get(name, default), cls.env, f"{script}: {name}")

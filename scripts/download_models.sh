@@ -10,6 +10,7 @@
 #   ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh scorers"    clip_l14 + qwen25vl7b
 #   ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh checkers"   grounding_dino_tiny + easyocr
 #                                                                          (easyocr needs the aux env)
+#   ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh m2"         pickscore hpsv2 sd_safety nsfw_vit
 #
 # SD3.5 Medium and FLUX.1-schnell are gated: accept their terms on huggingface.co first.
 # Re-running is safe: files already in the cache are skipped.
@@ -44,10 +45,11 @@ download() {
   fi
 }
 
-[[ $# -gt 0 ]] || { sed -n '2,17p' "$0"; exit 2; }
+[[ $# -gt 0 ]] || { sed -n '2,18p' "$0"; exit 2; }
 if [[ "$1" == all ]]; then set -- sd15 sdxl sd35m flux_schnell; fi
 if [[ "$1" == scorers ]]; then set -- clip_l14 qwen25vl7b; fi
 if [[ "$1" == checkers ]]; then set -- grounding_dino_tiny easyocr; fi
+if [[ "$1" == m2 ]]; then set -- pickscore hpsv2 sd_safety nsfw_vit; fi
 
 for m in "$@"; do
   case "$m" in
@@ -91,6 +93,28 @@ for m in "$@"; do
         --include "*.json" "*.txt" "*.safetensors" \
         --expect config.json preprocessor_config.json tokenizer_config.json model.safetensors
       ;;
+    pickscore)
+      # Preference score (genprobe/metrics/pickscore.py), CLIP-H, ~3.9 GB. Processor files included.
+      download pickscore yuvalkirstain/PickScore_v1 \
+        --include "*.json" "*.txt" "model.safetensors" \
+        --expect config.json preprocessor_config.json tokenizer_config.json model.safetensors
+      ;;
+    hpsv2)
+      # HPSv2.1 (genprobe/metrics/hpsv2.py): only the v2.1 checkpoint; the repo has no safetensors.
+      download hpsv2 xswu/HPSv2 --include "HPS_v2.1_compressed.pt" --expect HPS_v2.1_compressed.pt --weights-ext .pt
+      ;;
+    sd_safety)
+      # SD safety checker (genprobe/metrics/safety.py), ~1.2 GB; the repo only has a .bin.
+      download sd_safety CompVis/stable-diffusion-safety-checker \
+        --include "*.json" "pytorch_model.bin" --expect config.json preprocessor_config.json pytorch_model.bin \
+        --weights-ext .bin
+      ;;
+    nsfw_vit)
+      # Second safety classifier (genprobe/metrics/safety.py), ViT-B, ~0.3 GB. Skips optimizer/YOLO files.
+      download nsfw_vit Falconsai/nsfw_image_detection \
+        --include "config.json" "preprocessor_config.json" "model.safetensors" \
+        --expect config.json preprocessor_config.json model.safetensors
+      ;;
     easyocr)
       # OCR checker (genprobe/metrics/ocr.py): CRAFT detector + english_g2 recognizer, ~100 MB,
       # into $EASYOCR_MODULE_PATH/model. URLs and md5 sums come from the installed EasyOCR's
@@ -106,7 +130,7 @@ for m in "$@"; do
       fi
       ;;
     *) echo "unknown model '$m' (expected login, sd15, sdxl, sd35m, flux_schnell, all, clip_l14, qwen25vl7b," \
-            "scorers, grounding_dino_tiny, easyocr or checkers)" >&2; exit 2 ;;
+            "scorers, grounding_dino_tiny, easyocr, checkers, pickscore, hpsv2, sd_safety, nsfw_vit or m2)" >&2; exit 2 ;;
   esac
 done
 

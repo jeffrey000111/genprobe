@@ -25,6 +25,8 @@ def main() -> int:
     ap.add_argument("--revision", default=None)
     ap.add_argument("--expect", nargs="+", default=["model_index.json"],
                     help="files that must exist afterwards (default: diffusers' model_index.json)")
+    ap.add_argument("--weights-ext", default=".safetensors",
+                    help="file extension of the weights (.bin / .pt for repos without safetensors)")
     args = ap.parse_args()
 
     from huggingface_hub import snapshot_download
@@ -39,15 +41,15 @@ def main() -> int:
 
     files = sorted(p for p in path.rglob("*") if p.is_file())
     total = sum(os.path.getsize(p) for p in files)  # follows the cache's symlinks to blobs
-    weights = [p for p in files if p.suffix == ".safetensors"]
+    weights = [p for p in files if p.suffix == args.weights_ext]
     print(f"snapshot: {path}")
-    print(f"files: {len(files)} ({len(weights)} .safetensors), {total / 1e9:.2f} GB")
+    print(f"files: {len(files)} ({len(weights)} {args.weights_ext}), {total / 1e9:.2f} GB")
     for p in weights:
         print(f"  {p.relative_to(path)}  {os.path.getsize(p) / 1e9:.2f} GB")
 
     problems = [f"{f} missing" for f in args.expect if not (path / f).is_file()]
     if not weights:
-        problems.append("no .safetensors weights downloaded")
+        problems.append(f"no {args.weights_ext} weights downloaded")
     for sub in sorted({p.relative_to(path).parts[0] for p in weights if len(p.relative_to(path).parts) > 1}):
         if not any((path / sub).glob("*.json")):
             problems.append(f"{sub}/ has weights but no config json")

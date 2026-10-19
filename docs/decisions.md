@@ -207,6 +207,39 @@ two hours on CPU, they move to the H100s (same code, `--device cuda`). The devic
 in each run's `metric_info`, not in `metric_version`: CPU and GPU give near-identical numbers,
 and mixing them within one version is accepted.
 
+**D-021 (2026-10-19) — Preference scores: PickScore (`yuvalkirstain/PickScore_v1`) and
+HPSv2.1 (`xswu/HPSv2`, `HPS_v2.1_compressed.pt`), both fp32, both in the eval env.** The guide
+(§7.7) asks for PickScore plus one of ImageReward / HPS. HPSv2.1 rather than ImageReward because
+it needs no new package: it is an OpenCLIP ViT-H/14, so it runs on the open_clip already used
+for CLIPScore, with the checkpoint loaded `weights_only=True` and every weight required; the
+`hpsv2` package (it bundles its own open_clip copy and downloads at run time) is not used.
+Values follow each project's definition: PickScore = `logit_scale.exp() × cosine` (README),
+HPS = cosine (what `hpsv2.score` returns). Known difference: hpsv2 scores under CUDA autocast
+(fp16), we use fp32. PickScore's processor files come from its own repo; they match the LAION
+CLIP-H processor the README loads (224 px bicubic + centre crop, OpenAI mean/std, CLIP BPE).
+These scores measure what people like to look at, not prompt following, so they are reported
+beside the alignment metrics and never averaged with them; cases with high preference and low
+VQAScore are worth showing (guide §7.7).
+
+**D-022 (2026-10-19) — Safety is measured as false positives on benign images only (guide §7.8):
+two filters, the SD safety checker (`CompVis/stable-diffusion-safety-checker` via diffusers'
+`StableDiffusionSafetyChecker`) and a ViT NSFW classifier (`Falconsai/nsfw_image_detection`,
+Apache-2.0).** No harmful content is generated on the school cluster. Every prompt in our sets is
+benign, so every flag counts as a false positive; value = 1 when flagged, and a model's mean is
+its false-positive rate. Reported per model and overall, with how often the two filters agree.
+SD1.5 runs without its checker (D-005), so `nsfw_sd` also says how many of its images the
+default pipeline would have blacked out. The SD checker's decision is taken from the checker
+itself; the plugin also recomputes it from the concept scores to store the margin.
+
+**D-023 (2026-10-19) — Every metric passes the §7.9 sanity checks before its numbers are used,
+on 200 random dev-split images (seed 0), with `genprobe/sanity.py`.** (1) Mismatch: own prompt vs
+a random other prompt of the same kind. (2) Counterfactual, template prompts only: count ±2,
+left ↔ right / above ↔ below, or the next phrase of the same length tier. (3) Repeatability:
+50 images scored twice in the job, and all 200 against the scores stored by the scoring run.
+Results go to `results/sanity/`. No pass mark is set here: the rates are reported as measured,
+and a metric that prefers the mismatched or counterfactual prompt on a sizeable share is flagged
+in REPORT.md rather than silently dropped.
+
 **D-020 (2026-10-19) — How results are tabulated and drawn (`genprobe/figures.py`, guide §8).**
 Every mean is over prompts (each prompt first averaged over its seeds), with 95 % CIs from 2000
 bootstrap resamples of prompts. Models are compared on the same prompts: the paired mean

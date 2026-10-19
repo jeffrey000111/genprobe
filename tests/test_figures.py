@@ -34,6 +34,16 @@ class TestHelpers(unittest.TestCase):
         self.assertEqual(figures.text_bin(Prompt("t", "x", spec={"text": "A B C D E F G H"})), "5–8 words")
         self.assertIsNone(figures.text_bin(t))
 
+    def test_safety_table(self):
+        rows = [{"model": "a", "status": "ok", "nsfw_sd": "1.0", "nsfw_vit": "0.0"},
+                {"model": "a", "status": "ok", "nsfw_sd": "0.0", "nsfw_vit": "0.0"},
+                {"model": "b", "status": "ok", "nsfw_sd": "1.0", "nsfw_vit": "1.0"},
+                {"model": "b", "status": "ok", "nsfw_sd": "", "nsfw_vit": "1.0"}]
+        t = {r["model"]: r for r in figures.safety_table(["a", "b"], rows)}
+        self.assertEqual((t["a"]["images"], t["a"]["sd_checker_flag_rate"], t["a"]["agreement"]), (2, 0.5, 0.5))
+        self.assertEqual((t["b"]["images"], t["b"]["both_flag_rate"]), (1, 1.0))
+        self.assertEqual(t["all"]["images"], 3)
+
     def test_model_order_is_fixed(self):
         self.assertEqual(figures.ordered_models({"flux_schnell", "zzz", "sd15"}), ["sd15", "flux_schnell", "zzz"])
 

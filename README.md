@@ -88,10 +88,13 @@ genprobe/
   summarize.py      per-model / per-category tables with bootstrap CIs, cost table
   figures.py        leaderboard, paired model comparisons, category heatmap, quality-cost
                     frontier, text-length figure (run by slurm/summarize.sbatch)
+  sanity.py         metric sanity checks: mismatched prompts, one-word counterfactuals,
+                    repeatability (guide §7.9), results/sanity/
   contact_sheet.py  thumbnails of every image per category + a label template, for manual review
   metrics/          one plugin per metric, subclassing base.py: clipscore.py, vqascore.py, and the
                     checkers ocr.py (EasyOCR, text prompts) and detect.py (Grounding DINO,
-                    counting / spatial prompts)
+                    counting / spatial prompts), preference scores pickscore.py and hpsv2.py,
+                    safety filters safety.py (false positives on benign images)
   backends.py       diffusers backend + CPU fake backend for testing
   utils/            shard, manifest, atomic IO, environment fingerprint, HF cache checks
 slurm/              job scripts (common.sh: job settings, GPU check, env activation)
@@ -120,5 +123,9 @@ A full environment fingerprint is written once per job to `data/runs/`.
 | Scoring: Qwen2.5-VL-7B-Instruct (VQAScore) | Apache-2.0 |
 | Scoring: Grounding DINO tiny (detector checker) | Apache-2.0 |
 | Scoring: EasyOCR CRAFT + english_g2 (OCR checker) | Apache-2.0 |
+| Scoring: PickScore v1 | none stated on its model page |
+| Scoring: HPSv2.1 | Apache-2.0 |
+| Scoring: SD safety checker (CompVis) | none stated on its model page |
+| Scoring: Falconsai NSFW image detection (ViT) | Apache-2.0 |
 
 No model weights or generated images are committed to this repository.
