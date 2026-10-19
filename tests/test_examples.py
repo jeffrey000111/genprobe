@@ -21,6 +21,12 @@ class TestExamples(unittest.TestCase):
         self.assertEqual(sorted(r["model"] for r in got), ["a", "b", "c"])
         self.assertEqual(examples.choose(rows, lambda r: False, 3, random.Random(0)), [])
 
+    def test_prompts_about_children_are_left_out(self):
+        for p in ("Two children sitting on the bed", "a baby in a crib", "A girl with a kite", "teenagers at a mall"):
+            self.assertTrue(examples.NO_PUBLIC.search(p), p)
+        for p in ("a kidney bean", "a cowboy hat", "a photo of three birds"):
+            self.assertFalse(examples.NO_PUBLIC.search(p), p)
+
     def test_run_writes_panels_and_index(self):
         with tempfile.TemporaryDirectory() as tmp:
             d = Path(tmp)

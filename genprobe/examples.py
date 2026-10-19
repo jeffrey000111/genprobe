@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import csv
 import random
+import re
 import sys
 import textwrap
 from pathlib import Path
@@ -30,6 +31,8 @@ from .utils.env import git_commit, now_iso
 from .utils.io import atomic_write_text
 
 TILE, PAD, CAP, HEAD = 256, 10, 88, 30
+# The panels are public: prompts about children are left out of them (D-025).
+NO_PUBLIC = re.compile(r"\b(child|children|kids?|bab(y|ies)|toddlers?|boys?|girls?|teen\w*|infants?)\b", re.I)
 PER_ROW = 4
 
 
@@ -122,7 +125,7 @@ def run(results: str, prompts: str, manifests: str, out: str = "results/examples
     with open(Path(results) / "per_sample.csv", newline="", encoding="utf-8") as f:
         rows = [r for r in csv.DictReader(f) if r["status"] == "ok"]
     paths = {s.sample_id: s.path for s in load_samples(manifests, prompts)}
-    rows = [r for r in rows if r["sample_id"] in paths]
+    rows = [r for r in rows if r["sample_id"] in paths and not NO_PUBLIC.search(r["prompt"])]
     picks = sorted(float(r["pickscore"]) for r in rows if r.get("pickscore"))
     pick_hi = picks[int(0.9 * len(picks))] if picks else float("inf")
     rng = random.Random(seed)
