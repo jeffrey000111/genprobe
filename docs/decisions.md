@@ -72,12 +72,20 @@ The eval env gets an `ffmpeg` by linking imageio-ffmpeg's bundled static binary 
 venv's `bin/` (2026-10-18): `import t2v_metrics` refuses to run without one, and HPC3 has no
 system ffmpeg or internet to fetch one. Only video scoring would actually call it.
 
-**D-006 (TODO) — Generation parameters.** Use each model card's recommended settings, no
-tuning, to represent out-of-the-box quality. Re-check the SDXL card for steps/cfg and record
-the final values and source here before the full run.
+**D-006 (2026-10-19) — Generation parameters = what each model card's own example runs, no
+tuning (out-of-the-box quality).** SD1.5: 50 steps, cfg 7.5, 512 px (card example calls
+`pipe(prompt)` → pipeline defaults). SDXL base: 50 steps, cfg 5.0, 1024 px (same: the card
+example uses the pipeline defaults; the M1 smoke run used 30 steps, changed so that all four
+models follow one rule). SD3.5 Medium: 40 steps, cfg 4.5, 1024 px, T5 max 256 tokens (card).
+FLUX.1-schnell: 4 steps, guidance 0, 1024 px, max 256 tokens (card). Precision: fp16 for the
+UNet models (their released fp16 weights), bf16 for the two DiTs (as their cards load them).
+Weights are pinned to the commit in the local HF cache (`revision` in `configs/gen/`).
 
-**D-007 (TODO) — Batch size per model.** Set after the smoke run from `peak_mem_gb`; fixed
-for the whole project because it enters `config_hash` and can shift numerics slightly.
+**D-007 (2026-10-19) — Batch size per model = the smoke-run values: SD1.5 4, SDXL 2, SD3.5M 2,
+FLUX 1.** Peak memory in the smoke run was 4.3 / 15.8 / 20.7 / 36.3 GB on 94 GB H100s, so
+larger batches would fit, but these are validated, and the whole v1 run costs ~6 GPU-hours,
+so throughput doesn't matter. Fixed for the project (it enters `config_hash` and can shift
+numerics slightly); per-image times are reported with their batch size (D-004).
 
 ## Metrics
 
@@ -112,6 +120,12 @@ weight load and records P("No") per image as a diagnostic. **Open item:** check 
 t2v_metrics itself on ~20 images once an env where it imports exists (3.1 from source), and
 report the max absolute difference. A second backbone from another family will be added as a
 control before module B (guide §7.4).
+*Observation (smoke run, 2026-10-18):* scores take repeated values (0.500 three times; 0.321,
+0.223, 0.893, 0.755 …). They are sigmoids of a Yes−No logit gap that is a multiple of 1/8:
+Qwen computes logits in bf16, whose step at |logit| ≈ 16–32 is 0.125. Expected, and t2v_metrics
+behaves the same way; but it creates exact ties (0.5) that pairwise comparisons count as
+half-agreements. Option for later, recorded here before any result depends on it: compute the
+final projection in fp32 (would change `metric_version`).
 
 **D-015 (2026-10-18) — Human correctness labels for template prompts: one label per image,
 `y` / `n` / `?`, by these rules.** (1) Counting: `y` only if exactly the requested number can
@@ -130,6 +144,27 @@ check against the rules (marked `[复核后修改]` in the note). Smoke numbers 
 check (D-010); the real meta-evaluation uses GenAI-Bench's multi-rater human scores (guide §9).
 
 ## Prompt set
+
+**D-016 (2026-10-19) — Prompt set v1 = 400 GenAI-Bench prompts + 200 template prompts, built by
+`genprobe/build_prompts.py` (seed 20261019) into `data/prompts/prompts_v1.jsonl`, frozen
+before any v1 image exists.** Source: GenAI-Bench-1600 at revision `e51e8a8` (pinned in
+`scripts/fetch_genai_bench.sh`). What the data actually contains (counted, not taken from the
+paper): 1,600 prompts; tiers basic 722 / advanced 871 / none 7 (seven single-object prompts
+without skills, e.g. "A Bluetooth speaker.", left out); skills attribute 553, scene 360,
+spatial relation 386, action relation 467, part relation 195 (all basic), counting 340,
+comparison 162, differentiation 296, negation 347, universal 147 (all advanced); up to 5
+skills per prompt. Sampling: rarest skill first until every skill has ≥ 60 prompts, then
+uniform over the rest (result: 75–126 per skill; 157 basic, 243 advanced). Template prompts
+(COCO objects, checkable by a detector/OCR): counting 70 = 10 objects × counts 1–7 (number
+words); spatial 70 = 18/18/17/17 random ordered pairs of 16 objects for left of / right of /
+above / below; text 60 = 20 phrases each of 1–2, 3–4 and 5–8 words, none reused from the
+smoke set. Two or three sentence templates per category, chosen at random, so results don't
+hinge on one wording. Split: 20 % dev / 80 % test inside each stratum (GenAI-Bench tier;
+template category × count / relation / length tier). Dev is for tuning thresholds, rubrics
+and agent rules; every reported number comes from test. `n_clip_tokens` is filled when the
+builder runs where open_clip is installed (the eval env). GenAI-Bench data note for module B:
+two of its 28,800 ratings are out of the 1–5 range (`00231` DALLE_3 has 41, `00252`
+DeepFloyd has 33); they will be dropped, not guessed.
 
 **D-010 (2026-10-16) — `data/prompts/smoke.jsonl` (20 template prompts: 7 counting,
 7 spatial, 6 text) is only for pipeline testing in M1.** It is not part of prompt set v1

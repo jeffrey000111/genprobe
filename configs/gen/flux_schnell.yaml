@@ -9,7 +9,7 @@ steps: 4
 cfg: 0.0                # schnell must run with guidance_scale = 0
 height: 1024
 width: 1024
-batch_size: 1           # TODO: finalize after smoke run
+batch_size: 1           # D-007
 seeds: [0, 1, 2, 3]
 load_kwargs: {}
 call_kwargs:

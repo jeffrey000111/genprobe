@@ -53,6 +53,7 @@ class Prompt:
     tags: list[str] = field(default_factory=list)
     spec: dict[str, Any] | None = None
     split: str | None = None
+    stratum: str | None = None
     n_clip_tokens: int | None = None
 
     @classmethod

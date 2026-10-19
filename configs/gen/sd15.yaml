@@ -3,13 +3,13 @@
 name: sd15
 repo: stable-diffusion-v1-5/stable-diffusion-v1-5
 revision: null          # TODO: pin the commit hash after the smoke run (hf download prints it)
-variant: fp16           # TODO: confirm the repo ships *.fp16.safetensors; else set null
+variant: fp16           # the repo ships *.fp16.safetensors (smoke run loaded them)
 dtype: fp16
 steps: 50
 cfg: 7.5
 height: 512
 width: 512
-batch_size: 4           # TODO: finalize after smoke run (check peak_mem_gb in the manifest)
+batch_size: 4           # D-007
 seeds: [0, 1, 2, 3]
 load_kwargs:
   # The bundled safety checker blacks out benign images, which would poison every
