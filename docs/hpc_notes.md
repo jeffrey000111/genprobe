@@ -112,3 +112,7 @@ from `results/smoke/summary.md` (commit 7ec27f3). Smoke-set numbers, for plannin
 | flux_schnell | H100 NVL | 1 | 4 | 1.13 | 36.3 | 0.75 |
 
 All four generators together: ~5.5 GPU-hours for 2,400 images each, plus model loading.
+Prompt set v1 (600 prompts × 4 seeds = 2,400 images per model) with SDXL at 50 steps instead
+of 30 (D-006): SD1.5 ~0.35, SDXL ~2.1, SD3.5M ~3.1, FLUX ~0.75 GPU-h, plus ~3 min of loading per
+shard (16 shards) ≈ 7 GPU-h; scoring 9,600 images with CLIPScore + VQAScore ≈ 1–1.5 GPU-h.
+`scripts/run_v1.sh` submits it all (4 generation shards per model, ≤ 2 at a time per model).

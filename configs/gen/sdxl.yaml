@@ -1,7 +1,7 @@
 # SDXL base 1.0 — 2023, larger UNet, two CLIP text encoders (77 tokens each)
 name: sdxl
 repo: stabilityai/stable-diffusion-xl-base-1.0
-revision: null          # TODO: pin after smoke run
+revision: 462165984030d82259a11f4367a4eed129e94a7b   # commit in ~/hf_home on 2026-10-19 (D-006)
 variant: fp16
 dtype: fp16
 # The model card's example calls pipe(prompt) with pipeline defaults: 50 steps, cfg 5.0 (D-006).

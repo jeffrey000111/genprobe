@@ -42,8 +42,9 @@ bash scripts/download_models.sh scorers   # CLIP ViT-L/14 + Qwen2.5-VL-7B, ~18 G
 bash scripts/hpc_check.sh                 # partitions, GPU nodes, storage -> docs/hpc_check.md
 sbatch slurm/probe_gpu.sbatch             # envs import torch and see the H100?
 sbatch --array=0-1 slurm/gen.sbatch configs/gen/sdxl.yaml data/prompts/smoke.jsonl 2 --seeds 0
-bash scripts/submit_smoke_scoring.sh      # CLIPScore + VQAScore on the smoke images, then
+bash scripts/submit_scoring.sh data/prompts/smoke.jsonl   # CLIPScore + VQAScore, then
                                           # results/smoke/summary.md (CPU job)
+bash scripts/check_gen_env.sh && bash scripts/run_v1.sh   # M2: prompt set v1, 9,600 images
 ```
 
 Resubmitting any job is safe: finished samples are skipped, half-written files are cleaned up.

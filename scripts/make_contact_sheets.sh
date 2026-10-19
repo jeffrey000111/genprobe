@@ -12,7 +12,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 PROMPTS=${PROMPTS:-data/prompts/smoke.jsonl}
 command -v srun >/dev/null || { echo "srun not found: run this on HPC3 (ssh sjsu3), not coe-hpc1" >&2; exit 2; }
-srun -p cpuqs -c 2 --mem=8G -t 00:10:00 -J contact-sheets --chdir="$PWD" bash -c "
+srun -p cpuqs -n 1 -c 2 --mem=8G -t 00:10:00 -J contact-sheets --chdir="$PWD" bash -c "
   source scripts/paths.sh
   source \"\$GENPROBE_ENVS/eval/bin/activate\"
   python -m genprobe.contact_sheet --prompts '$PROMPTS' --out data/review"

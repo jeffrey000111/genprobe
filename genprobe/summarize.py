@@ -141,8 +141,8 @@ def fmt(x: float, nd: int = 3) -> str:
 
 
 def summarize(*, prompts_path: str, manifests: str, data: str, metrics: list[str], out: str,
-              full_run_images: int, labels_path: str | None = None) -> dict[str, Any]:
-    prompts = {p.prompt_id: p for p in load_prompts(prompts_path)}
+              full_run_images: int, labels_path: str | None = None, split: str | None = None) -> dict[str, Any]:
+    prompts = {p.prompt_id: p for p in load_prompts(prompts_path, split=split)}
     gen = latest_by_id(read_many(sorted(glob.glob(manifests))))
     gen = {sid: r for sid, r in gen.items() if r.get("prompt_id") in prompts}
     ok_ids = {sid for sid, r in gen.items() if r.get("status") == "ok"}
@@ -229,7 +229,7 @@ def summarize(*, prompts_path: str, manifests: str, data: str, metrics: list[str
             entry["mean_if_n"] = float(np.mean(ns)) if ns else float("nan")
             human["by_metric"][m] = entry
 
-    result = {"prompts": prompts_path, "created_at": now_iso(), "git_commit": git_commit(),
+    result = {"prompts": prompts_path, "split": split or "all", "created_at": now_iso(), "git_commit": git_commit(),
               "n_prompts": len(prompts), "models": models, "categories": cats, "metrics": meta,
               "by_model": by_model, "by_model_category": by_cat, "generation_cost": cost,
               "metric_agreement": agreement, "human_agreement": human,
@@ -245,7 +245,7 @@ def summarize(*, prompts_path: str, manifests: str, data: str, metrics: list[str
 
 def render_md(res: dict[str, Any], full_run_images: int) -> str:
     models, metrics, cats = res["models"], list(res["metrics"]), res["categories"]
-    L = [f"# Summary: `{res['prompts']}`", "",
+    L = [f"# Summary: `{res['prompts']}` (split: {res.get('split', 'all')})", "",
          f"Generated {res['created_at']} at commit `{res['git_commit']}` by `python -m genprobe.summarize`. "
          f"{res['n_prompts']} prompts; means are over prompts, 95% CIs from {res['bootstrap']['n_boot']} "
          "bootstrap resamples of prompts.", ""]
@@ -337,17 +337,20 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--data", default="data")
     ap.add_argument("--out", default=None, help="default: results/<prompts file stem>")
     ap.add_argument("--full-run-images", type=int, default=2400)
+    ap.add_argument("--split", default=None, choices=["dev", "test"],
+                    help="only prompts of this split (reported numbers come from test)")
     ap.add_argument("--labels", default=None,
                     help="human labels CSV (sample_id, correct=y/n/?); default data/labels/<prompts stem>_labels.csv "
                          "if it exists")
     args = ap.parse_args(argv)
     stem = Path(args.prompts).stem
-    out = args.out or str(Path("results") / stem)
+    out = args.out or str(Path("results") / (f"{stem}_{args.split}" if args.split else stem))
     labels = args.labels
     if labels is None and (Path("data/labels") / f"{stem}_labels.csv").is_file():
         labels = str(Path("data/labels") / f"{stem}_labels.csv")
     res = summarize(prompts_path=args.prompts, manifests=args.manifests, data=args.data,
-                    metrics=args.metrics, out=out, full_run_images=args.full_run_images, labels_path=labels)
+                    metrics=args.metrics, out=out, full_run_images=args.full_run_images, labels_path=labels,
+                    split=args.split)
     missing = {m: d for m, d in res["metrics"].items() if d["n_ok"] < d["n_expected"]}
     print(f"wrote {out}/summary.md, summary.json, per_sample.csv")
     for m, d in res["metrics"].items():

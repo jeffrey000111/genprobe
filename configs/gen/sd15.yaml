@@ -2,7 +2,7 @@
 # runwayml/stable-diffusion-v1-5 was taken down; this is the mirror used by the diffusers docs.
 name: sd15
 repo: stable-diffusion-v1-5/stable-diffusion-v1-5
-revision: null          # TODO: pin the commit hash after the smoke run (hf download prints it)
+revision: 451f4fe16113bff5a5d2269ed5ad43b0592e9a14   # commit in ~/hf_home on 2026-10-19 (D-006)
 variant: fp16           # the repo ships *.fp16.safetensors (smoke run loaded them)
 dtype: fp16
 steps: 50

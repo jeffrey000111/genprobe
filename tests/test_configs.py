@@ -22,6 +22,28 @@ class TestConfigs(unittest.TestCase):
                 hashes.add(cfg.config_hash())
         self.assertEqual(len(hashes), 4)
 
+    def test_weights_are_pinned(self):
+        for p in sorted((ROOT / "configs" / "gen").glob("*.yaml")):
+            with self.subTest(config=p.name):
+                rev = load_gen_config(p).revision
+                self.assertRegex(rev or "", r"^[0-9a-f]{40}$", "pin the commit hash (D-006)")
+
+    def test_prompt_set_v1(self):
+        prompts = load_prompts(ROOT / "data/prompts/prompts_v1.jsonl")
+        self.assertEqual(len(prompts), 600)
+        self.assertEqual(len({p.prompt_id for p in prompts}), 600)
+        self.assertEqual(sum(p.split == "dev" for p in prompts), 120)
+        src = {}
+        for p in prompts:
+            src[p.source] = src.get(p.source, 0) + 1
+            self.assertIn(p.split, ("dev", "test"))
+            self.assertTrue(p.stratum)
+            self.assertLessEqual(p.n_clip_tokens, 77, "SD1.5/SDXL would truncate it")
+        self.assertEqual(src, {"genai_bench": 400, "template_count": 70, "template_spatial": 70,
+                               "template_text": 60})
+        smoke = {p.prompt.lower() for p in load_prompts(ROOT / "data/prompts/smoke.jsonl")}
+        self.assertFalse(smoke & {p.prompt.lower() for p in prompts}, "v1 must not reuse smoke prompts")
+
     def test_model_specific_rules(self):
         flux = load_gen_config(ROOT / "configs/gen/flux_schnell.yaml")
         self.assertEqual(flux.cfg, 0.0, "FLUX schnell must run with guidance 0")

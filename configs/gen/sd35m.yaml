@@ -2,7 +2,7 @@
 # Gated: accept the Stability Community License on the HF model page first.
 name: sd35m
 repo: stabilityai/stable-diffusion-3.5-medium
-revision: null          # TODO: pin after smoke run
+revision: b940f670f0eda2d07fbb75229e779da1ad11eb80   # commit in ~/hf_home on 2026-10-19 (D-006)
 variant: null
 dtype: bf16
 steps: 40

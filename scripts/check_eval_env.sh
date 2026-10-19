@@ -10,7 +10,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 command -v srun >/dev/null || { echo "srun not found: run this on HPC3 (ssh sjsu3), not coe-hpc1" >&2; exit 2; }
 # --chdir: same repo path on the compute node (shared /home)
-srun -p cpuqs -c 2 --mem=16G -t 00:10:00 -J check-eval --chdir="$PWD" bash -c '
+srun -p cpuqs -n 1 -c 2 --mem=16G -t 00:10:00 -J check-eval --chdir="$PWD" bash -c '
   source scripts/paths.sh
   source "$GENPROBE_ENVS/eval/bin/activate"
   export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1

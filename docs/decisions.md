@@ -162,7 +162,9 @@ smoke set. Two or three sentence templates per category, chosen at random, so re
 hinge on one wording. Split: 20 % dev / 80 % test inside each stratum (GenAI-Bench tier;
 template category × count / relation / length tier). Dev is for tuning thresholds, rubrics
 and agent rules; every reported number comes from test. `n_clip_tokens` is filled when the
-builder runs where open_clip is installed (the eval env). GenAI-Bench data note for module B:
+builder runs where open_clip is installed (it was built on an HPC3 CPU node, eval env): the
+longest prompt has 40 CLIP tokens, so nothing is truncated by SD1.5/SDXL's 77-token encoders
+or CLIPScore. GenAI-Bench data note for module B:
 two of its 28,800 ratings are out of the 1–5 range (`00231` DALLE_3 has 41, `00252`
 DeepFloyd has 33); they will be dropped, not guessed.
 
