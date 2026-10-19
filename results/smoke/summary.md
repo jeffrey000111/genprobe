@@ -1,6 +1,6 @@
 # Summary: `data/prompts/smoke.jsonl` (split: all)
 
-Generated 2026-10-19T08:08:53.975+00:00 at commit `9546265` by `python -m genprobe.summarize`. 20 prompts; means are over prompts, 95% CIs from 2000 bootstrap resamples of prompts.
+Generated 2026-10-19T08:21:30.538+00:00 at commit `9971e8f` by `python -m genprobe.summarize`. 20 prompts; means are over prompts, 95% CIs from 2000 bootstrap resamples of prompts.
 
 ## Metric scores by model
 
@@ -94,14 +94,6 @@ Largest clipscore mistakes (image labelled wrong scored above one labelled corre
 Largest vqascore mistakes (image labelled wrong scored above one labelled correct, same prompt):
 
 - `sd35m__sm005__s0` > `sdxl__sm005__s0` by 0.005
-
-Largest detect mistakes (image labelled wrong scored above one labelled correct, same prompt):
-
-- `sdxl__sm011__s0` > `sd35m__sm011__s0` by 0.0
-- `sd15__sm011__s0` > `sd35m__sm011__s0` by 0.0
-- `sdxl__sm011__s0` > `flux_schnell__sm011__s0` by 0.0
-- `sd15__sm011__s0` > `flux_schnell__sm011__s0` by 0.0
-- `sdxl__sm009__s0` > `flux_schnell__sm009__s0` by 0.0
 
 ## Generation cost
 

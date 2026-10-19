@@ -1,81 +1,81 @@
-sample_id,model,prompt_id,seed,category,prompt,status,gen_seconds,warmup,clipscore,vqascore,ocr,detect,clip_truncated,human_correct,human_note
-flux_schnell__sm001__s0,flux_schnell,sm001,0,counting,a photo of 2 dogs,ok,2.3829,True,0.25391215085983276,0.9998006224632263,,1.0,False,y,
-flux_schnell__sm002__s0,flux_schnell,sm002,0,counting,a photo of 3 apples,ok,1.1306,False,0.2752407491207123,0.9987939596176147,,1.0,False,y,
-flux_schnell__sm003__s0,flux_schnell,sm003,0,counting,a photo of 4 cups,ok,1.1303,False,0.24714112281799316,0.9958659410476685,,1.0,False,y,
-flux_schnell__sm004__s0,flux_schnell,sm004,0,counting,a photo of 5 bicycles,ok,1.1314,False,0.24768571555614471,0.32059532403945923,,0.0,False,n,
-flux_schnell__sm005__s0,flux_schnell,sm005,0,counting,a photo of 6 chairs,ok,1.131,False,0.2673884630203247,0.002472527790814638,,0.0,False,n,
-flux_schnell__sm006__s0,flux_schnell,sm006,0,counting,a photo of 7 bananas,ok,1.1316,False,0.24915140867233276,0.8351693749427795,,0.0,False,n,
-flux_schnell__sm007__s0,flux_schnell,sm007,0,counting,a photo of 8 oranges,ok,1.1341,False,0.24435895681381226,0.7769485116004944,,0.0,False,?,橙子被切开了
-flux_schnell__sm008__s0,flux_schnell,sm008,0,spatial,a cat to the left of a dog,ok,1.1305,False,0.24124222993850708,0.9997761845588684,,1.0,False,y,
-flux_schnell__sm009__s0,flux_schnell,sm009,0,spatial,a cup to the right of a laptop,ok,1.1369,False,0.24532389640808105,0.999922513961792,,1.0,False,y,
-flux_schnell__sm010__s0,flux_schnell,sm010,0,spatial,a clock above a chair,ok,1.1245,False,0.261153906583786,0.9997919201850891,,1.0,False,y,
-flux_schnell__sm011__s0,flux_schnell,sm011,0,spatial,a bicycle to the left of a car,ok,1.134,False,0.258244127035141,0.004609282128512859,,0.0,False,y,
-flux_schnell__sm012__s0,flux_schnell,sm012,0,spatial,a vase to the right of a book,ok,1.1316,False,0.29281628131866455,0.9994124174118042,,1.0,False,n,在书的左侧
-flux_schnell__sm013__s0,flux_schnell,sm013,0,spatial,a dog below an umbrella,ok,1.1358,False,0.2674170732498169,0.998936116695404,,1.0,False,y,
-flux_schnell__sm014__s0,flux_schnell,sm014,0,spatial,a teddy bear above a bench,ok,1.1272,False,0.25704601407051086,0.5309446454048157,,1.0,False,y,
-flux_schnell__sm015__s0,flux_schnell,sm015,0,text,"a storefront sign that says ""OPEN""",ok,1.1356,False,0.24838712811470032,0.9977880716323853,1.0,,False,y,
-flux_schnell__sm016__s0,flux_schnell,sm016,0,text,"a storefront sign that says ""FRESH BREAD""",ok,1.1339,False,0.3004927337169647,0.9971657395362854,1.0,,False,y,
-flux_schnell__sm017__s0,flux_schnell,sm017,0,text,"a storefront sign that says ""BOOKS AND COFFEE""",ok,1.1425,False,0.29321977496147156,0.9996042847633362,1.0,,False,y,
-flux_schnell__sm018__s0,flux_schnell,sm018,0,text,"a storefront sign that says ""OPEN 24 HOURS DAILY""",ok,1.1348,False,0.28650206327438354,0.9739522933959961,0.9375,,False,y,
-flux_schnell__sm019__s0,flux_schnell,sm019,0,text,"a storefront sign that says ""PLEASE WAIT HERE TO BE SEATED""",ok,1.1315,False,0.2932351231575012,0.9840068221092224,0.6666666666666667,,False,n,WAIT 重复（WAIT WAIT HERE） [复核后修改]
-flux_schnell__sm020__s0,flux_schnell,sm020,0,text,"a storefront sign that says ""NO PARKING IN FRONT OF THE GATE""",ok,1.1351,False,0.2801220417022705,0.9239702820777893,0.52,,False,n,"拼写错误（NO…NG, OT THE GATE），按规则算 n [复核后修改]"
-sd15__sm001__s0,sd15,sm001,0,counting,a photo of 2 dogs,ok,2.929,True,0.2382480353116989,0.9995818734169006,,1.0,False,y,
-sd15__sm002__s0,sd15,sm002,0,counting,a photo of 3 apples,ok,2.929,True,0.23318755626678467,0.999125063419342,,1.0,False,y,
-sd15__sm003__s0,sd15,sm003,0,counting,a photo of 4 cups,ok,2.929,True,0.23518343269824982,0.022974656894803047,,0.0,False,?,很难判断中间三个是不是杯子
-sd15__sm004__s0,sd15,sm004,0,counting,a photo of 5 bicycles,ok,2.929,True,0.24772518873214722,0.0040697865188121796,,0.0,False,n,
-sd15__sm005__s0,sd15,sm005,0,counting,a photo of 6 chairs,ok,0.5312,False,0.2585030198097229,0.8926701545715332,,0.0,False,n,
-sd15__sm006__s0,sd15,sm006,0,counting,a photo of 7 bananas,ok,0.5312,False,0.24923166632652283,0.8930432796478271,,0.0,False,n,
-sd15__sm007__s0,sd15,sm007,0,counting,a photo of 8 oranges,ok,0.5312,False,0.26752156019210815,0.5617716312408447,,0.0,False,?,橙子被切开了
-sd15__sm008__s0,sd15,sm008,0,spatial,a cat to the left of a dog,ok,0.5312,False,0.19822703301906586,7.433979044435546e-05,,0.0,False,n,两只都是猫
-sd15__sm009__s0,sd15,sm009,0,spatial,a cup to the right of a laptop,ok,0.5303,False,0.19679851830005646,0.00015841769345570356,,0.0,False,n,没有杯子
-sd15__sm010__s0,sd15,sm010,0,spatial,a clock above a chair,ok,0.5303,False,0.22286128997802734,0.49957579374313354,,1.0,False,?,无法辨别是不是凳子
-sd15__sm011__s0,sd15,sm011,0,spatial,a bicycle to the left of a car,ok,0.5303,False,0.21857500076293945,0.0013249879702925682,,0.0,False,n,没有汽车
-sd15__sm012__s0,sd15,sm012,0,spatial,a vase to the right of a book,ok,0.5303,False,0.2826097905635834,0.001169443828985095,,0.0,False,n,在书的左侧
-sd15__sm013__s0,sd15,sm013,0,spatial,a dog below an umbrella,ok,0.5304,False,0.24963386356830597,0.9998230338096619,,1.0,False,y,
-sd15__sm014__s0,sd15,sm014,0,spatial,a teddy bear above a bench,ok,0.5304,False,0.24562996625900269,0.07581612467765808,,0.0,False,n,没有长椅
-sd15__sm015__s0,sd15,sm015,0,text,"a storefront sign that says ""OPEN""",ok,0.5304,False,0.24852988123893738,0.6786588430404663,0.25,,False,?,无法辨别
-sd15__sm016__s0,sd15,sm016,0,text,"a storefront sign that says ""FRESH BREAD""",ok,0.5304,False,0.313242644071579,0.932186484336853,0.5,,False,n,不是fresh bread
-sd15__sm017__s0,sd15,sm017,0,text,"a storefront sign that says ""BOOKS AND COFFEE""",ok,0.5317,False,0.2777469754219055,0.014062670059502125,0.3571428571428571,,False,n,"不是BOOKS AND COFFEE"""
-sd15__sm018__s0,sd15,sm018,0,text,"a storefront sign that says ""OPEN 24 HOURS DAILY""",ok,0.5317,False,0.22969144582748413,0.004609325900673866,0.25,,False,n,"OPEN 24 HOURS DAILY"""
-sd15__sm019__s0,sd15,sm019,0,text,"a storefront sign that says ""PLEASE WAIT HERE TO BE SEATED""",ok,0.5317,False,0.24258118867874146,0.2226174771785736,0.375,,False,n,不是
-sd15__sm020__s0,sd15,sm020,0,text,"a storefront sign that says ""NO PARKING IN FRONT OF THE GATE""",ok,0.5317,False,0.23470333218574524,0.2226027399301529,0.24,,False,n,不是
-sd35m__sm001__s0,sd35m,sm001,0,counting,a photo of 2 dogs,ok,6.7471,True,0.23715701699256897,0.9998892545700073,,1.0,False,y,
-sd35m__sm002__s0,sd35m,sm002,0,counting,a photo of 3 apples,ok,6.7471,True,0.26700687408447266,0.014061708003282547,,0.0,False,n,
-sd35m__sm003__s0,sd35m,sm003,0,counting,a photo of 4 cups,ok,4.6349,False,0.23163974285125732,0.49969589710235596,,0.0,False,n,
-sd35m__sm004__s0,sd35m,sm004,0,counting,a photo of 5 bicycles,ok,4.6349,False,0.2581906318664551,0.09532006084918976,,0.0,False,n,
-sd35m__sm005__s0,sd35m,sm005,0,counting,a photo of 6 chairs,ok,4.6503,False,0.2638087570667267,0.9996980428695679,,0.0,False,n,
-sd35m__sm006__s0,sd35m,sm006,0,counting,a photo of 7 bananas,ok,4.6503,False,0.27789464592933655,0.29406455159187317,,0.0,False,?,有的香蕉被挡住了
-sd35m__sm007__s0,sd35m,sm007,0,counting,a photo of 8 oranges,ok,4.664,False,0.2821357846260071,0.5309450030326843,,0.0,False,n,多了
-sd35m__sm008__s0,sd35m,sm008,0,spatial,a cat to the left of a dog,ok,4.664,False,0.24001437425613403,0.10666996985673904,,1.0,False,?,看不到右边的是不是狗
-sd35m__sm009__s0,sd35m,sm009,0,spatial,a cup to the right of a laptop,ok,4.6336,False,0.24649539589881897,0.49975156784057617,,0.0,False,n,在电脑上面
-sd35m__sm010__s0,sd35m,sm010,0,spatial,a clock above a chair,ok,4.6336,False,0.25713229179382324,0.9998598098754883,,1.0,False,y,
-sd35m__sm011__s0,sd35m,sm011,0,spatial,a bicycle to the left of a car,ok,4.644,False,0.2617622911930084,0.3483983278274536,,0.0,False,y,
-sd35m__sm012__s0,sd35m,sm012,0,spatial,a vase to the right of a book,ok,4.644,False,0.25981175899505615,0.020330583676695824,,0.0,False,n,在书的上面
-sd35m__sm013__s0,sd35m,sm013,0,spatial,a dog below an umbrella,ok,4.6455,False,0.24137236177921295,0.9999337196350098,,1.0,False,y,
-sd35m__sm014__s0,sd35m,sm014,0,spatial,a teddy bear above a bench,ok,4.6455,False,0.29192689061164856,0.9963567852973938,,1.0,False,y,
-sd35m__sm015__s0,sd35m,sm015,0,text,"a storefront sign that says ""OPEN""",ok,4.6494,False,0.27149927616119385,0.9991637468338013,1.0,,False,y,
-sd35m__sm016__s0,sd35m,sm016,0,text,"a storefront sign that says ""FRESH BREAD""",ok,4.6494,False,0.28119462728500366,0.9993556141853333,1.0,,False,y,
-sd35m__sm017__s0,sd35m,sm017,0,text,"a storefront sign that says ""BOOKS AND COFFEE""",ok,4.6529,False,0.3210810124874115,0.9996034502983093,1.0,,False,y,
-sd35m__sm018__s0,sd35m,sm018,0,text,"a storefront sign that says ""OPEN 24 HOURS DAILY""",ok,4.6529,False,0.2935381829738617,0.9980227947235107,0.75,,False,?,无法辨别open的n是不是“n”
-sd35m__sm019__s0,sd35m,sm019,0,text,"a storefront sign that says ""PLEASE WAIT HERE TO BE SEATED""",ok,4.6519,False,0.3106163740158081,0.9982276558876038,0.9166666666666666,,False,y,
-sd35m__sm020__s0,sd35m,sm020,0,text,"a storefront sign that says ""NO PARKING IN FRONT OF THE GATE""",ok,4.6519,False,0.32556676864624023,0.9576885104179382,0.88,,False,n,多了 he（in front he of the） [复核后修改]
-sdxl__sm001__s0,sdxl,sm001,0,counting,a photo of 2 dogs,ok,3.4398,True,0.26759254932403564,0.9997759461402893,,1.0,False,y,
-sdxl__sm002__s0,sdxl,sm002,0,counting,a photo of 3 apples,ok,3.4398,True,0.2665180563926697,0.9997418522834778,,1.0,False,y,
-sdxl__sm003__s0,sdxl,sm003,0,counting,a photo of 4 cups,ok,1.8932,False,0.21305814385414124,0.4684649109840393,,0.0,False,n,
-sdxl__sm004__s0,sdxl,sm004,0,counting,a photo of 5 bicycles,ok,1.8932,False,0.24713531136512756,0.001926685101352632,,0.0,False,n,
-sdxl__sm005__s0,sdxl,sm005,0,counting,a photo of 6 chairs,ok,1.8972,False,0.2646361291408539,0.9947013854980469,,1.0,False,y,
-sdxl__sm006__s0,sdxl,sm006,0,counting,a photo of 7 bananas,ok,1.8972,False,0.24113905429840088,0.754550576210022,,0.0,False,n,
-sdxl__sm007__s0,sdxl,sm007,0,counting,a photo of 8 oranges,ok,1.8979,False,0.25085973739624023,0.000709658837877214,,0.0,False,n,多了而且有的被切开了
-sdxl__sm008__s0,sdxl,sm008,0,spatial,a cat to the left of a dog,ok,1.8979,False,0.2388450801372528,0.9980376362800598,,1.0,False,n,两只都是狗
-sdxl__sm009__s0,sdxl,sm009,0,spatial,a cup to the right of a laptop,ok,1.8969,False,0.23154467344284058,0.9998557567596436,,1.0,False,n,在电脑前面
-sdxl__sm010__s0,sdxl,sm010,0,spatial,a clock above a chair,ok,1.8969,False,0.26169922947883606,0.3206060528755188,,1.0,False,?,无法辨别是不是椅子
-sdxl__sm011__s0,sdxl,sm011,0,spatial,a bicycle to the left of a car,ok,1.8997,False,0.2310149222612381,0.0021826447919011116,,0.0,False,n,不在汽车左侧
-sdxl__sm012__s0,sdxl,sm012,0,spatial,a vase to the right of a book,ok,1.8997,False,0.260972261428833,0.09532410651445389,,0.0,False,n,在书的后面
-sdxl__sm013__s0,sdxl,sm013,0,spatial,a dog below an umbrella,ok,1.9053,False,0.230351522564888,0.9999041557312012,,1.0,False,y,
-sdxl__sm014__s0,sdxl,sm014,0,spatial,a teddy bear above a bench,ok,1.9053,False,0.24887095391750336,0.20172712206840515,,1.0,False,y,熊坐在长椅上，按规则 2 算上方 [复核后修改]
-sdxl__sm015__s0,sdxl,sm015,0,text,"a storefront sign that says ""OPEN""",ok,1.9036,False,0.25924152135849,0.9625536799430847,0.5,,False,n,不是open
-sdxl__sm016__s0,sdxl,sm016,0,text,"a storefront sign that says ""FRESH BREAD""",ok,1.9036,False,0.2911209464073181,0.7545630931854248,0.6,,False,n,不是fresh bread
-sdxl__sm017__s0,sdxl,sm017,0,text,"a storefront sign that says ""BOOKS AND COFFEE""",ok,1.903,False,0.29330530762672424,0.9986520409584045,0.7857142857142857,,False,y,
-sdxl__sm018__s0,sdxl,sm018,0,text,"a storefront sign that says ""OPEN 24 HOURS DAILY""",ok,1.903,False,0.2299545705318451,0.3206353783607483,0.5,,False,?,顺序非常杂论
-sdxl__sm019__s0,sdxl,sm019,0,text,"a storefront sign that says ""PLEASE WAIT HERE TO BE SEATED""",ok,1.9087,False,0.334812194108963,0.6510120630264282,0.6666666666666667,,False,n,不是
-sdxl__sm020__s0,sdxl,sm020,0,text,"a storefront sign that says ""NO PARKING IN FRONT OF THE GATE""",ok,1.9087,False,0.30719298124313354,0.9322371482849121,0.48,,False,?,看不清
+sample_id,model,prompt_id,seed,category,prompt,status,gen_seconds,warmup,clipscore,vqascore,ocr,detect,ocr_read,detect_detail,clip_truncated,human_correct,human_note
+flux_schnell__sm001__s0,flux_schnell,sm001,0,counting,a photo of 2 dogs,ok,2.3829,True,0.25391215085983276,0.9998006224632263,,1.0,,count 2/2,False,y,
+flux_schnell__sm002__s0,flux_schnell,sm002,0,counting,a photo of 3 apples,ok,1.1306,False,0.2752407491207123,0.9987939596176147,,1.0,,count 3/3,False,y,
+flux_schnell__sm003__s0,flux_schnell,sm003,0,counting,a photo of 4 cups,ok,1.1303,False,0.24714112281799316,0.9958659410476685,,1.0,,count 4/4,False,y,
+flux_schnell__sm004__s0,flux_schnell,sm004,0,counting,a photo of 5 bicycles,ok,1.1314,False,0.24768571555614471,0.32059532403945923,,0.0,,count 3/5,False,n,
+flux_schnell__sm005__s0,flux_schnell,sm005,0,counting,a photo of 6 chairs,ok,1.131,False,0.2673884630203247,0.002472527790814638,,0.0,,count 4/6,False,n,
+flux_schnell__sm006__s0,flux_schnell,sm006,0,counting,a photo of 7 bananas,ok,1.1316,False,0.24915140867233276,0.8351693749427795,,0.0,,count 3/7,False,n,
+flux_schnell__sm007__s0,flux_schnell,sm007,0,counting,a photo of 8 oranges,ok,1.1341,False,0.24435895681381226,0.7769485116004944,,0.0,,count 9/8,False,?,橙子被切开了
+flux_schnell__sm008__s0,flux_schnell,sm008,0,spatial,a cat to the left of a dog,ok,1.1305,False,0.24124222993850708,0.9997761845588684,,1.0,,"left_of: a at (0.31,0.55) b at (0.69,0.59)",False,y,
+flux_schnell__sm009__s0,flux_schnell,sm009,0,spatial,a cup to the right of a laptop,ok,1.1369,False,0.24532389640808105,0.999922513961792,,1.0,,"right_of: a at (0.77,0.52) b at (0.32,0.56)",False,y,
+flux_schnell__sm010__s0,flux_schnell,sm010,0,spatial,a clock above a chair,ok,1.1245,False,0.261153906583786,0.9997919201850891,,1.0,,"above: a at (0.50,0.41) b at (0.50,0.79)",False,y,
+flux_schnell__sm011__s0,flux_schnell,sm011,0,spatial,a bicycle to the left of a car,ok,1.134,False,0.258244127035141,0.004609282128512859,,0.0,,"left_of: a at (0.55,0.68) b at (0.20,0.68)",False,y,
+flux_schnell__sm012__s0,flux_schnell,sm012,0,spatial,a vase to the right of a book,ok,1.1316,False,0.29281628131866455,0.9994124174118042,,1.0,,"right_of: a at (0.72,0.60) b at (0.48,0.79)",False,n,在书的左侧
+flux_schnell__sm013__s0,flux_schnell,sm013,0,spatial,a dog below an umbrella,ok,1.1358,False,0.2674170732498169,0.998936116695404,,1.0,,"below: a at (0.52,0.69) b at (0.50,0.39)",False,y,
+flux_schnell__sm014__s0,flux_schnell,sm014,0,spatial,a teddy bear above a bench,ok,1.1272,False,0.25704601407051086,0.5309446454048157,,1.0,,"above: a at (0.49,0.47) b at (0.50,0.81)",False,y,
+flux_schnell__sm015__s0,flux_schnell,sm015,0,text,"a storefront sign that says ""OPEN""",ok,1.1356,False,0.24838712811470032,0.9977880716323853,1.0,,OPEN,,False,y,
+flux_schnell__sm016__s0,flux_schnell,sm016,0,text,"a storefront sign that says ""FRESH BREAD""",ok,1.1339,False,0.3004927337169647,0.9971657395362854,1.0,,FRESH BREAD S913,,False,y,
+flux_schnell__sm017__s0,flux_schnell,sm017,0,text,"a storefront sign that says ""BOOKS AND COFFEE""",ok,1.1425,False,0.29321977496147156,0.9996042847633362,1.0,,BOOKS AND COFFEE COFFEES,,False,y,
+flux_schnell__sm018__s0,flux_schnell,sm018,0,text,"a storefront sign that says ""OPEN 24 HOURS DAILY""",ok,1.1348,False,0.28650206327438354,0.9739522933959961,0.9375,,OPEN 24 HOURS DAILLY,,False,y,
+flux_schnell__sm019__s0,flux_schnell,sm019,0,text,"a storefront sign that says ""PLEASE WAIT HERE TO BE SEATED""",ok,1.1315,False,0.2932351231575012,0.9840068221092224,0.6666666666666667,,3 PLEASE WAIT WAIT HERE TO BE BULY SEATED THE STATUS,,False,n,WAIT 重复（WAIT WAIT HERE） [复核后修改]
+flux_schnell__sm020__s0,flux_schnell,sm020,0,text,"a storefront sign that says ""NO PARKING IN FRONT OF THE GATE""",ok,1.1351,False,0.2801220417022705,0.9239702820777893,0.52,,NO PARKING NO NG RSA IN FRONT OT FRICT PRICE 81084 SLATOR 206 1002 UNTTTT THE 4ATE,,False,n,"拼写错误（NO…NG, OT THE GATE），按规则算 n [复核后修改]"
+sd15__sm001__s0,sd15,sm001,0,counting,a photo of 2 dogs,ok,2.929,True,0.2382480353116989,0.9995818734169006,,1.0,,count 2/2,False,y,
+sd15__sm002__s0,sd15,sm002,0,counting,a photo of 3 apples,ok,2.929,True,0.23318755626678467,0.999125063419342,,1.0,,count 3/3,False,y,
+sd15__sm003__s0,sd15,sm003,0,counting,a photo of 4 cups,ok,2.929,True,0.23518343269824982,0.022974656894803047,,0.0,,count 8/4,False,?,很难判断中间三个是不是杯子
+sd15__sm004__s0,sd15,sm004,0,counting,a photo of 5 bicycles,ok,2.929,True,0.24772518873214722,0.0040697865188121796,,0.0,,count 2/5,False,n,
+sd15__sm005__s0,sd15,sm005,0,counting,a photo of 6 chairs,ok,0.5312,False,0.2585030198097229,0.8926701545715332,,0.0,,count 3/6,False,n,
+sd15__sm006__s0,sd15,sm006,0,counting,a photo of 7 bananas,ok,0.5312,False,0.24923166632652283,0.8930432796478271,,0.0,,count 4/7,False,n,
+sd15__sm007__s0,sd15,sm007,0,counting,a photo of 8 oranges,ok,0.5312,False,0.26752156019210815,0.5617716312408447,,0.0,,count 9/8,False,?,橙子被切开了
+sd15__sm008__s0,sd15,sm008,0,spatial,a cat to the left of a dog,ok,0.5312,False,0.19822703301906586,7.433979044435546e-05,,0.0,,left_of: missing b,False,n,两只都是猫
+sd15__sm009__s0,sd15,sm009,0,spatial,a cup to the right of a laptop,ok,0.5303,False,0.19679851830005646,0.00015841769345570356,,0.0,,right_of: missing a,False,n,没有杯子
+sd15__sm010__s0,sd15,sm010,0,spatial,a clock above a chair,ok,0.5303,False,0.22286128997802734,0.49957579374313354,,1.0,,"above: a at (0.50,0.48) b at (0.49,0.83)",False,?,无法辨别是不是凳子
+sd15__sm011__s0,sd15,sm011,0,spatial,a bicycle to the left of a car,ok,0.5303,False,0.21857500076293945,0.0013249879702925682,,0.0,,left_of: missing b,False,n,没有汽车
+sd15__sm012__s0,sd15,sm012,0,spatial,a vase to the right of a book,ok,0.5303,False,0.2826097905635834,0.001169443828985095,,0.0,,"right_of: a at (0.49,0.62) b at (0.87,0.46)",False,n,在书的左侧
+sd15__sm013__s0,sd15,sm013,0,spatial,a dog below an umbrella,ok,0.5304,False,0.24963386356830597,0.9998230338096619,,1.0,,"below: a at (0.63,0.69) b at (0.50,0.44)",False,y,
+sd15__sm014__s0,sd15,sm014,0,spatial,a teddy bear above a bench,ok,0.5304,False,0.24562996625900269,0.07581612467765808,,0.0,,"above: a at (0.60,0.56) b at (0.50,0.50)",False,n,没有长椅
+sd15__sm015__s0,sd15,sm015,0,text,"a storefront sign that says ""OPEN""",ok,0.5304,False,0.24852988123893738,0.6786588430404663,0.25,,SPM,,False,?,无法辨别
+sd15__sm016__s0,sd15,sm016,0,text,"a storefront sign that says ""FRESH BREAD""",ok,0.5304,False,0.313242644071579,0.932186484336853,0.5,,REUL EFKH 6FESL JBRSII BREAAD FRSL LICINNIV WIFLS JD SRESH,,False,n,不是fresh bread
+sd15__sm017__s0,sd15,sm017,0,text,"a storefront sign that says ""BOOKS AND COFFEE""",ok,0.5317,False,0.2777469754219055,0.014062670059502125,0.3571428571428571,,HAAIF BOOK 056 BOOKKS BCCION IC CHC IIC PODON,,False,n,"不是BOOKS AND COFFEE"""
+sd15__sm018__s0,sd15,sm018,0,text,"a storefront sign that says ""OPEN 24 HOURS DAILY""",ok,0.5317,False,0.22969144582748413,0.004609325900673866,0.25,,OE ULN LATESNE ALHY EUN,,False,n,"OPEN 24 HOURS DAILY"""
+sd15__sm019__s0,sd15,sm019,0,text,"a storefront sign that says ""PLEASE WAIT HERE TO BE SEATED""",ok,0.5317,False,0.24258118867874146,0.2226174771785736,0.375,,PISE STRRE WHE AINTE OUN AV AM SEA ER,,False,n,不是
+sd15__sm020__s0,sd15,sm020,0,text,"a storefront sign that says ""NO PARKING IN FRONT OF THE GATE""",ok,0.5317,False,0.23470333218574524,0.2226027399301529,0.24,,NO PEN TC PPASKKANG,,False,n,不是
+sd35m__sm001__s0,sd35m,sm001,0,counting,a photo of 2 dogs,ok,6.7471,True,0.23715701699256897,0.9998892545700073,,1.0,,count 2/2,False,y,
+sd35m__sm002__s0,sd35m,sm002,0,counting,a photo of 3 apples,ok,6.7471,True,0.26700687408447266,0.014061708003282547,,0.0,,count 4/3,False,n,
+sd35m__sm003__s0,sd35m,sm003,0,counting,a photo of 4 cups,ok,4.6349,False,0.23163974285125732,0.49969589710235596,,0.0,,count 5/4,False,n,
+sd35m__sm004__s0,sd35m,sm004,0,counting,a photo of 5 bicycles,ok,4.6349,False,0.2581906318664551,0.09532006084918976,,0.0,,count 3/5,False,n,
+sd35m__sm005__s0,sd35m,sm005,0,counting,a photo of 6 chairs,ok,4.6503,False,0.2638087570667267,0.9996980428695679,,0.0,,count 5/6,False,n,
+sd35m__sm006__s0,sd35m,sm006,0,counting,a photo of 7 bananas,ok,4.6503,False,0.27789464592933655,0.29406455159187317,,0.0,,count 3/7,False,?,有的香蕉被挡住了
+sd35m__sm007__s0,sd35m,sm007,0,counting,a photo of 8 oranges,ok,4.664,False,0.2821357846260071,0.5309450030326843,,0.0,,count 11/8,False,n,多了
+sd35m__sm008__s0,sd35m,sm008,0,spatial,a cat to the left of a dog,ok,4.664,False,0.24001437425613403,0.10666996985673904,,1.0,,"left_of: a at (0.28,0.50) b at (0.71,0.33)",False,?,看不到右边的是不是狗
+sd35m__sm009__s0,sd35m,sm009,0,spatial,a cup to the right of a laptop,ok,4.6336,False,0.24649539589881897,0.49975156784057617,,0.0,,"right_of: a at (0.51,0.67) b at (0.49,0.59)",False,n,在电脑上面
+sd35m__sm010__s0,sd35m,sm010,0,spatial,a clock above a chair,ok,4.6336,False,0.25713229179382324,0.9998598098754883,,1.0,,"above: a at (0.31,0.14) b at (0.62,0.83)",False,y,
+sd35m__sm011__s0,sd35m,sm011,0,spatial,a bicycle to the left of a car,ok,4.644,False,0.2617622911930084,0.3483983278274536,,0.0,,"left_of: a at (0.51,0.73) b at (0.23,0.58)",False,y,
+sd35m__sm012__s0,sd35m,sm012,0,spatial,a vase to the right of a book,ok,4.644,False,0.25981175899505615,0.020330583676695824,,0.0,,"right_of: a at (0.64,0.75) b at (0.65,0.90)",False,n,在书的上面
+sd35m__sm013__s0,sd35m,sm013,0,spatial,a dog below an umbrella,ok,4.6455,False,0.24137236177921295,0.9999337196350098,,1.0,,"below: a at (0.52,0.79) b at (0.50,0.34)",False,y,
+sd35m__sm014__s0,sd35m,sm014,0,spatial,a teddy bear above a bench,ok,4.6455,False,0.29192689061164856,0.9963567852973938,,1.0,,"above: a at (0.47,0.30) b at (0.50,0.68)",False,y,
+sd35m__sm015__s0,sd35m,sm015,0,text,"a storefront sign that says ""OPEN""",ok,4.6494,False,0.27149927616119385,0.9991637468338013,1.0,,OPEN FE NVTE7R6,,False,y,
+sd35m__sm016__s0,sd35m,sm016,0,text,"a storefront sign that says ""FRESH BREAD""",ok,4.6494,False,0.28119462728500366,0.9993556141853333,1.0,,FRESH BREAD SEUTSLON 4 FSTY DEIEAD NOUSEH 0 CN IDSTON,,False,y,
+sd35m__sm017__s0,sd35m,sm017,0,text,"a storefront sign that says ""BOOKS AND COFFEE""",ok,4.6529,False,0.3210810124874115,0.9996034502983093,1.0,,BOOKS AND COFFEE TAEN JOCT ON DN,,False,y,
+sd35m__sm018__s0,sd35m,sm018,0,text,"a storefront sign that says ""OPEN 24 HOURS DAILY""",ok,4.6529,False,0.2935381829738617,0.9980227947235107,0.75,,OPIE PW5 4 24 HOURS DAI LY,,False,?,无法辨别open的n是不是“n”
+sd35m__sm019__s0,sd35m,sm019,0,text,"a storefront sign that says ""PLEASE WAIT HERE TO BE SEATED""",ok,4.6519,False,0.3106163740158081,0.9982276558876038,0.9166666666666666,,PLEASE WINIT HERE TO BE SEATED,,False,y,
+sd35m__sm020__s0,sd35m,sm020,0,text,"a storefront sign that says ""NO PARKING IN FRONT OF THE GATE""",ok,4.6519,False,0.32556676864624023,0.9576885104179382,0.88,,EKEDOAIGT NO PARKIG IN FRONT HE OF THE GATE,,False,n,多了 he（in front he of the） [复核后修改]
+sdxl__sm001__s0,sdxl,sm001,0,counting,a photo of 2 dogs,ok,3.4398,True,0.26759254932403564,0.9997759461402893,,1.0,,count 2/2,False,y,
+sdxl__sm002__s0,sdxl,sm002,0,counting,a photo of 3 apples,ok,3.4398,True,0.2665180563926697,0.9997418522834778,,1.0,,count 3/3,False,y,
+sdxl__sm003__s0,sdxl,sm003,0,counting,a photo of 4 cups,ok,1.8932,False,0.21305814385414124,0.4684649109840393,,0.0,,count 3/4,False,n,
+sdxl__sm004__s0,sdxl,sm004,0,counting,a photo of 5 bicycles,ok,1.8932,False,0.24713531136512756,0.001926685101352632,,0.0,,count 2/5,False,n,
+sdxl__sm005__s0,sdxl,sm005,0,counting,a photo of 6 chairs,ok,1.8972,False,0.2646361291408539,0.9947013854980469,,1.0,,count 6/6,False,y,
+sdxl__sm006__s0,sdxl,sm006,0,counting,a photo of 7 bananas,ok,1.8972,False,0.24113905429840088,0.754550576210022,,0.0,,count 2/7,False,n,
+sdxl__sm007__s0,sdxl,sm007,0,counting,a photo of 8 oranges,ok,1.8979,False,0.25085973739624023,0.000709658837877214,,0.0,,count 25/8,False,n,多了而且有的被切开了
+sdxl__sm008__s0,sdxl,sm008,0,spatial,a cat to the left of a dog,ok,1.8979,False,0.2388450801372528,0.9980376362800598,,1.0,,"left_of: a at (0.41,0.52) b at (0.78,0.50)",False,n,两只都是狗
+sdxl__sm009__s0,sdxl,sm009,0,spatial,a cup to the right of a laptop,ok,1.8969,False,0.23154467344284058,0.9998557567596436,,1.0,,"right_of: a at (0.70,0.34) b at (0.36,0.62)",False,n,在电脑前面
+sdxl__sm010__s0,sdxl,sm010,0,spatial,a clock above a chair,ok,1.8969,False,0.26169922947883606,0.3206060528755188,,1.0,,"above: a at (0.38,0.23) b at (0.77,0.69)",False,?,无法辨别是不是椅子
+sdxl__sm011__s0,sdxl,sm011,0,spatial,a bicycle to the left of a car,ok,1.8997,False,0.2310149222612381,0.0021826447919011116,,0.0,,"left_of: a at (0.60,0.72) b at (0.10,0.57)",False,n,不在汽车左侧
+sdxl__sm012__s0,sdxl,sm012,0,spatial,a vase to the right of a book,ok,1.8997,False,0.260972261428833,0.09532410651445389,,0.0,,"right_of: a at (0.26,0.65) b at (0.50,0.83)",False,n,在书的后面
+sdxl__sm013__s0,sdxl,sm013,0,spatial,a dog below an umbrella,ok,1.9053,False,0.230351522564888,0.9999041557312012,,1.0,,"below: a at (0.47,0.63) b at (0.50,0.45)",False,y,
+sdxl__sm014__s0,sdxl,sm014,0,spatial,a teddy bear above a bench,ok,1.9053,False,0.24887095391750336,0.20172712206840515,,1.0,,"above: a at (0.34,0.57) b at (0.68,0.74)",False,y,熊坐在长椅上，按规则 2 算上方 [复核后修改]
+sdxl__sm015__s0,sdxl,sm015,0,text,"a storefront sign that says ""OPEN""",ok,1.9036,False,0.25924152135849,0.9625536799430847,0.5,,OPL DEN,,False,n,不是open
+sdxl__sm016__s0,sdxl,sm016,0,text,"a storefront sign that says ""FRESH BREAD""",ok,1.9036,False,0.2911209464073181,0.7545630931854248,0.6,,FREEAB RESHH ZANCCHAR BRAD IR 57,,False,n,不是fresh bread
+sdxl__sm017__s0,sdxl,sm017,0,text,"a storefront sign that says ""BOOKS AND COFFEE""",ok,1.903,False,0.29330530762672424,0.9986520409584045,0.7857142857142857,,BOCIKS AND COF EEE ITOTCNIS FORCTIRDAIG BOOKS K JU DDS CBM,,False,y,
+sdxl__sm018__s0,sdxl,sm018,0,text,"a storefront sign that says ""OPEN 24 HOURS DAILY""",ok,1.903,False,0.2299545705318451,0.3206353783607483,0.5,,EN JVM HOUET DT AILY CJXILE NOUS 912 VOR,,False,?,顺序非常杂论
+sdxl__sm019__s0,sdxl,sm019,0,text,"a storefront sign that says ""PLEASE WAIT HERE TO BE SEATED""",ok,1.9087,False,0.334812194108963,0.6510120630264282,0.6666666666666667,,PLEASE WAT WAIT SEATED TO B SEATIED,,False,n,不是
+sdxl__sm020__s0,sdxl,sm020,0,text,"a storefront sign that says ""NO PARKING IN FRONT OF THE GATE""",ok,1.9087,False,0.30719298124313354,0.9322371482849121,0.48,,BOKUNG NO FX AVCRUU PARKK IOUN NA FROIT GATE,,False,?,看不清

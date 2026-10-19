@@ -1,8 +1,8 @@
 {
   "prompts": "data/prompts/smoke.jsonl",
   "split": "all",
-  "created_at": "2026-10-19T08:08:53.975+00:00",
-  "git_commit": "9546265",
+  "created_at": "2026-10-19T08:21:30.538+00:00",
+  "git_commit": "9971e8f",
   "n_prompts": 20,
   "models": [
     "flux_schnell",
@@ -542,6 +542,7 @@
             0.5554824561403509,
             0.8928571428571429
           ],
+          "ties": 0,
           "worst": [
             {
               "labelled_correct": "sd15__sm002__s0",
@@ -578,6 +579,7 @@
             0.3333333333333333,
             1.0
           ],
+          "ties": 0,
           "worst": [
             {
               "labelled_correct": "sd15__sm002__s0",
@@ -604,6 +606,7 @@
             0.75,
             1.0
           ],
+          "ties": 0,
           "worst": [
             {
               "labelled_correct": "flux_schnell__sm009__s0",
@@ -620,6 +623,7 @@
             0.375,
             0.9166666666666666
           ],
+          "ties": 0,
           "worst": [
             {
               "labelled_correct": "sd35m__sm016__s0",
@@ -660,6 +664,7 @@
             0.9032258064516129,
             1.0
           ],
+          "ties": 0,
           "worst": [
             {
               "labelled_correct": "sdxl__sm005__s0",
@@ -676,6 +681,7 @@
             0.6666666666666666,
             1.0
           ],
+          "ties": 0,
           "worst": [
             {
               "labelled_correct": "sdxl__sm005__s0",
@@ -692,6 +698,7 @@
             1.0,
             1.0
           ],
+          "ties": 0,
           "worst": []
         },
         "text": {
@@ -702,6 +709,7 @@
             1.0,
             1.0
           ],
+          "ties": 0,
           "worst": []
         },
         "mean_if_y": 0.9042184649395847,
@@ -716,6 +724,7 @@
             1.0,
             1.0
           ],
+          "ties": 0,
           "worst": []
         },
         "counting": {
@@ -746,6 +755,7 @@
             1.0,
             1.0
           ],
+          "ties": 0,
           "worst": []
         },
         "mean_if_y": 0.9599867724867726,
@@ -774,33 +784,8 @@
             0.6956521739130435,
             0.975
           ],
-          "worst": [
-            {
-              "labelled_correct": "sd35m__sm011__s0",
-              "labelled_wrong": "sdxl__sm011__s0",
-              "margin": 0.0
-            },
-            {
-              "labelled_correct": "sd35m__sm011__s0",
-              "labelled_wrong": "sd15__sm011__s0",
-              "margin": 0.0
-            },
-            {
-              "labelled_correct": "flux_schnell__sm011__s0",
-              "labelled_wrong": "sdxl__sm011__s0",
-              "margin": 0.0
-            },
-            {
-              "labelled_correct": "flux_schnell__sm011__s0",
-              "labelled_wrong": "sd15__sm011__s0",
-              "margin": 0.0
-            },
-            {
-              "labelled_correct": "flux_schnell__sm009__s0",
-              "labelled_wrong": "sdxl__sm009__s0",
-              "margin": 0.0
-            }
-          ]
+          "ties": 6,
+          "worst": []
         },
         "counting": {
           "pairs": 8,
@@ -810,6 +795,7 @@
             1.0,
             1.0
           ],
+          "ties": 0,
           "worst": []
         },
         "spatial": {
@@ -820,33 +806,8 @@
             0.5666666666666667,
             0.9545454545454546
           ],
-          "worst": [
-            {
-              "labelled_correct": "sd35m__sm011__s0",
-              "labelled_wrong": "sdxl__sm011__s0",
-              "margin": 0.0
-            },
-            {
-              "labelled_correct": "sd35m__sm011__s0",
-              "labelled_wrong": "sd15__sm011__s0",
-              "margin": 0.0
-            },
-            {
-              "labelled_correct": "flux_schnell__sm011__s0",
-              "labelled_wrong": "sdxl__sm011__s0",
-              "margin": 0.0
-            },
-            {
-              "labelled_correct": "flux_schnell__sm011__s0",
-              "labelled_wrong": "sd15__sm011__s0",
-              "margin": 0.0
-            },
-            {
-              "labelled_correct": "flux_schnell__sm009__s0",
-              "labelled_wrong": "sdxl__sm009__s0",
-              "margin": 0.0
-            }
-          ]
+          "ties": 6,
+          "worst": []
         },
         "text": {
           "pairs": 0,

@@ -164,6 +164,9 @@ y/n label, the exact-match verdict agreed with the label on 17 (0.85, CI 0.71–
 none of the 11 images labelled wrong and failed 3 of the 9 labelled correct (values 0.79–0.94:
 OCR misread a letter or two). Within-prompt pairwise agreement 1.00 (13 pairs). The threshold is
 not changed on this (smoke is not dev); the dev check in M2 decides whether near-misses count.
+Of the 3 misses (OCR text in `ocr_read`), two are OCR misreads of text people read without
+trouble (a stylised "A" in WAIT read as "WINIT"; small serif lettering on a facade); one
+("DAILLY" for DAILY) can't be settled from the contact-sheet thumbnail.
 
 **D-018 (2026-10-19) — Detector checker for counting and spatial prompts = Grounding DINO tiny
 (`IDEA-Research/grounding-dino-tiny`, main at a2bb814 when chosen), one text query per object
@@ -186,8 +189,15 @@ images with a y/n label, the verdict agreed on 44 (0.90, CI 0.80–0.98). It pas
 labelled wrong, all spatial (annotator notes: "both are dogs" for cat-left-of-dog; the vase is
 left of the book; the cup is in front of the laptop, not beside it) and failed 2 labelled correct
 (both "a bicycle to the left of a car"). Counting verdicts matched every label. Pairwise
-agreement 0.85 (CI 0.70–0.97, 20 pairs). No threshold changed; causes are checked in the
-per-image details (`detect_detail` in per_sample.csv).
+agreement 0.85 (CI 0.70–0.97, 20 pairs). No threshold changed. Looking at the five images
+with their box centres (`detect_detail`): one is a detector error (sd35m, bicycle/car: it took a
+small car in the background on the left instead of the large car on the right, because the rule
+uses the highest-scoring box); three are borderline images (a cat/dog hybrid; a top-down view
+with the cup up and to the right of the laptop; a vase standing behind the right half of an open
+book); in one (flux, bicycle/car) the bicycle stands to the right of the car in the image while
+the label says `y`. Labels are not edited after metric outputs have been seen (D-015), so it
+stays and counts against the checker. Choosing the largest box, or accepting any qualifying
+pair, is a candidate rule to compare on dev, not on smoke.
 
 **D-019 (2026-10-19) — The checkers run on CPU nodes (cpuqs, 8 cores) through
 `slurm/score_cpu.sbatch`; CLIPScore and VQAScore stay on the H100s.** Both checker models are

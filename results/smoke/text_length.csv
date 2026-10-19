@@ -1,0 +1,13 @@
+model,words,exact_rate,ci95_lo,ci95_hi,n_prompts
+sd15,1–2 words,0.0,0.0,0.0,2
+sd15,3–4 words,0.0,0.0,0.0,2
+sd15,5–8 words,0.0,0.0,0.0,2
+sdxl,1–2 words,0.0,0.0,0.0,2
+sdxl,3–4 words,0.0,0.0,0.0,2
+sdxl,5–8 words,0.0,0.0,0.0,2
+sd35m,1–2 words,1.0,1.0,1.0,2
+sd35m,3–4 words,0.5,0.0,1.0,2
+sd35m,5–8 words,0.0,0.0,0.0,2
+flux_schnell,1–2 words,1.0,1.0,1.0,2
+flux_schnell,3–4 words,0.5,0.0,1.0,2
+flux_schnell,5–8 words,0.0,0.0,0.0,2
