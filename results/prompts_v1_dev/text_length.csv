@@ -1,0 +1,13 @@
+model,words,text_ok_rate,ci95_lo,ci95_hi,n_prompts
+sd15,1–2 words,0.0625,0.0,0.1875,4
+sd15,3–4 words,0.0,0.0,0.0,4
+sd15,5–8 words,0.0,0.0,0.0,4
+sdxl,1–2 words,0.625,0.5,0.75,4
+sdxl,3–4 words,0.25,0.0,0.5625,4
+sdxl,5–8 words,0.0,0.0,0.0,4
+sd35m,1–2 words,0.9375,0.8125,1.0,4
+sd35m,3–4 words,0.875,0.75,1.0,4
+sd35m,5–8 words,0.625,0.375,0.875,4
+flux_schnell,1–2 words,0.8125,0.75,0.9375,4
+flux_schnell,3–4 words,0.8125,0.4375,1.0,4
+flux_schnell,5–8 words,0.6875,0.375,0.9375,4

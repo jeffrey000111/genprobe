@@ -1,0 +1,217 @@
+{
+  "metric": "ocr",
+  "metric_version": "easyocr==1.7.2/craft+english_g2/semiglobal-nospace-v1/bs16",
+  "split": "dev",
+  "seed": 0,
+  "n_images": 192,
+  "created_at": "2026-10-19T19:52:27.168+00:00",
+  "git_commit": "124e661",
+  "device": "cpu",
+  "metric_info": {
+    "easyocr": "1.7.2",
+    "torch": "2.14.1",
+    "model_dir": "~/hf_home/easyocr/model",
+    "device": "cpu",
+    "detector": "craft",
+    "recognizer": "english_g2",
+    "match": "semiglobal-nospace-v1",
+    "quantize": false
+  },
+  "mismatch": {
+    "n": 192,
+    "rate": 0.9296875,
+    "higher": 178,
+    "ties": 1,
+    "lower": 13,
+    "mean_drop": 0.4548762771230839
+  },
+  "counterfactual": {
+    "all": {
+      "n": 192,
+      "rate": 0.9661458333333334,
+      "higher": 185,
+      "ties": 1,
+      "lower": 6,
+      "mean_drop": 0.4497334552095344
+    },
+    "text": {
+      "n": 192,
+      "rate": 0.9661458333333334,
+      "higher": 185,
+      "ties": 1,
+      "lower": 6,
+      "mean_drop": 0.4497334552095344
+    }
+  },
+  "repeat_in_job": {
+    "n": 50,
+    "identical": 1.0,
+    "max_abs_diff": 0.0,
+    "mean_abs_diff": 0.0
+  },
+  "repeat_vs_stored": {
+    "n": 192,
+    "identical": 1.0,
+    "max_abs_diff": 0.0,
+    "mean_abs_diff": 0.0
+  },
+  "counterfactual_labelled": {
+    "labels": "data/labels/prompts_v1_labels.csv",
+    "all": {
+      "n": 23,
+      "rate": 1.0,
+      "higher": 23,
+      "ties": 0,
+      "lower": 0,
+      "mean_drop": 0.6599147225911051
+    },
+    "text": {
+      "n": 23,
+      "rate": 1.0,
+      "higher": 23,
+      "ties": 0,
+      "lower": 0,
+      "mean_drop": 0.6599147225911051
+    },
+    "per_image": [
+      {
+        "sample_id": "flux_schnell__tt0010__s0",
+        "own": 0.75,
+        "cf_prompt": "a storefront sign that says \"THANK YOU\"",
+        "cf": 0.25
+      },
+      {
+        "sample_id": "flux_schnell__tt0010__s2",
+        "own": 1.0,
+        "cf_prompt": "a storefront sign that says \"THANK YOU\"",
+        "cf": 0.25
+      },
+      {
+        "sample_id": "flux_schnell__tt0012__s0",
+        "own": 0.7777777777777778,
+        "cf_prompt": "a poster with the words \"FREE WIFI\"",
+        "cf": 0.25
+      },
+      {
+        "sample_id": "flux_schnell__tt0013__s0",
+        "own": 0.875,
+        "cf_prompt": "a chalkboard that says \"QUIET PLEASE\"",
+        "cf": 0.18181818181818177
+      },
+      {
+        "sample_id": "flux_schnell__tt0013__s1",
+        "own": 1.0,
+        "cf_prompt": "a chalkboard that says \"QUIET PLEASE\"",
+        "cf": 0.18181818181818177
+      },
+      {
+        "sample_id": "flux_schnell__tt0013__s2",
+        "own": 1.0,
+        "cf_prompt": "a chalkboard that says \"QUIET PLEASE\"",
+        "cf": 0.18181818181818177
+      },
+      {
+        "sample_id": "flux_schnell__tt0017__s2",
+        "own": 1.0,
+        "cf_prompt": "a chalkboard that says \"PUSH HERE\"",
+        "cf": 0.25
+      },
+      {
+        "sample_id": "flux_schnell__tt0021__s3",
+        "own": 1.0,
+        "cf_prompt": "a chalkboard that says \"FRESH FLOWERS DAILY\"",
+        "cf": 0.17647058823529416
+      },
+      {
+        "sample_id": "flux_schnell__tt0029__s1",
+        "own": 1.0,
+        "cf_prompt": "a chalkboard that says \"KEEP THIS DOOR CLOSED\"",
+        "cf": 0.2777777777777778
+      },
+      {
+        "sample_id": "flux_schnell__tt0029__s3",
+        "own": 0.9285714285714286,
+        "cf_prompt": "a chalkboard that says \"KEEP THIS DOOR CLOSED\"",
+        "cf": 0.2222222222222222
+      },
+      {
+        "sample_id": "flux_schnell__tt0039__s0",
+        "own": 0.9285714285714286,
+        "cf_prompt": "a chalkboard that says \"WATCH YOUR HEAD\"",
+        "cf": 0.23076923076923073
+      },
+      {
+        "sample_id": "flux_schnell__tt0039__s1",
+        "own": 1.0,
+        "cf_prompt": "a chalkboard that says \"WATCH YOUR HEAD\"",
+        "cf": 0.23076923076923073
+      },
+      {
+        "sample_id": "flux_schnell__tt0041__s0",
+        "own": 1.0,
+        "cf_prompt": "a chalkboard that says \"ALL ITEMS ARE FIFTY PERCENT OFF\"",
+        "cf": 0.34615384615384615
+      },
+      {
+        "sample_id": "sd35m__tt0010__s3",
+        "own": 1.0,
+        "cf_prompt": "a storefront sign that says \"THANK YOU\"",
+        "cf": 0.25
+      },
+      {
+        "sample_id": "sd35m__tt0012__s3",
+        "own": 1.0,
+        "cf_prompt": "a poster with the words \"FREE WIFI\"",
+        "cf": 0.375
+      },
+      {
+        "sample_id": "sd35m__tt0021__s2",
+        "own": 1.0,
+        "cf_prompt": "a chalkboard that says \"FRESH FLOWERS DAILY\"",
+        "cf": 0.17647058823529416
+      },
+      {
+        "sample_id": "sd35m__tt0031__s0",
+        "own": 0.8571428571428572,
+        "cf_prompt": "a storefront sign that says \"SOUP OF THE DAY\"",
+        "cf": 0.25
+      },
+      {
+        "sample_id": "sd35m__tt0039__s3",
+        "own": 1.0,
+        "cf_prompt": "a chalkboard that says \"WATCH YOUR HEAD\"",
+        "cf": 0.23076923076923073
+      },
+      {
+        "sample_id": "sd35m__tt0055__s0",
+        "own": 0.896551724137931,
+        "cf_prompt": "a storefront sign that says \"WATCH YOUR STEP WHEN LEAVING THE TRAIN\"",
+        "cf": 0.34375
+      },
+      {
+        "sample_id": "sd35m__tt0056__s0",
+        "own": 0.625,
+        "cf_prompt": "a storefront sign that says \"SUMMER SALE STARTS THIS FRIDAY MORNING\"",
+        "cf": 0.33333333333333337
+      },
+      {
+        "sample_id": "sd35m__tt0056__s2",
+        "own": 0.90625,
+        "cf_prompt": "a storefront sign that says \"SUMMER SALE STARTS THIS FRIDAY MORNING\"",
+        "cf": 0.2727272727272727
+      },
+      {
+        "sample_id": "sdxl__tt0012__s2",
+        "own": 0.8888888888888888,
+        "cf_prompt": "a poster with the words \"FREE WIFI\"",
+        "cf": 0.375
+      },
+      {
+        "sample_id": "sdxl__tt0031__s2",
+        "own": 0.7142857142857143,
+        "cf_prompt": "a storefront sign that says \"SOUP OF THE DAY\"",
+        "cf": 0.33333333333333337
+      }
+    ]
+  }
+}

@@ -1,0 +1,200 @@
+{
+  "metric": "detect",
+  "metric_version": "transformers==4.49.0/grounding-dino-tiny@a2bb814/box0.35-text0.25-nms0.5-group0.9-margin0.05/bs16",
+  "split": "dev",
+  "seed": 0,
+  "n_images": 200,
+  "created_at": "2026-10-19T20:01:28.980+00:00",
+  "git_commit": "124e661",
+  "device": "cpu",
+  "metric_info": {
+    "hf_repo": "IDEA-Research/grounding-dino-tiny",
+    "revision": "a2bb814dd30d776dcf7e30523b00659f4f141c71",
+    "device": "cpu",
+    "transformers": "4.49.0",
+    "box_threshold": 0.35,
+    "text_threshold": 0.25,
+    "nms_iou": 0.5,
+    "group_contain": 0.9,
+    "same_box_iou": 0.8,
+    "margin": 0.05,
+    "unexpected_keys": []
+  },
+  "mismatch": {
+    "n": 200,
+    "rate": 0.7175,
+    "higher": 90,
+    "ties": 107,
+    "lower": 3,
+    "mean_drop": 0.435
+  },
+  "counterfactual": {
+    "all": {
+      "n": 200,
+      "rate": 0.665,
+      "higher": 92,
+      "ties": 82,
+      "lower": 26,
+      "mean_drop": 0.33
+    },
+    "count": {
+      "n": 109,
+      "rate": 0.6513761467889908,
+      "higher": 43,
+      "ties": 56,
+      "lower": 10,
+      "mean_drop": 0.30275229357798167
+    },
+    "relation": {
+      "n": 91,
+      "rate": 0.6813186813186813,
+      "higher": 49,
+      "ties": 26,
+      "lower": 16,
+      "mean_drop": 0.3626373626373626
+    }
+  },
+  "repeat_in_job": {
+    "n": 50,
+    "identical": 1.0,
+    "max_abs_diff": 0.0,
+    "mean_abs_diff": 0.0
+  },
+  "repeat_vs_stored": {
+    "n": 200,
+    "identical": 1.0,
+    "max_abs_diff": 0.0,
+    "mean_abs_diff": 0.0
+  },
+  "counterfactual_labelled": {
+    "labels": "data/labels/prompts_v1_labels.csv",
+    "all": {
+      "n": 17,
+      "rate": 0.9411764705882353,
+      "higher": 16,
+      "ties": 0,
+      "lower": 1,
+      "mean_drop": 0.8823529411764706
+    },
+    "count": {
+      "n": 8,
+      "rate": 1.0,
+      "higher": 8,
+      "ties": 0,
+      "lower": 0,
+      "mean_drop": 1.0
+    },
+    "relation": {
+      "n": 9,
+      "rate": 0.8888888888888888,
+      "higher": 8,
+      "ties": 0,
+      "lower": 1,
+      "mean_drop": 0.7777777777777778
+    },
+    "per_image": [
+      {
+        "sample_id": "flux_schnell__tc0027__s2",
+        "own": 1.0,
+        "cf_prompt": "a realistic photo of four bottles",
+        "cf": 0.0
+      },
+      {
+        "sample_id": "flux_schnell__ts0017__s0",
+        "own": 1.0,
+        "cf_prompt": "a photo of a clock to the right of a horse",
+        "cf": 0.0
+      },
+      {
+        "sample_id": "flux_schnell__ts0017__s3",
+        "own": 1.0,
+        "cf_prompt": "a photo of a clock to the right of a horse",
+        "cf": 0.0
+      },
+      {
+        "sample_id": "sd15__tc0015__s1",
+        "own": 1.0,
+        "cf_prompt": "a realistic photo of three cups",
+        "cf": 0.0
+      },
+      {
+        "sample_id": "sd15__tc0017__s2",
+        "own": 1.0,
+        "cf_prompt": "a realistic photo of five cups",
+        "cf": 0.0
+      },
+      {
+        "sample_id": "sd15__ts0027__s1",
+        "own": 1.0,
+        "cf_prompt": "a photo of a bottle to the left of a clock",
+        "cf": 0.0
+      },
+      {
+        "sample_id": "sd35m__tc0017__s1",
+        "own": 1.0,
+        "cf_prompt": "a realistic photo of five cups",
+        "cf": 0.0
+      },
+      {
+        "sample_id": "sd35m__tc0027__s2",
+        "own": 1.0,
+        "cf_prompt": "a realistic photo of four bottles",
+        "cf": 0.0
+      },
+      {
+        "sample_id": "sd35m__tc0051__s3",
+        "own": 1.0,
+        "cf_prompt": "a photo of four cars",
+        "cf": 0.0
+      },
+      {
+        "sample_id": "sd35m__ts0027__s1",
+        "own": 1.0,
+        "cf_prompt": "a photo of a bottle to the left of a clock",
+        "cf": 0.0
+      },
+      {
+        "sample_id": "sd35m__ts0027__s2",
+        "own": 1.0,
+        "cf_prompt": "a photo of a bottle to the left of a clock",
+        "cf": 0.0
+      },
+      {
+        "sample_id": "sd35m__ts0048__s1",
+        "own": 1.0,
+        "cf_prompt": "a laptop below a bench",
+        "cf": 0.0
+      },
+      {
+        "sample_id": "sdxl__tc0017__s1",
+        "own": 1.0,
+        "cf_prompt": "a realistic photo of five cups",
+        "cf": 0.0
+      },
+      {
+        "sample_id": "sdxl__tc0029__s2",
+        "own": 1.0,
+        "cf_prompt": "a photo of three books",
+        "cf": 0.0
+      },
+      {
+        "sample_id": "sdxl__ts0006__s2",
+        "own": 0.0,
+        "cf_prompt": "a cat to the right of a horse",
+        "cf": 1.0
+      },
+      {
+        "sample_id": "sdxl__ts0039__s1",
+        "own": 1.0,
+        "cf_prompt": "a horse below a bicycle",
+        "cf": 0.0
+      },
+      {
+        "sample_id": "sdxl__ts0039__s3",
+        "own": 1.0,
+        "cf_prompt": "a horse below a bicycle",
+        "cf": 0.0
+      }
+    ]
+  }
+}

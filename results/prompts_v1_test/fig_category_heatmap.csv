@@ -1,0 +1,53 @@
+model,column,n_prompts,mean_vqascore
+sd15,template · counting,56,0.4589
+sd15,template · spatial,56,0.2977
+sd15,template · text,48,0.3503
+sd15,GenAI · action relation,81,0.538
+sd15,GenAI · attribute,98,0.4739
+sd15,GenAI · comparison,63,0.2215
+sd15,GenAI · counting,66,0.2524
+sd15,GenAI · differentiation,78,0.1933
+sd15,GenAI · negation,65,0.2101
+sd15,GenAI · part relation,69,0.4135
+sd15,GenAI · scene,70,0.5692
+sd15,GenAI · spatial relation,61,0.5059
+sd15,GenAI · universal,61,0.3184
+sdxl,template · counting,56,0.4273
+sdxl,template · spatial,56,0.443
+sdxl,template · text,48,0.7826
+sdxl,GenAI · action relation,81,0.7049
+sdxl,GenAI · attribute,98,0.7032
+sdxl,GenAI · comparison,63,0.3042
+sdxl,GenAI · counting,66,0.3151
+sdxl,GenAI · differentiation,78,0.2427
+sdxl,GenAI · negation,65,0.2063
+sdxl,GenAI · part relation,69,0.6283
+sdxl,GenAI · scene,70,0.7612
+sdxl,GenAI · spatial relation,61,0.6642
+sdxl,GenAI · universal,61,0.437
+sd35m,template · counting,56,0.7031
+sd35m,template · spatial,56,0.6997
+sd35m,template · text,48,0.9094
+sd35m,GenAI · action relation,81,0.8601
+sd35m,GenAI · attribute,98,0.8672
+sd35m,GenAI · comparison,63,0.4056
+sd35m,GenAI · counting,66,0.5254
+sd35m,GenAI · differentiation,78,0.4479
+sd35m,GenAI · negation,65,0.2898
+sd35m,GenAI · part relation,69,0.8225
+sd35m,GenAI · scene,70,0.8964
+sd35m,GenAI · spatial relation,61,0.8511
+sd35m,GenAI · universal,61,0.5643
+flux_schnell,template · counting,56,0.6659
+flux_schnell,template · spatial,56,0.5584
+flux_schnell,template · text,48,0.8967
+flux_schnell,GenAI · action relation,81,0.8624
+flux_schnell,GenAI · attribute,98,0.8784
+flux_schnell,GenAI · comparison,63,0.4455
+flux_schnell,GenAI · counting,66,0.5615
+flux_schnell,GenAI · differentiation,78,0.5506
+flux_schnell,GenAI · negation,65,0.2715
+flux_schnell,GenAI · part relation,69,0.8302
+flux_schnell,GenAI · scene,70,0.8981
+flux_schnell,GenAI · spatial relation,61,0.8583
+flux_schnell,GenAI · universal,61,0.577

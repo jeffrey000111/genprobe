@@ -1,0 +1,1931 @@
+{
+  "metric": "pickscore",
+  "metric_version": "transformers==4.49.0/pickscore-v1@a4e4367/fp32/bs16",
+  "split": "dev",
+  "seed": 0,
+  "n_images": 200,
+  "created_at": "2026-10-19T20:30:03.596+00:00",
+  "git_commit": "0123e10",
+  "device": "cuda",
+  "metric_info": {
+    "hf_repo": "yuvalkirstain/PickScore_v1",
+    "revision": "a4e4367c6dfa7288a00c550414478f865b875800",
+    "dtype": "float32",
+    "device": "cuda",
+    "logit_scale": 98.86447143554688,
+    "unexpected_keys": []
+  },
+  "mismatch": {
+    "n": 200,
+    "rate": 1.0,
+    "higher": 200,
+    "ties": 0,
+    "lower": 0,
+    "mean_drop": 4.958526811599731
+  },
+  "counterfactual": {
+    "all": {
+      "n": 60,
+      "rate": 0.6833333333333333,
+      "higher": 41,
+      "ties": 0,
+      "lower": 19,
+      "mean_drop": 1.2231754302978515
+    },
+    "count": {
+      "n": 13,
+      "rate": 0.7692307692307693,
+      "higher": 10,
+      "ties": 0,
+      "lower": 3,
+      "mean_drop": 0.6223837045522836
+    },
+    "relation": {
+      "n": 27,
+      "rate": 0.4074074074074074,
+      "higher": 11,
+      "ties": 0,
+      "lower": 16,
+      "mean_drop": -0.07570549293800637
+    },
+    "text": {
+      "n": 20,
+      "rate": 1.0,
+      "higher": 20,
+      "ties": 0,
+      "lower": 0,
+      "mean_drop": 3.367179298400879
+    }
+  },
+  "repeat_in_job": {
+    "n": 50,
+    "identical": 0.96,
+    "max_abs_diff": 7.62939453125e-06,
+    "mean_abs_diff": 2.288818359375e-07
+  },
+  "repeat_vs_stored": {
+    "n": 200,
+    "identical": 0.515,
+    "max_abs_diff": 7.62939453125e-06,
+    "mean_abs_diff": 1.3446807861328124e-06
+  },
+  "per_image": [
+    {
+      "sample_id": "flux_schnell__gb0048__s2",
+      "prompt": "A cavern lit by shafts of light revealing hidden underground pools.",
+      "own": 22.3343505859375,
+      "mismatch_prompt": "a chalkboard that says \"WORK IN PROGRESS\"",
+      "mismatch": 16.940475463867188
+    },
+    {
+      "sample_id": "flux_schnell__gb0124__s0",
+      "prompt": "A strange landscape: the ground on the left is covered with snow but the ground on the right is covered with green grass.",
+      "own": 23.03663444519043,
+      "mismatch_prompt": "a diver exploring a vibrant coral reef, surrounded by a school of colorful fish.",
+      "mismatch": 13.514001846313477
+    },
+    {
+      "sample_id": "flux_schnell__gb0168__s1",
+      "prompt": "The girl with glasses is drawing, and the girl without glasses is singing.",
+      "own": 21.50457000732422,
+      "mismatch_prompt": "A boy in a cape, climbing without sneakers.",
+      "mismatch": 17.6043758392334
+    },
+    {
+      "sample_id": "flux_schnell__gb0358__s3",
+      "prompt": "Two birds are chasing each other in the air, with the one flying higher having a long tail and the other bird having a short tail.",
+      "own": 21.932010650634766,
+      "mismatch_prompt": "Two anxious pigs.",
+      "mismatch": 18.266347885131836
+    },
+    {
+      "sample_id": "flux_schnell__gb0421__s3",
+      "prompt": "On the farm, each animal is settling down for the night.",
+      "own": 18.926706314086914,
+      "mismatch_prompt": "a photo of one book",
+      "mismatch": 17.989200592041016
+    },
+    {
+      "sample_id": "flux_schnell__gb0431__s2",
+      "prompt": "All the doors in the hallway are closed, except for one that is slightly ajar.",
+      "own": 21.083358764648438,
+      "mismatch_prompt": "a poster with the words \"HOT COFFEE\"",
+      "mismatch": 16.977853775024414
+    },
+    {
+      "sample_id": "flux_schnell__gb0758__s3",
+      "prompt": "A person teaching another person how to ride a bicycle on a quiet street.",
+      "own": 23.479473114013672,
+      "mismatch_prompt": "Four differently colored bicycles are parked next to the school bike rack.",
+      "mismatch": 17.656959533691406
+    },
+    {
+      "sample_id": "flux_schnell__gb0779__s0",
+      "prompt": "An American Alligator basking in the sun on a riverbank, observed from afar by a group of tourists.",
+      "own": 21.5053653717041,
+      "mismatch_prompt": "A girl in a smart blazer using a globe to explain continents to a girl in a school uniform and backpack.",
+      "mismatch": 14.554563522338867
+    },
+    {
+      "sample_id": "flux_schnell__gb0837__s1",
+      "prompt": "Several tulips are dancing in the sun, and they are all purple.",
+      "own": 22.834461212158203,
+      "mismatch_prompt": "a chalkboard that says \"LIVE MUSIC\"",
+      "mismatch": 16.29257583618164
+    },
+    {
+      "sample_id": "flux_schnell__gb0840__s3",
+      "prompt": "A black cat wearing a pink bow tie sits on the windowsill and stares into the distance.",
+      "own": 24.279510498046875,
+      "mismatch_prompt": "A cat warrior confronts a dog warrior, with the cat's equipment looking more advanced than the dog's.",
+      "mismatch": 18.07628631591797
+    },
+    {
+      "sample_id": "flux_schnell__gb0879__s0",
+      "prompt": "A red fox sneaking up on two unsuspecting rabbits.",
+      "own": 21.08655548095703,
+      "mismatch_prompt": "A child pointing at parent.",
+      "mismatch": 17.873767852783203
+    },
+    {
+      "sample_id": "flux_schnell__gb0890__s0",
+      "prompt": "Five colorful balloons floating against a clear blue sky.",
+      "own": 22.46319007873535,
+      "mismatch_prompt": "Some balls are on the table and on the floor, and the number of balls on the table is more than the number of balls on the floor.",
+      "mismatch": 18.935832977294922
+    },
+    {
+      "sample_id": "flux_schnell__gb0937__s3",
+      "prompt": "Three vintage cars parked in a row, each a different color.",
+      "own": 22.006410598754883,
+      "mismatch_prompt": "a realistic photo of six chairs",
+      "mismatch": 18.899051666259766
+    },
+    {
+      "sample_id": "flux_schnell__gb0948__s2",
+      "prompt": "A group of students gathered around a panda, all with digital cameras in their hands.",
+      "own": 24.616605758666992,
+      "mismatch_prompt": "a photo of a clock to the left of a horse",
+      "mismatch": 17.1855411529541
+    },
+    {
+      "sample_id": "flux_schnell__gb0948__s3",
+      "prompt": "A group of students gathered around a panda, all with digital cameras in their hands.",
+      "own": 24.5661678314209,
+      "mismatch_prompt": "There are four stones under a large, dense tree, all of which are round.",
+      "mismatch": 19.16876792907715
+    },
+    {
+      "sample_id": "flux_schnell__gb0985__s3",
+      "prompt": "a cream colored labradoodle is on the right of a black cat with white ears.",
+      "own": 23.318044662475586,
+      "mismatch_prompt": "A waterproof umbrella with a flourish pattern is not opening.",
+      "mismatch": 17.315290451049805
+    },
+    {
+      "sample_id": "flux_schnell__gb1010__s2",
+      "prompt": "Sunlight filtering through the linen curtains, casting a warm glow on the ceramic coffee mug.",
+      "own": 22.989879608154297,
+      "mismatch_prompt": "On a large stone platform, there are two camel statues but no horse statues.",
+      "mismatch": 15.996465682983398
+    },
+    {
+      "sample_id": "flux_schnell__gb1095__s2",
+      "prompt": "A tired nurse taking a moment to rest on a bench, with a hopeful dove perched on the window sill.",
+      "own": 21.67738914489746,
+      "mismatch_prompt": "A boy in a cape, climbing without sneakers.",
+      "mismatch": 17.80897331237793
+    },
+    {
+      "sample_id": "flux_schnell__gb1103__s2",
+      "prompt": "An octagonal window framing a spherical ornament.",
+      "own": 22.49930191040039,
+      "mismatch_prompt": "a realistic photo of one cup",
+      "mismatch": 18.82135772705078
+    },
+    {
+      "sample_id": "flux_schnell__gb1222__s3",
+      "prompt": "Five nervous deer.",
+      "own": 22.731403350830078,
+      "mismatch_prompt": "A group of students gathered around a panda, all with digital cameras in their hands.",
+      "mismatch": 18.41166114807129
+    },
+    {
+      "sample_id": "flux_schnell__gb1295__s0",
+      "prompt": "A coffee mug is not filled.",
+      "own": 22.258203506469727,
+      "mismatch_prompt": "A girl in a smart blazer using a globe to explain continents to a girl in a school uniform and backpack.",
+      "mismatch": 14.335646629333496
+    },
+    {
+      "sample_id": "flux_schnell__gb1295__s3",
+      "prompt": "A coffee mug is not filled.",
+      "own": 21.751176834106445,
+      "mismatch_prompt": "A little brown-haired boy is clicking on the keyboard to play a computer game, and a little boy next to him who is not brown-haired looks more anxious than he is.",
+      "mismatch": 16.748252868652344
+    },
+    {
+      "sample_id": "flux_schnell__gb1388__s3",
+      "prompt": "A monkey is stealing apples from a tourist's basket. The number of apples in the monkey's arms is less than the number of apples in the basket.",
+      "own": 23.039403915405273,
+      "mismatch_prompt": "A coffee mug is not filled.",
+      "mismatch": 18.516626358032227
+    },
+    {
+      "sample_id": "flux_schnell__gb1406__s2",
+      "prompt": "A rabbit is burrowing into a soft pile of hay.",
+      "own": 23.177446365356445,
+      "mismatch_prompt": "Leaves falling on every car in the autumn.",
+      "mismatch": 17.519256591796875
+    },
+    {
+      "sample_id": "flux_schnell__gb1497__s1",
+      "prompt": "A girl in a smart blazer using a globe to explain continents to a girl in a school uniform and backpack.",
+      "own": 22.53985023498535,
+      "mismatch_prompt": "There are four stones under a large, dense tree, all of which are round.",
+      "mismatch": 19.257308959960938
+    },
+    {
+      "sample_id": "flux_schnell__gb1497__s2",
+      "prompt": "A girl in a smart blazer using a globe to explain continents to a girl in a school uniform and backpack.",
+      "own": 23.135089874267578,
+      "mismatch_prompt": "A garden where every flower is in full bloom, showcasing a rainbow of colors.",
+      "mismatch": 17.759660720825195
+    },
+    {
+      "sample_id": "flux_schnell__gb1520__s3",
+      "prompt": "Three students in white stand in front of four students not in white.",
+      "own": 23.662185668945312,
+      "mismatch_prompt": "a teddy bear to the right of a bicycle",
+      "mismatch": 17.49672508239746
+    },
+    {
+      "sample_id": "flux_schnell__gb1541__s3",
+      "prompt": "It's raining outside the house and a mother is instructing her two children in their studies; the child without a hat is more frustrated than the one with a hat.",
+      "own": 21.488998413085938,
+      "mismatch_prompt": "a cat to the left of a horse",
+      "mismatch": 17.495676040649414
+    },
+    {
+      "sample_id": "flux_schnell__gb1549__s0",
+      "prompt": "On the subway, none of the passengers are playing with their phones.",
+      "own": 21.621126174926758,
+      "mismatch_prompt": "A magician holds two books; the left one is open, the right one is closed.",
+      "mismatch": 17.086091995239258
+    },
+    {
+      "sample_id": "flux_schnell__gb1554__s2",
+      "prompt": "There are many lights in the room, and all the lights that give off red light are round.",
+      "own": 20.792009353637695,
+      "mismatch_prompt": "A monkey is stealing apples from a tourist's basket. The number of apples in the monkey's arms is less than the number of apples in the basket.",
+      "mismatch": 17.088356018066406
+    },
+    {
+      "sample_id": "flux_schnell__tc0029__s1",
+      "prompt": "a photo of one book",
+      "own": 21.740474700927734,
+      "mismatch_prompt": "A strange landscape: the ground on the left is covered with snow but the ground on the right is covered with green grass.",
+      "mismatch": 18.78886604309082,
+      "cf_prompt": "a photo of three books",
+      "cf_change": "count 1->3",
+      "cf": 20.371585845947266
+    },
+    {
+      "sample_id": "flux_schnell__ts0003__s0",
+      "prompt": "a potted plant to the left of a bottle",
+      "own": 22.798337936401367,
+      "mismatch_prompt": "a storefront sign that says \"STOP\"",
+      "mismatch": 16.95087242126465,
+      "cf_prompt": "a potted plant to the right of a bottle",
+      "cf_change": "left_of->right_of",
+      "cf": 22.76593017578125
+    },
+    {
+      "sample_id": "flux_schnell__ts0006__s2",
+      "prompt": "a cat to the left of a horse",
+      "own": 21.465164184570312,
+      "mismatch_prompt": "Tea steams in a cup, next to a closed diary with a pen resting on its cover.",
+      "mismatch": 16.087974548339844,
+      "cf_prompt": "a cat to the right of a horse",
+      "cf_change": "left_of->right_of",
+      "cf": 21.941165924072266
+    },
+    {
+      "sample_id": "flux_schnell__ts0007__s3",
+      "prompt": "a photo of a cat to the left of a cup",
+      "own": 22.7906494140625,
+      "mismatch_prompt": "A cozy fireplace with 'Warm Hearts, Warm Hearth' etched into the wooden mantle.",
+      "mismatch": 16.437604904174805,
+      "cf_prompt": "a photo of a cat to the right of a cup",
+      "cf_change": "left_of->right_of",
+      "cf": 23.047866821289062
+    },
+    {
+      "sample_id": "flux_schnell__ts0017__s1",
+      "prompt": "a photo of a clock to the left of a horse",
+      "own": 21.73636817932129,
+      "mismatch_prompt": "A person teaching another person how to ride a bicycle on a quiet street.",
+      "mismatch": 16.37053871154785,
+      "cf_prompt": "a photo of a clock to the right of a horse",
+      "cf_change": "left_of->right_of",
+      "cf": 21.707448959350586
+    },
+    {
+      "sample_id": "flux_schnell__ts0017__s3",
+      "prompt": "a photo of a clock to the left of a horse",
+      "own": 22.550533294677734,
+      "mismatch_prompt": "a chalkboard that says \"FREE WIFI\"",
+      "mismatch": 16.44795799255371,
+      "cf_prompt": "a photo of a clock to the right of a horse",
+      "cf_change": "left_of->right_of",
+      "cf": 22.438518524169922
+    },
+    {
+      "sample_id": "flux_schnell__ts0050__s0",
+      "prompt": "a bottle above a teddy bear",
+      "own": 22.917266845703125,
+      "mismatch_prompt": "A garden where every flower is in full bloom, showcasing a rainbow of colors.",
+      "mismatch": 15.669670104980469,
+      "cf_prompt": "a bottle below a teddy bear",
+      "cf_change": "above->below",
+      "cf": 22.988435745239258
+    },
+    {
+      "sample_id": "flux_schnell__ts0050__s2",
+      "prompt": "a bottle above a teddy bear",
+      "own": 22.8776798248291,
+      "mismatch_prompt": "A Bengal tiger in the shade looks stronger than another Bengal tiger not in the shade.",
+      "mismatch": 16.311067581176758,
+      "cf_prompt": "a bottle below a teddy bear",
+      "cf_change": "above->below",
+      "cf": 22.930246353149414
+    },
+    {
+      "sample_id": "flux_schnell__tt0013__s0",
+      "prompt": "a chalkboard that says \"FREE WIFI\"",
+      "own": 23.394323348999023,
+      "mismatch_prompt": "a photo of a bottle to the right of a clock",
+      "mismatch": 16.714374542236328,
+      "cf_prompt": "a chalkboard that says \"QUIET PLEASE\"",
+      "cf_change": "text",
+      "cf": 19.115419387817383
+    },
+    {
+      "sample_id": "flux_schnell__tt0017__s3",
+      "prompt": "a chalkboard that says \"LIVE MUSIC\"",
+      "own": 24.460241317749023,
+      "mismatch_prompt": "In the park, two squirrels chase each other, one with a fluffy tail waving behind it, the other with a sleeker tail darting through the trees.",
+      "mismatch": 17.39995574951172,
+      "cf_prompt": "a chalkboard that says \"PUSH HERE\"",
+      "cf_change": "text",
+      "cf": 18.85392189025879
+    },
+    {
+      "sample_id": "flux_schnell__tt0021__s3",
+      "prompt": "a chalkboard that says \"BACK IN FIVE MINUTES\"",
+      "own": 23.169170379638672,
+      "mismatch_prompt": "An octagonal window framing a spherical ornament.",
+      "mismatch": 17.453466415405273,
+      "cf_prompt": "a chalkboard that says \"FRESH FLOWERS DAILY\"",
+      "cf_change": "text",
+      "cf": 17.949077606201172
+    },
+    {
+      "sample_id": "flux_schnell__tt0029__s2",
+      "prompt": "a chalkboard that says \"WORK IN PROGRESS\"",
+      "own": 22.26838493347168,
+      "mismatch_prompt": "A little brown-haired boy is clicking on the keyboard to play a computer game, and a little boy next to him who is not brown-haired looks more anxious than he is.",
+      "mismatch": 16.815038681030273,
+      "cf_prompt": "a chalkboard that says \"KEEP THIS DOOR CLOSED\"",
+      "cf_change": "text",
+      "cf": 18.344385147094727
+    },
+    {
+      "sample_id": "sd15__gb0048__s2",
+      "prompt": "A cavern lit by shafts of light revealing hidden underground pools.",
+      "own": 21.368240356445312,
+      "mismatch_prompt": "Tea steams in a cup, next to a closed diary with a pen resting on its cover.",
+      "mismatch": 15.593671798706055
+    },
+    {
+      "sample_id": "sd15__gb0073__s0",
+      "prompt": "A cheerful dog with a frisbee in its mouth on the right, chasing a rolling ball on the left.",
+      "own": 21.862079620361328,
+      "mismatch_prompt": "Four differently colored bicycles are parked next to the school bike rack.",
+      "mismatch": 14.422565460205078
+    },
+    {
+      "sample_id": "sd15__gb0074__s3",
+      "prompt": "An eagle with a silver band on its leg on the right, soaring past a towering pine tree on the left.",
+      "own": 22.327205657958984,
+      "mismatch_prompt": "a storefront sign that says \"CASH ONLY PLEASE\"",
+      "mismatch": 16.57537269592285
+    },
+    {
+      "sample_id": "sd15__gb0087__s1",
+      "prompt": "A narrow alleyway illuminated by strings of fairy lights.",
+      "own": 22.22261619567871,
+      "mismatch_prompt": "A black cat wearing a pink bow tie sits on the windowsill and stares into the distance.",
+      "mismatch": 14.873315811157227
+    },
+    {
+      "sample_id": "sd15__gb0087__s3",
+      "prompt": "A narrow alleyway illuminated by strings of fairy lights.",
+      "own": 22.470735549926758,
+      "mismatch_prompt": "a potted plant to the left of a bottle",
+      "mismatch": 16.790294647216797
+    },
+    {
+      "sample_id": "sd15__gb0168__s1",
+      "prompt": "The girl with glasses is drawing, and the girl without glasses is singing.",
+      "own": 20.639019012451172,
+      "mismatch_prompt": "Four differently colored bicycles are parked next to the school bike rack.",
+      "mismatch": 15.870628356933594
+    },
+    {
+      "sample_id": "sd15__gb0267__s2",
+      "prompt": "A traditional potter's workshop, where every shelf holds rows of terracotta pots, each imprinted with intricate designs.",
+      "own": 21.4636287689209,
+      "mismatch_prompt": "A winter morning with no white snow covering roofs.",
+      "mismatch": 17.930601119995117
+    },
+    {
+      "sample_id": "sd15__gb0274__s0",
+      "prompt": "A child pointing at parent.",
+      "own": 19.588882446289062,
+      "mismatch_prompt": "a bottle below a car",
+      "mismatch": 17.6152400970459
+    },
+    {
+      "sample_id": "sd15__gb0274__s1",
+      "prompt": "A child pointing at parent.",
+      "own": 20.518339157104492,
+      "mismatch_prompt": "a realistic photo of seven dogs",
+      "mismatch": 16.175729751586914
+    },
+    {
+      "sample_id": "sd15__gb0413__s3",
+      "prompt": "Leaves falling on every car in the autumn.",
+      "own": 20.105817794799805,
+      "mismatch_prompt": "An American Alligator basking in the sun on a riverbank, observed from afar by a group of tourists.",
+      "mismatch": 16.036638259887695
+    },
+    {
+      "sample_id": "sd15__gb0431__s3",
+      "prompt": "All the doors in the hallway are closed, except for one that is slightly ajar.",
+      "own": 19.699138641357422,
+      "mismatch_prompt": "On the farm, each animal is settling down for the night.",
+      "mismatch": 16.607685089111328
+    },
+    {
+      "sample_id": "sd15__gb0469__s0",
+      "prompt": "A playground with swings, but no slide.",
+      "own": 23.06223487854004,
+      "mismatch_prompt": "A swan with a silver anklet on a crystal lake.",
+      "mismatch": 17.76832389831543
+    },
+    {
+      "sample_id": "sd15__gb0576__s1",
+      "prompt": "a diver exploring a vibrant coral reef, surrounded by a school of colorful fish.",
+      "own": 19.22090721130371,
+      "mismatch_prompt": "All the doors in the hallway are closed, except for one that is slightly ajar.",
+      "mismatch": 17.780563354492188
+    },
+    {
+      "sample_id": "sd15__gb0622__s1",
+      "prompt": "A lion with a golden chain roaring at sunset.",
+      "own": 21.53312873840332,
+      "mismatch_prompt": "A gray rabbit isn't burrowing into the loose dirt, and a mole is burrowing into the dirt.",
+      "mismatch": 17.58414077758789
+    },
+    {
+      "sample_id": "sd15__gb0634__s2",
+      "prompt": "a dog's paw hidden under a fluffy blanket.",
+      "own": 21.77927017211914,
+      "mismatch_prompt": "A cozy fireplace with 'Warm Hearts, Warm Hearth' etched into the wooden mantle.",
+      "mismatch": 17.415321350097656
+    },
+    {
+      "sample_id": "sd15__gb0638__s0",
+      "prompt": "a barn owl perched on a fence post at dusk.",
+      "own": 20.8834285736084,
+      "mismatch_prompt": "A swan with a silver anklet on a crystal lake.",
+      "mismatch": 18.514860153198242
+    },
+    {
+      "sample_id": "sd15__gb0809__s1",
+      "prompt": "A man in a classic white t-shirt and jeans capturing a selfie with a woman in a flowing orange dress against a city skyline.",
+      "own": 23.756458282470703,
+      "mismatch_prompt": "a realistic photo of one cup",
+      "mismatch": 18.690444946289062
+    },
+    {
+      "sample_id": "sd15__gb0837__s1",
+      "prompt": "Several tulips are dancing in the sun, and they are all purple.",
+      "own": 22.462158203125,
+      "mismatch_prompt": "a laptop above a bench",
+      "mismatch": 18.01930809020996
+    },
+    {
+      "sample_id": "sd15__gb0848__s3",
+      "prompt": "A cat warrior confronts a dog warrior, with the cat's equipment looking more advanced than the dog's.",
+      "own": 21.715349197387695,
+      "mismatch_prompt": "A knight in shining armor jousting at a medieval fair.",
+      "mismatch": 19.0190486907959
+    },
+    {
+      "sample_id": "sd15__gb0879__s3",
+      "prompt": "A red fox sneaking up on two unsuspecting rabbits.",
+      "own": 20.393489837646484,
+      "mismatch_prompt": "A hamster is nibbling on a tiny piece of apple.",
+      "mismatch": 18.05506134033203
+    },
+    {
+      "sample_id": "sd15__gb0890__s1",
+      "prompt": "Five colorful balloons floating against a clear blue sky.",
+      "own": 20.32065200805664,
+      "mismatch_prompt": "a photo of a teddy bear below a bench",
+      "mismatch": 16.788379669189453
+    },
+    {
+      "sample_id": "sd15__gb0898__s3",
+      "prompt": "In the winter park, all the snowmen are wearing their adventure hats.",
+      "own": 20.83989906311035,
+      "mismatch_prompt": "Between the two cups on the desk, the taller one holds more coffee than the shorter one, which is half-empty.",
+      "mismatch": 16.978309631347656
+    },
+    {
+      "sample_id": "sd15__gb0948__s0",
+      "prompt": "A group of students gathered around a panda, all with digital cameras in their hands.",
+      "own": 22.297189712524414,
+      "mismatch_prompt": "A cheerful dog with a frisbee in its mouth on the right, chasing a rolling ball on the left.",
+      "mismatch": 17.94174575805664
+    },
+    {
+      "sample_id": "sd15__gb0948__s2",
+      "prompt": "A group of students gathered around a panda, all with digital cameras in their hands.",
+      "own": 23.09007453918457,
+      "mismatch_prompt": "There are four stones under a large, dense tree, all of which are round.",
+      "mismatch": 19.32797622680664
+    },
+    {
+      "sample_id": "sd15__gb1070__s0",
+      "prompt": "A kangaroo lifts a terrified turkey over its head.",
+      "own": 19.189455032348633,
+      "mismatch_prompt": "a bottle below a car",
+      "mismatch": 17.297592163085938
+    },
+    {
+      "sample_id": "sd15__gb1095__s1",
+      "prompt": "A tired nurse taking a moment to rest on a bench, with a hopeful dove perched on the window sill.",
+      "own": 20.148345947265625,
+      "mismatch_prompt": "a storefront sign that says \"CASH ONLY PLEASE\"",
+      "mismatch": 17.445533752441406
+    },
+    {
+      "sample_id": "sd15__gb1095__s2",
+      "prompt": "A tired nurse taking a moment to rest on a bench, with a hopeful dove perched on the window sill.",
+      "own": 19.810102462768555,
+      "mismatch_prompt": "A cottage covered in snow, with smoke rising from the chimney.",
+      "mismatch": 17.71759605407715
+    },
+    {
+      "sample_id": "sd15__gb1103__s2",
+      "prompt": "An octagonal window framing a spherical ornament.",
+      "own": 21.7354736328125,
+      "mismatch_prompt": "a photo of one book",
+      "mismatch": 19.537294387817383
+    },
+    {
+      "sample_id": "sd15__gb1319__s0",
+      "prompt": "A winter morning with no white snow covering roofs.",
+      "own": 20.823089599609375,
+      "mismatch_prompt": "A cavern lit by shafts of light revealing hidden underground pools.",
+      "mismatch": 18.08342742919922
+    },
+    {
+      "sample_id": "sd15__gb1337__s3",
+      "prompt": "A boy in a cape, climbing without sneakers.",
+      "own": 21.521602630615234,
+      "mismatch_prompt": "a photo of a teddy bear below a bench",
+      "mismatch": 17.13418197631836
+    },
+    {
+      "sample_id": "sd15__gb1388__s1",
+      "prompt": "A monkey is stealing apples from a tourist's basket. The number of apples in the monkey's arms is less than the number of apples in the basket.",
+      "own": 20.71629524230957,
+      "mismatch_prompt": "a bottle below a car",
+      "mismatch": 16.95745086669922
+    },
+    {
+      "sample_id": "sd15__gb1484__s1",
+      "prompt": "A little brown-haired boy is clicking on the keyboard to play a computer game, and a little boy next to him who is not brown-haired looks more anxious than he is.",
+      "own": 21.134952545166016,
+      "mismatch_prompt": "Several tulips are dancing in the sun, and they are all purple.",
+      "mismatch": 16.549007415771484
+    },
+    {
+      "sample_id": "sd15__gb1567__s0",
+      "prompt": "A blackboard displays two curves; the pink one undulates more than the white one.",
+      "own": 21.410812377929688,
+      "mismatch_prompt": "a barn owl perched on a fence post at dusk.",
+      "mismatch": 15.728681564331055
+    },
+    {
+      "sample_id": "sd15__tc0004__s1",
+      "prompt": "a realistic photo of four apples",
+      "own": 20.004417419433594,
+      "mismatch_prompt": "A group of students gathered around a panda, all with digital cameras in their hands.",
+      "mismatch": 15.89890193939209,
+      "cf_prompt": "a realistic photo of six apples",
+      "cf_change": "count 4->6",
+      "cf": 21.126264572143555
+    },
+    {
+      "sample_id": "sd15__tc0021__s0",
+      "prompt": "a photo of seven cups",
+      "own": 20.550111770629883,
+      "mismatch_prompt": "a poster with the words \"HOT COFFEE\"",
+      "mismatch": 18.751176834106445,
+      "cf_prompt": "a photo of five cups",
+      "cf_change": "count 7->5",
+      "cf": 20.41649055480957
+    },
+    {
+      "sample_id": "sd15__tc0029__s1",
+      "prompt": "a photo of one book",
+      "own": 21.046825408935547,
+      "mismatch_prompt": "a realistic photo of two oranges",
+      "mismatch": 18.22752571105957,
+      "cf_prompt": "a photo of three books",
+      "cf_change": "count 1->3",
+      "cf": 20.665273666381836
+    },
+    {
+      "sample_id": "sd15__ts0003__s2",
+      "prompt": "a potted plant to the left of a bottle",
+      "own": 22.10192108154297,
+      "mismatch_prompt": "On the subway, none of the passengers are playing with their phones.",
+      "mismatch": 17.00480079650879,
+      "cf_prompt": "a potted plant to the right of a bottle",
+      "cf_change": "left_of->right_of",
+      "cf": 22.088932037353516
+    },
+    {
+      "sample_id": "sd15__ts0006__s1",
+      "prompt": "a cat to the left of a horse",
+      "own": 19.937557220458984,
+      "mismatch_prompt": "a realistic photo of one cup",
+      "mismatch": 18.377538681030273,
+      "cf_prompt": "a cat to the right of a horse",
+      "cf_change": "left_of->right_of",
+      "cf": 20.239530563354492
+    },
+    {
+      "sample_id": "sd15__ts0027__s0",
+      "prompt": "a photo of a bottle to the right of a clock",
+      "own": 20.81319236755371,
+      "mismatch_prompt": "Two anxious pigs.",
+      "mismatch": 18.030559539794922,
+      "cf_prompt": "a photo of a bottle to the left of a clock",
+      "cf_change": "right_of->left_of",
+      "cf": 21.11448860168457
+    },
+    {
+      "sample_id": "sd15__ts0039__s1",
+      "prompt": "a horse above a bicycle",
+      "own": 21.913673400878906,
+      "mismatch_prompt": "A view of a country club with manicured golf courses and luxurious facilities.",
+      "mismatch": 16.81989097595215,
+      "cf_prompt": "a horse below a bicycle",
+      "cf_change": "above->below",
+      "cf": 22.158447265625
+    },
+    {
+      "sample_id": "sd15__ts0064__s2",
+      "prompt": "a horse below a potted plant",
+      "own": 19.859621047973633,
+      "mismatch_prompt": "In a mysterious swamp, the flowers are taller than the trees.",
+      "mismatch": 18.10169219970703,
+      "cf_prompt": "a horse above a potted plant",
+      "cf_change": "below->above",
+      "cf": 19.48107147216797
+    },
+    {
+      "sample_id": "sd15__ts0067__s3",
+      "prompt": "a photo of a teddy bear below a bench",
+      "own": 22.6309814453125,
+      "mismatch_prompt": "A plate without a banana but with two apples",
+      "mismatch": 17.240446090698242,
+      "cf_prompt": "a photo of a teddy bear above a bench",
+      "cf_change": "below->above",
+      "cf": 22.617290496826172
+    },
+    {
+      "sample_id": "sd15__tt0012__s1",
+      "prompt": "a poster with the words \"HOT COFFEE\"",
+      "own": 21.25722312927246,
+      "mismatch_prompt": "A large bird does not fly higher than the mountains in the background.",
+      "mismatch": 17.35104751586914,
+      "cf_prompt": "a poster with the words \"FREE WIFI\"",
+      "cf_change": "text",
+      "cf": 19.234189987182617
+    },
+    {
+      "sample_id": "sd15__tt0013__s2",
+      "prompt": "a chalkboard that says \"FREE WIFI\"",
+      "own": 22.236780166625977,
+      "mismatch_prompt": "a chalkboard that says \"TICKETS SOLD OUT\"",
+      "mismatch": 17.66357421875,
+      "cf_prompt": "a chalkboard that says \"QUIET PLEASE\"",
+      "cf_change": "text",
+      "cf": 18.3367862701416
+    },
+    {
+      "sample_id": "sd35m__gb0064__s2",
+      "prompt": "A swan with a silver anklet on a crystal lake.",
+      "own": 21.66168785095215,
+      "mismatch_prompt": "a storefront sign that says \"STOP\"",
+      "mismatch": 16.65355110168457
+    },
+    {
+      "sample_id": "sd35m__gb0074__s3",
+      "prompt": "An eagle with a silver band on its leg on the right, soaring past a towering pine tree on the left.",
+      "own": 22.980609893798828,
+      "mismatch_prompt": "a laptop above a bench",
+      "mismatch": 17.810876846313477
+    },
+    {
+      "sample_id": "sd35m__gb0087__s0",
+      "prompt": "A narrow alleyway illuminated by strings of fairy lights.",
+      "own": 24.103607177734375,
+      "mismatch_prompt": "a photo of two cars",
+      "mismatch": 16.937089920043945
+    },
+    {
+      "sample_id": "sd35m__gb0168__s3",
+      "prompt": "The girl with glasses is drawing, and the girl without glasses is singing.",
+      "own": 21.411203384399414,
+      "mismatch_prompt": "The sun illuminates the garden, a shovel sticks in the soil, and gloves lay on the bench.",
+      "mismatch": 15.452303886413574
+    },
+    {
+      "sample_id": "sd35m__gb0238__s0",
+      "prompt": "In a mysterious swamp, the flowers are taller than the trees.",
+      "own": 22.561954498291016,
+      "mismatch_prompt": "An eagle with a silver band on its leg on the right, soaring past a towering pine tree on the left.",
+      "mismatch": 18.392417907714844
+    },
+    {
+      "sample_id": "sd35m__gb0245__s2",
+      "prompt": "A magician holds two books; the left one is open, the right one is closed.",
+      "own": 21.739023208618164,
+      "mismatch_prompt": "a chalkboard that says \"LIVE MUSIC\"",
+      "mismatch": 17.342771530151367
+    },
+    {
+      "sample_id": "sd35m__gb0267__s0",
+      "prompt": "A traditional potter's workshop, where every shelf holds rows of terracotta pots, each imprinted with intricate designs.",
+      "own": 21.418663024902344,
+      "mismatch_prompt": "a photo of four cars",
+      "mismatch": 16.869590759277344
+    },
+    {
+      "sample_id": "sd35m__gb0267__s2",
+      "prompt": "A traditional potter's workshop, where every shelf holds rows of terracotta pots, each imprinted with intricate designs.",
+      "own": 21.744422912597656,
+      "mismatch_prompt": "a bottle above a teddy bear",
+      "mismatch": 16.593017578125
+    },
+    {
+      "sample_id": "sd35m__gb0413__s1",
+      "prompt": "Leaves falling on every car in the autumn.",
+      "own": 21.34734535217285,
+      "mismatch_prompt": "A cottage covered in snow, with smoke rising from the chimney.",
+      "mismatch": 17.403066635131836
+    },
+    {
+      "sample_id": "sd35m__gb0431__s0",
+      "prompt": "All the doors in the hallway are closed, except for one that is slightly ajar.",
+      "own": 20.678007125854492,
+      "mismatch_prompt": "a photo of four cars",
+      "mismatch": 18.746706008911133
+    },
+    {
+      "sample_id": "sd35m__gb0469__s3",
+      "prompt": "A playground with swings, but no slide.",
+      "own": 23.17848777770996,
+      "mismatch_prompt": "A vintage car show with more convertibles than sedans.",
+      "mismatch": 16.671831130981445
+    },
+    {
+      "sample_id": "sd35m__gb0600__s3",
+      "prompt": "a hammock strung between two palm trees on a white sandy beach.",
+      "own": 23.946317672729492,
+      "mismatch_prompt": "a chalkboard that says \"WORK IN PROGRESS\"",
+      "mismatch": 17.162561416625977
+    },
+    {
+      "sample_id": "sd35m__gb0622__s0",
+      "prompt": "A lion with a golden chain roaring at sunset.",
+      "own": 24.36358070373535,
+      "mismatch_prompt": "A red fox sneaking up on two unsuspecting rabbits.",
+      "mismatch": 16.11090850830078
+    },
+    {
+      "sample_id": "sd35m__gb0634__s2",
+      "prompt": "a dog's paw hidden under a fluffy blanket.",
+      "own": 22.331024169921875,
+      "mismatch_prompt": "a cat to the left of a horse",
+      "mismatch": 17.80902862548828
+    },
+    {
+      "sample_id": "sd35m__gb0779__s2",
+      "prompt": "An American Alligator basking in the sun on a riverbank, observed from afar by a group of tourists.",
+      "own": 22.834453582763672,
+      "mismatch_prompt": "Some balls are on the table and on the floor, and the number of balls on the table is more than the number of balls on the floor.",
+      "mismatch": 18.37640953063965
+    },
+    {
+      "sample_id": "sd35m__gb0838__s2",
+      "prompt": "Four differently colored bicycles are parked next to the school bike rack.",
+      "own": 22.710336685180664,
+      "mismatch_prompt": "a realistic photo of four apples",
+      "mismatch": 19.347333908081055
+    },
+    {
+      "sample_id": "sd35m__gb0838__s3",
+      "prompt": "Four differently colored bicycles are parked next to the school bike rack.",
+      "own": 23.111793518066406,
+      "mismatch_prompt": "Three students in white stand in front of four students not in white.",
+      "mismatch": 18.381248474121094
+    },
+    {
+      "sample_id": "sd35m__gb0848__s0",
+      "prompt": "A cat warrior confronts a dog warrior, with the cat's equipment looking more advanced than the dog's.",
+      "own": 24.5429630279541,
+      "mismatch_prompt": "a photo of a car to the right of a laptop",
+      "mismatch": 15.805975914001465
+    },
+    {
+      "sample_id": "sd35m__gb0876__s0",
+      "prompt": "A Bengal tiger in the shade looks stronger than another Bengal tiger not in the shade.",
+      "own": 21.75356674194336,
+      "mismatch_prompt": "In a mysterious swamp, the flowers are taller than the trees.",
+      "mismatch": 18.060361862182617
+    },
+    {
+      "sample_id": "sd35m__gb0876__s1",
+      "prompt": "A Bengal tiger in the shade looks stronger than another Bengal tiger not in the shade.",
+      "own": 21.60704803466797,
+      "mismatch_prompt": "In the park, two squirrels chase each other, one with a fluffy tail waving behind it, the other with a sleeker tail darting through the trees.",
+      "mismatch": 18.73317527770996
+    },
+    {
+      "sample_id": "sd35m__gb0876__s3",
+      "prompt": "A Bengal tiger in the shade looks stronger than another Bengal tiger not in the shade.",
+      "own": 21.563901901245117,
+      "mismatch_prompt": "A tired nurse taking a moment to rest on a bench, with a hopeful dove perched on the window sill.",
+      "mismatch": 16.12808609008789
+    },
+    {
+      "sample_id": "sd35m__gb0890__s0",
+      "prompt": "Five colorful balloons floating against a clear blue sky.",
+      "own": 22.54573631286621,
+      "mismatch_prompt": "a chalkboard that says \"PLEASE TAKE OFF YOUR SHOES HERE\"",
+      "mismatch": 16.460227966308594
+    },
+    {
+      "sample_id": "sd35m__gb0890__s3",
+      "prompt": "Five colorful balloons floating against a clear blue sky.",
+      "own": 22.97968101501465,
+      "mismatch_prompt": "The sun illuminates the garden, a shovel sticks in the soil, and gloves lay on the bench.",
+      "mismatch": 15.580367088317871
+    },
+    {
+      "sample_id": "sd35m__gb0948__s2",
+      "prompt": "A group of students gathered around a panda, all with digital cameras in their hands.",
+      "own": 24.134571075439453,
+      "mismatch_prompt": "a chalkboard that says \"PLEASE TAKE OFF YOUR SHOES HERE\"",
+      "mismatch": 17.054349899291992
+    },
+    {
+      "sample_id": "sd35m__gb1095__s2",
+      "prompt": "A tired nurse taking a moment to rest on a bench, with a hopeful dove perched on the window sill.",
+      "own": 20.01093292236328,
+      "mismatch_prompt": "A starry night sky with more visible stars than the number of lights in the city below.",
+      "mismatch": 18.60041046142578
+    },
+    {
+      "sample_id": "sd35m__gb1192__s2",
+      "prompt": "A cottage covered in snow, with smoke rising from the chimney.",
+      "own": 25.09010887145996,
+      "mismatch_prompt": "A Bengal tiger in the shade looks stronger than another Bengal tiger not in the shade.",
+      "mismatch": 17.083717346191406
+    },
+    {
+      "sample_id": "sd35m__gb1236__s3",
+      "prompt": "Two anxious pigs.",
+      "own": 24.656259536743164,
+      "mismatch_prompt": "A cozy fireplace with 'Warm Hearts, Warm Hearth' etched into the wooden mantle.",
+      "mismatch": 16.44817543029785
+    },
+    {
+      "sample_id": "sd35m__gb1294__s2",
+      "prompt": "A classroom with books, but no book open.",
+      "own": 21.598974227905273,
+      "mismatch_prompt": "A playground with swings, but no slide.",
+      "mismatch": 17.876821517944336
+    },
+    {
+      "sample_id": "sd35m__gb1300__s2",
+      "prompt": "A plate without a banana but with two apples",
+      "own": 23.671884536743164,
+      "mismatch_prompt": "A vintage car show with more convertibles than sedans.",
+      "mismatch": 16.137815475463867
+    },
+    {
+      "sample_id": "sd35m__gb1300__s3",
+      "prompt": "A plate without a banana but with two apples",
+      "own": 23.761348724365234,
+      "mismatch_prompt": "A Bengal tiger in the shade looks stronger than another Bengal tiger not in the shade.",
+      "mismatch": 16.909809112548828
+    },
+    {
+      "sample_id": "sd35m__gb1319__s3",
+      "prompt": "A winter morning with no white snow covering roofs.",
+      "own": 21.671009063720703,
+      "mismatch_prompt": "a diver exploring a vibrant coral reef, surrounded by a school of colorful fish.",
+      "mismatch": 14.532480239868164
+    },
+    {
+      "sample_id": "sd35m__gb1405__s1",
+      "prompt": "A hamster is nibbling on a tiny piece of apple.",
+      "own": 24.510725021362305,
+      "mismatch_prompt": "A little brown-haired boy is clicking on the keyboard to play a computer game, and a little boy next to him who is not brown-haired looks more anxious than he is.",
+      "mismatch": 16.506616592407227
+    },
+    {
+      "sample_id": "sd35m__gb1419__s0",
+      "prompt": "A gray rabbit isn't burrowing into the loose dirt, and a mole is burrowing into the dirt.",
+      "own": 23.060075759887695,
+      "mismatch_prompt": "An eagle with a silver band on its leg on the right, soaring past a towering pine tree on the left.",
+      "mismatch": 17.154603958129883
+    },
+    {
+      "sample_id": "sd35m__gb1419__s3",
+      "prompt": "A gray rabbit isn't burrowing into the loose dirt, and a mole is burrowing into the dirt.",
+      "own": 22.667043685913086,
+      "mismatch_prompt": "A view of a country club with manicured golf courses and luxurious facilities.",
+      "mismatch": 16.25213050842285
+    },
+    {
+      "sample_id": "sd35m__gb1520__s3",
+      "prompt": "Three students in white stand in front of four students not in white.",
+      "own": 22.744491577148438,
+      "mismatch_prompt": "The girl with glasses is drawing, and the girl without glasses is singing.",
+      "mismatch": 18.80377197265625
+    },
+    {
+      "sample_id": "sd35m__gb1531__s1",
+      "prompt": "There are four stones under a large, dense tree, all of which are round.",
+      "own": 22.790996551513672,
+      "mismatch_prompt": "A winter morning with no white snow covering roofs.",
+      "mismatch": 17.949975967407227
+    },
+    {
+      "sample_id": "sd35m__gb1531__s2",
+      "prompt": "There are four stones under a large, dense tree, all of which are round.",
+      "own": 22.36192512512207,
+      "mismatch_prompt": "On the subway, none of the passengers are playing with their phones.",
+      "mismatch": 16.661237716674805
+    },
+    {
+      "sample_id": "sd35m__gb1554__s2",
+      "prompt": "There are many lights in the room, and all the lights that give off red light are round.",
+      "own": 20.81038475036621,
+      "mismatch_prompt": "a dog's paw hidden under a fluffy blanket.",
+      "mismatch": 17.082265853881836
+    },
+    {
+      "sample_id": "sd35m__tc0004__s0",
+      "prompt": "a realistic photo of four apples",
+      "own": 23.58533477783203,
+      "mismatch_prompt": "a photo of a teddy bear below a bench",
+      "mismatch": 15.828751564025879,
+      "cf_prompt": "a realistic photo of six apples",
+      "cf_change": "count 4->6",
+      "cf": 22.261953353881836
+    },
+    {
+      "sample_id": "sd35m__tc0015__s2",
+      "prompt": "a realistic photo of one cup",
+      "own": 22.35418701171875,
+      "mismatch_prompt": "Some balls are on the table and on the floor, and the number of balls on the table is more than the number of balls on the floor.",
+      "mismatch": 18.25136947631836,
+      "cf_prompt": "a realistic photo of three cups",
+      "cf_change": "count 1->3",
+      "cf": 20.272159576416016
+    },
+    {
+      "sample_id": "sd35m__tc0029__s3",
+      "prompt": "a photo of one book",
+      "own": 21.86728858947754,
+      "mismatch_prompt": "Some balls are on the table and on the floor, and the number of balls on the table is more than the number of balls on the floor.",
+      "mismatch": 18.558122634887695,
+      "cf_prompt": "a photo of three books",
+      "cf_change": "count 1->3",
+      "cf": 20.14625358581543
+    },
+    {
+      "sample_id": "sd35m__tc0041__s1",
+      "prompt": "a realistic photo of six chairs",
+      "own": 22.597429275512695,
+      "mismatch_prompt": "a teddy bear to the right of a bicycle",
+      "mismatch": 18.00424575805664,
+      "cf_prompt": "a realistic photo of four chairs",
+      "cf_change": "count 6->4",
+      "cf": 21.29064178466797
+    },
+    {
+      "sample_id": "sd35m__ts0007__s0",
+      "prompt": "a photo of a cat to the left of a cup",
+      "own": 21.833595275878906,
+      "mismatch_prompt": "a realistic photo of six bottles",
+      "mismatch": 16.222618103027344,
+      "cf_prompt": "a photo of a cat to the right of a cup",
+      "cf_change": "left_of->right_of",
+      "cf": 21.88558006286621
+    },
+    {
+      "sample_id": "sd35m__ts0027__s0",
+      "prompt": "a photo of a bottle to the right of a clock",
+      "own": 21.183141708374023,
+      "mismatch_prompt": "a realistic photo of four apples",
+      "mismatch": 19.114322662353516,
+      "cf_prompt": "a photo of a bottle to the left of a clock",
+      "cf_change": "right_of->left_of",
+      "cf": 21.402063369750977
+    },
+    {
+      "sample_id": "sd35m__ts0039__s0",
+      "prompt": "a horse above a bicycle",
+      "own": 22.159019470214844,
+      "mismatch_prompt": "In the park, two squirrels chase each other, one with a fluffy tail waving behind it, the other with a sleeker tail darting through the trees.",
+      "mismatch": 19.48475456237793,
+      "cf_prompt": "a horse below a bicycle",
+      "cf_change": "above->below",
+      "cf": 22.494155883789062
+    },
+    {
+      "sample_id": "sd35m__ts0067__s2",
+      "prompt": "a photo of a teddy bear below a bench",
+      "own": 23.46695327758789,
+      "mismatch_prompt": "A large bird does not fly higher than the mountains in the background.",
+      "mismatch": 16.539350509643555,
+      "cf_prompt": "a photo of a teddy bear above a bench",
+      "cf_change": "below->above",
+      "cf": 23.3551025390625
+    },
+    {
+      "sample_id": "sd35m__ts0067__s3",
+      "prompt": "a photo of a teddy bear below a bench",
+      "own": 23.6551456451416,
+      "mismatch_prompt": "In a mysterious swamp, the flowers are taller than the trees.",
+      "mismatch": 16.221731185913086,
+      "cf_prompt": "a photo of a teddy bear above a bench",
+      "cf_change": "below->above",
+      "cf": 23.358562469482422
+    },
+    {
+      "sample_id": "sd35m__tt0012__s3",
+      "prompt": "a poster with the words \"HOT COFFEE\"",
+      "own": 22.27837562561035,
+      "mismatch_prompt": "Three sailboats on the water, each with sails of a different color.",
+      "mismatch": 17.399795532226562,
+      "cf_prompt": "a poster with the words \"FREE WIFI\"",
+      "cf_change": "text",
+      "cf": 19.024646759033203
+    },
+    {
+      "sample_id": "sd35m__tt0013__s0",
+      "prompt": "a chalkboard that says \"FREE WIFI\"",
+      "own": 23.145490646362305,
+      "mismatch_prompt": "In the park, two squirrels chase each other, one with a fluffy tail waving behind it, the other with a sleeker tail darting through the trees.",
+      "mismatch": 17.382022857666016,
+      "cf_prompt": "a chalkboard that says \"QUIET PLEASE\"",
+      "cf_change": "text",
+      "cf": 19.267057418823242
+    },
+    {
+      "sample_id": "sd35m__tt0043__s0",
+      "prompt": "a poster with the words \"THE LIBRARY CLOSES AT NINE TONIGHT\"",
+      "own": 22.533172607421875,
+      "mismatch_prompt": "a hammock strung between two palm trees on a white sandy beach.",
+      "mismatch": 16.69413948059082,
+      "cf_prompt": "a poster with the words \"WE ARE OPEN EVERY DAY OF THE WEEK\"",
+      "cf_change": "text",
+      "cf": 18.933073043823242
+    },
+    {
+      "sample_id": "sd35m__tt0055__s0",
+      "prompt": "a storefront sign that says \"HOMEMADE PIE AND HOT COFFEE INSIDE\"",
+      "own": 22.622995376586914,
+      "mismatch_prompt": "a realistic photo of seven dogs",
+      "mismatch": 18.7264461517334,
+      "cf_prompt": "a storefront sign that says \"WATCH YOUR STEP WHEN LEAVING THE TRAIN\"",
+      "cf_change": "text",
+      "cf": 20.213340759277344
+    },
+    {
+      "sample_id": "sd35m__tt0055__s2",
+      "prompt": "a storefront sign that says \"HOMEMADE PIE AND HOT COFFEE INSIDE\"",
+      "own": 22.56232452392578,
+      "mismatch_prompt": "A large bird does not fly higher than the mountains in the background.",
+      "mismatch": 17.812084197998047,
+      "cf_prompt": "a storefront sign that says \"WATCH YOUR STEP WHEN LEAVING THE TRAIN\"",
+      "cf_change": "text",
+      "cf": 20.088125228881836
+    },
+    {
+      "sample_id": "sdxl__gb0048__s1",
+      "prompt": "A cavern lit by shafts of light revealing hidden underground pools.",
+      "own": 22.438419342041016,
+      "mismatch_prompt": "a photo of a cat to the left of a cup",
+      "mismatch": 17.887714385986328
+    },
+    {
+      "sample_id": "sdxl__gb0064__s0",
+      "prompt": "A swan with a silver anklet on a crystal lake.",
+      "own": 21.634063720703125,
+      "mismatch_prompt": "Five colorful balloons floating against a clear blue sky.",
+      "mismatch": 16.034757614135742
+    },
+    {
+      "sample_id": "sdxl__gb0064__s3",
+      "prompt": "A swan with a silver anklet on a crystal lake.",
+      "own": 21.96950340270996,
+      "mismatch_prompt": "A cavern lit by shafts of light revealing hidden underground pools.",
+      "mismatch": 17.872623443603516
+    },
+    {
+      "sample_id": "sdxl__gb0074__s2",
+      "prompt": "An eagle with a silver band on its leg on the right, soaring past a towering pine tree on the left.",
+      "own": 23.57444190979004,
+      "mismatch_prompt": "A large bird does not fly higher than the mountains in the background.",
+      "mismatch": 21.795034408569336
+    },
+    {
+      "sample_id": "sdxl__gb0168__s1",
+      "prompt": "The girl with glasses is drawing, and the girl without glasses is singing.",
+      "own": 21.462112426757812,
+      "mismatch_prompt": "a photo of a car to the right of a laptop",
+      "mismatch": 16.246625900268555
+    },
+    {
+      "sample_id": "sdxl__gb0274__s2",
+      "prompt": "A child pointing at parent.",
+      "own": 21.805274963378906,
+      "mismatch_prompt": "A cavern lit by shafts of light revealing hidden underground pools.",
+      "mismatch": 16.682857513427734
+    },
+    {
+      "sample_id": "sdxl__gb0274__s3",
+      "prompt": "A child pointing at parent.",
+      "own": 22.12713050842285,
+      "mismatch_prompt": "A towering skyscraper reflecting the early morning sun.",
+      "mismatch": 16.737674713134766
+    },
+    {
+      "sample_id": "sdxl__gb0340__s2",
+      "prompt": "A knight in shining armor jousting at a medieval fair.",
+      "own": 24.0477237701416,
+      "mismatch_prompt": "a realistic photo of one cup",
+      "mismatch": 18.920549392700195
+    },
+    {
+      "sample_id": "sdxl__gb0600__s3",
+      "prompt": "a hammock strung between two palm trees on a white sandy beach.",
+      "own": 24.791893005371094,
+      "mismatch_prompt": "An eagle with a silver band on its leg on the right, soaring past a towering pine tree on the left.",
+      "mismatch": 18.58089828491211
+    },
+    {
+      "sample_id": "sdxl__gb0622__s3",
+      "prompt": "A lion with a golden chain roaring at sunset.",
+      "own": 23.0484561920166,
+      "mismatch_prompt": "a chalkboard that says \"TICKETS SOLD OUT\"",
+      "mismatch": 15.054872512817383
+    },
+    {
+      "sample_id": "sdxl__gb0634__s0",
+      "prompt": "a dog's paw hidden under a fluffy blanket.",
+      "own": 23.69121551513672,
+      "mismatch_prompt": "a photo of three bicycles",
+      "mismatch": 17.050687789916992
+    },
+    {
+      "sample_id": "sdxl__gb0876__s3",
+      "prompt": "A Bengal tiger in the shade looks stronger than another Bengal tiger not in the shade.",
+      "own": 22.352588653564453,
+      "mismatch_prompt": "a chalkboard that says \"LIVE MUSIC\"",
+      "mismatch": 16.0144100189209
+    },
+    {
+      "sample_id": "sdxl__gb0879__s1",
+      "prompt": "A red fox sneaking up on two unsuspecting rabbits.",
+      "own": 21.902708053588867,
+      "mismatch_prompt": "On the subway, none of the passengers are playing with their phones.",
+      "mismatch": 16.728723526000977
+    },
+    {
+      "sample_id": "sdxl__gb0879__s3",
+      "prompt": "A red fox sneaking up on two unsuspecting rabbits.",
+      "own": 22.420026779174805,
+      "mismatch_prompt": "The sun illuminates the garden, a shovel sticks in the soil, and gloves lay on the bench.",
+      "mismatch": 15.349918365478516
+    },
+    {
+      "sample_id": "sdxl__gb0948__s0",
+      "prompt": "A group of students gathered around a panda, all with digital cameras in their hands.",
+      "own": 24.07996940612793,
+      "mismatch_prompt": "a realistic photo of five cars",
+      "mismatch": 18.083965301513672
+    },
+    {
+      "sample_id": "sdxl__gb0948__s3",
+      "prompt": "A group of students gathered around a panda, all with digital cameras in their hands.",
+      "own": 23.812028884887695,
+      "mismatch_prompt": "a photo of a teddy bear below a bench",
+      "mismatch": 19.485458374023438
+    },
+    {
+      "sample_id": "sdxl__gb1010__s2",
+      "prompt": "Sunlight filtering through the linen curtains, casting a warm glow on the ceramic coffee mug.",
+      "own": 22.099369049072266,
+      "mismatch_prompt": "A towering skyscraper reflecting the early morning sun.",
+      "mismatch": 18.461149215698242
+    },
+    {
+      "sample_id": "sdxl__gb1070__s1",
+      "prompt": "A kangaroo lifts a terrified turkey over its head.",
+      "own": 20.359949111938477,
+      "mismatch_prompt": "a photo of four cars",
+      "mismatch": 17.1265926361084
+    },
+    {
+      "sample_id": "sdxl__gb1103__s0",
+      "prompt": "An octagonal window framing a spherical ornament.",
+      "own": 22.24591827392578,
+      "mismatch_prompt": "a potted plant to the left of a bottle",
+      "mismatch": 18.1785888671875
+    },
+    {
+      "sample_id": "sdxl__gb1103__s1",
+      "prompt": "An octagonal window framing a spherical ornament.",
+      "own": 22.318830490112305,
+      "mismatch_prompt": "Two birds are chasing each other in the air, with the one flying higher having a long tail and the other bird having a short tail.",
+      "mismatch": 18.366209030151367
+    },
+    {
+      "sample_id": "sdxl__gb1126__s0",
+      "prompt": "A cozy fireplace with 'Warm Hearts, Warm Hearth' etched into the wooden mantle.",
+      "own": 22.120969772338867,
+      "mismatch_prompt": "a photo of one book",
+      "mismatch": 18.53101921081543
+    },
+    {
+      "sample_id": "sdxl__gb1192__s3",
+      "prompt": "A cottage covered in snow, with smoke rising from the chimney.",
+      "own": 25.469316482543945,
+      "mismatch_prompt": "a photo of two cars",
+      "mismatch": 17.677095413208008
+    },
+    {
+      "sample_id": "sdxl__gb1222__s2",
+      "prompt": "Five nervous deer.",
+      "own": 20.791072845458984,
+      "mismatch_prompt": "A cheerful dog with a frisbee in its mouth on the right, chasing a rolling ball on the left.",
+      "mismatch": 17.269445419311523
+    },
+    {
+      "sample_id": "sdxl__gb1261__s0",
+      "prompt": "On a large stone platform, there are two camel statues but no horse statues.",
+      "own": 21.252609252929688,
+      "mismatch_prompt": "A cozy fireplace with 'Warm Hearts, Warm Hearth' etched into the wooden mantle.",
+      "mismatch": 17.592132568359375
+    },
+    {
+      "sample_id": "sdxl__gb1261__s2",
+      "prompt": "On a large stone platform, there are two camel statues but no horse statues.",
+      "own": 21.568614959716797,
+      "mismatch_prompt": "a photo of a cat to the left of a cup",
+      "mismatch": 18.383663177490234
+    },
+    {
+      "sample_id": "sdxl__gb1300__s2",
+      "prompt": "A plate without a banana but with two apples",
+      "own": 23.824684143066406,
+      "mismatch_prompt": "A cat warrior confronts a dog warrior, with the cat's equipment looking more advanced than the dog's.",
+      "mismatch": 14.085396766662598
+    },
+    {
+      "sample_id": "sdxl__gb1337__s1",
+      "prompt": "A boy in a cape, climbing without sneakers.",
+      "own": 22.730205535888672,
+      "mismatch_prompt": "a horse above a bicycle",
+      "mismatch": 17.59705924987793
+    },
+    {
+      "sample_id": "sdxl__gb1337__s2",
+      "prompt": "A boy in a cape, climbing without sneakers.",
+      "own": 23.30841064453125,
+      "mismatch_prompt": "The sun illuminates the garden, a shovel sticks in the soil, and gloves lay on the bench.",
+      "mismatch": 15.969924926757812
+    },
+    {
+      "sample_id": "sdxl__gb1388__s3",
+      "prompt": "A monkey is stealing apples from a tourist's basket. The number of apples in the monkey's arms is less than the number of apples in the basket.",
+      "own": 22.934938430786133,
+      "mismatch_prompt": "A vintage car show with more convertibles than sedans.",
+      "mismatch": 16.111278533935547
+    },
+    {
+      "sample_id": "sdxl__gb1401__s2",
+      "prompt": "Some balls are on the table and on the floor, and the number of balls on the table is more than the number of balls on the floor.",
+      "own": 21.744609832763672,
+      "mismatch_prompt": "a realistic photo of five bottles",
+      "mismatch": 18.43939208984375
+    },
+    {
+      "sample_id": "sdxl__gb1401__s3",
+      "prompt": "Some balls are on the table and on the floor, and the number of balls on the table is more than the number of balls on the floor.",
+      "own": 21.437572479248047,
+      "mismatch_prompt": "a chalkboard that says \"FREE WIFI\"",
+      "mismatch": 16.78032684326172
+    },
+    {
+      "sample_id": "sdxl__gb1419__s3",
+      "prompt": "A gray rabbit isn't burrowing into the loose dirt, and a mole is burrowing into the dirt.",
+      "own": 22.306167602539062,
+      "mismatch_prompt": "An American Alligator basking in the sun on a riverbank, observed from afar by a group of tourists.",
+      "mismatch": 15.75161361694336
+    },
+    {
+      "sample_id": "sdxl__gb1484__s0",
+      "prompt": "A little brown-haired boy is clicking on the keyboard to play a computer game, and a little boy next to him who is not brown-haired looks more anxious than he is.",
+      "own": 22.08445167541504,
+      "mismatch_prompt": "A child pointing at parent.",
+      "mismatch": 19.76731300354004
+    },
+    {
+      "sample_id": "sdxl__gb1497__s1",
+      "prompt": "A girl in a smart blazer using a globe to explain continents to a girl in a school uniform and backpack.",
+      "own": 21.919200897216797,
+      "mismatch_prompt": "A cheerful dog with a frisbee in its mouth on the right, chasing a rolling ball on the left.",
+      "mismatch": 16.9337158203125
+    },
+    {
+      "sample_id": "sdxl__gb1520__s1",
+      "prompt": "Three students in white stand in front of four students not in white.",
+      "own": 22.873674392700195,
+      "mismatch_prompt": "a realistic photo of two oranges",
+      "mismatch": 17.46278190612793
+    },
+    {
+      "sample_id": "sdxl__gb1520__s2",
+      "prompt": "Three students in white stand in front of four students not in white.",
+      "own": 23.165740966796875,
+      "mismatch_prompt": "a chalkboard that says \"FREE WIFI\"",
+      "mismatch": 16.961795806884766
+    },
+    {
+      "sample_id": "sdxl__gb1541__s3",
+      "prompt": "It's raining outside the house and a mother is instructing her two children in their studies; the child without a hat is more frustrated than the one with a hat.",
+      "own": 20.80319595336914,
+      "mismatch_prompt": "An American Alligator basking in the sun on a riverbank, observed from afar by a group of tourists.",
+      "mismatch": 15.00335693359375
+    },
+    {
+      "sample_id": "sdxl__gb1549__s1",
+      "prompt": "On the subway, none of the passengers are playing with their phones.",
+      "own": 21.658750534057617,
+      "mismatch_prompt": "a photo of a clock to the left of a horse",
+      "mismatch": 17.525253295898438
+    },
+    {
+      "sample_id": "sdxl__gb1567__s3",
+      "prompt": "A blackboard displays two curves; the pink one undulates more than the white one.",
+      "own": 22.773866653442383,
+      "mismatch_prompt": "A garden where every flower is in full bloom, showcasing a rainbow of colors.",
+      "mismatch": 17.040225982666016
+    },
+    {
+      "sample_id": "sdxl__tc0017__s0",
+      "prompt": "a realistic photo of three cups",
+      "own": 21.27836036682129,
+      "mismatch_prompt": "a storefront sign that says \"STOP\"",
+      "mismatch": 17.24116325378418,
+      "cf_prompt": "a realistic photo of five cups",
+      "cf_change": "count 3->5",
+      "cf": 21.375473022460938
+    },
+    {
+      "sample_id": "sdxl__tc0021__s0",
+      "prompt": "a photo of seven cups",
+      "own": 21.0212459564209,
+      "mismatch_prompt": "A kangaroo lifts a terrified turkey over its head.",
+      "mismatch": 15.404410362243652,
+      "cf_prompt": "a photo of five cups",
+      "cf_change": "count 7->5",
+      "cf": 21.162343978881836
+    },
+    {
+      "sample_id": "sdxl__tc0026__s2",
+      "prompt": "a realistic photo of five bottles",
+      "own": 19.81224822998047,
+      "mismatch_prompt": "A girl in a smart blazer using a globe to explain continents to a girl in a school uniform and backpack.",
+      "mismatch": 14.997394561767578,
+      "cf_prompt": "a realistic photo of seven bottles",
+      "cf_change": "count 5->7",
+      "cf": 19.788068771362305
+    },
+    {
+      "sample_id": "sdxl__tc0041__s0",
+      "prompt": "a realistic photo of six chairs",
+      "own": 23.59914779663086,
+      "mismatch_prompt": "a barn owl perched on a fence post at dusk.",
+      "mismatch": 14.843459129333496,
+      "cf_prompt": "a realistic photo of four chairs",
+      "cf_change": "count 6->4",
+      "cf": 22.949718475341797
+    },
+    {
+      "sample_id": "sdxl__tc0041__s3",
+      "prompt": "a realistic photo of six chairs",
+      "own": 23.164094924926758,
+      "mismatch_prompt": "A cavern lit by shafts of light revealing hidden underground pools.",
+      "mismatch": 18.146188735961914,
+      "cf_prompt": "a realistic photo of four chairs",
+      "cf_change": "count 6->4",
+      "cf": 22.703950881958008
+    },
+    {
+      "sample_id": "sdxl__ts0006__s3",
+      "prompt": "a cat to the left of a horse",
+      "own": 20.72928810119629,
+      "mismatch_prompt": "a photo of a cat to the left of a cup",
+      "mismatch": 18.498348236083984,
+      "cf_prompt": "a cat to the right of a horse",
+      "cf_change": "left_of->right_of",
+      "cf": 21.144638061523438
+    },
+    {
+      "sample_id": "sdxl__ts0007__s2",
+      "prompt": "a photo of a cat to the left of a cup",
+      "own": 23.864717483520508,
+      "mismatch_prompt": "On the farm, each animal is settling down for the night.",
+      "mismatch": 17.30781364440918,
+      "cf_prompt": "a photo of a cat to the right of a cup",
+      "cf_change": "left_of->right_of",
+      "cf": 24.161006927490234
+    },
+    {
+      "sample_id": "sdxl__ts0027__s1",
+      "prompt": "a photo of a bottle to the right of a clock",
+      "own": 21.000864028930664,
+      "mismatch_prompt": "Tea steams in a cup, next to a closed diary with a pen resting on its cover.",
+      "mismatch": 17.31316566467285,
+      "cf_prompt": "a photo of a bottle to the left of a clock",
+      "cf_change": "right_of->left_of",
+      "cf": 21.461322784423828
+    },
+    {
+      "sample_id": "sdxl__ts0030__s3",
+      "prompt": "a photo of a car to the right of a laptop",
+      "own": 21.905925750732422,
+      "mismatch_prompt": "a cream colored labradoodle is on the right of a black cat with white ears.",
+      "mismatch": 18.301185607910156,
+      "cf_prompt": "a photo of a car to the left of a laptop",
+      "cf_change": "right_of->left_of",
+      "cf": 22.264293670654297
+    },
+    {
+      "sample_id": "sdxl__ts0031__s0",
+      "prompt": "a teddy bear to the right of a bicycle",
+      "own": 25.469871520996094,
+      "mismatch_prompt": "A Bengal tiger in the shade looks stronger than another Bengal tiger not in the shade.",
+      "mismatch": 17.54218101501465,
+      "cf_prompt": "a teddy bear to the left of a bicycle",
+      "cf_change": "right_of->left_of",
+      "cf": 25.409547805786133
+    },
+    {
+      "sample_id": "sdxl__ts0033__s3",
+      "prompt": "a dog to the right of a book",
+      "own": 22.58557891845703,
+      "mismatch_prompt": "A girl in a smart blazer using a globe to explain continents to a girl in a school uniform and backpack.",
+      "mismatch": 15.112403869628906,
+      "cf_prompt": "a dog to the left of a book",
+      "cf_change": "right_of->left_of",
+      "cf": 22.360483169555664
+    },
+    {
+      "sample_id": "sdxl__ts0050__s3",
+      "prompt": "a bottle above a teddy bear",
+      "own": 23.750581741333008,
+      "mismatch_prompt": "A swan with a silver anklet on a crystal lake.",
+      "mismatch": 17.0985164642334,
+      "cf_prompt": "a bottle below a teddy bear",
+      "cf_change": "above->below",
+      "cf": 23.78105926513672
+    },
+    {
+      "sample_id": "sdxl__ts0058__s3",
+      "prompt": "a bottle below a car",
+      "own": 22.942251205444336,
+      "mismatch_prompt": "a green tractor plowing a field at sunrise.",
+      "mismatch": 13.885674476623535,
+      "cf_prompt": "a bottle above a car",
+      "cf_change": "below->above",
+      "cf": 22.366294860839844
+    },
+    {
+      "sample_id": "sdxl__ts0067__s1",
+      "prompt": "a photo of a teddy bear below a bench",
+      "own": 24.58260154724121,
+      "mismatch_prompt": "On a large stone platform, there are two camel statues but no horse statues.",
+      "mismatch": 16.904035568237305,
+      "cf_prompt": "a photo of a teddy bear above a bench",
+      "cf_change": "below->above",
+      "cf": 24.603046417236328
+    },
+    {
+      "sample_id": "sdxl__tt0010__s3",
+      "prompt": "a storefront sign that says \"STOP\"",
+      "own": 22.382423400878906,
+      "mismatch_prompt": "Some balls are on the table and on the floor, and the number of balls on the table is more than the number of balls on the floor.",
+      "mismatch": 18.83135414123535,
+      "cf_prompt": "a storefront sign that says \"THANK YOU\"",
+      "cf_change": "text",
+      "cf": 19.7409725189209
+    },
+    {
+      "sample_id": "sdxl__tt0012__s1",
+      "prompt": "a poster with the words \"HOT COFFEE\"",
+      "own": 22.461389541625977,
+      "mismatch_prompt": "a photo of four cars",
+      "mismatch": 15.36190414428711,
+      "cf_prompt": "a poster with the words \"FREE WIFI\"",
+      "cf_change": "text",
+      "cf": 19.156696319580078
+    },
+    {
+      "sample_id": "sdxl__tt0012__s2",
+      "prompt": "a poster with the words \"HOT COFFEE\"",
+      "own": 23.273469924926758,
+      "mismatch_prompt": "A classroom with books, but no book open.",
+      "mismatch": 16.658403396606445,
+      "cf_prompt": "a poster with the words \"FREE WIFI\"",
+      "cf_change": "text",
+      "cf": 19.492799758911133
+    },
+    {
+      "sample_id": "sdxl__tt0013__s0",
+      "prompt": "a chalkboard that says \"FREE WIFI\"",
+      "own": 21.913728713989258,
+      "mismatch_prompt": "a realistic photo of seven dogs",
+      "mismatch": 17.037826538085938,
+      "cf_prompt": "a chalkboard that says \"QUIET PLEASE\"",
+      "cf_change": "text",
+      "cf": 18.62582778930664
+    },
+    {
+      "sample_id": "sdxl__tt0013__s1",
+      "prompt": "a chalkboard that says \"FREE WIFI\"",
+      "own": 22.139673233032227,
+      "mismatch_prompt": "a photo of a cat to the left of a cup",
+      "mismatch": 18.76230239868164,
+      "cf_prompt": "a chalkboard that says \"QUIET PLEASE\"",
+      "cf_change": "text",
+      "cf": 19.211843490600586
+    },
+    {
+      "sample_id": "sdxl__tt0021__s0",
+      "prompt": "a chalkboard that says \"BACK IN FIVE MINUTES\"",
+      "own": 19.89191246032715,
+      "mismatch_prompt": "Five colorful balloons floating against a clear blue sky.",
+      "mismatch": 17.593406677246094,
+      "cf_prompt": "a chalkboard that says \"FRESH FLOWERS DAILY\"",
+      "cf_change": "text",
+      "cf": 16.614477157592773
+    },
+    {
+      "sample_id": "sdxl__tt0021__s2",
+      "prompt": "a chalkboard that says \"BACK IN FIVE MINUTES\"",
+      "own": 21.26689910888672,
+      "mismatch_prompt": "a realistic photo of six bottles",
+      "mismatch": 18.177125930786133,
+      "cf_prompt": "a chalkboard that says \"FRESH FLOWERS DAILY\"",
+      "cf_change": "text",
+      "cf": 18.3945369720459
+    },
+    {
+      "sample_id": "sdxl__tt0021__s3",
+      "prompt": "a chalkboard that says \"BACK IN FIVE MINUTES\"",
+      "own": 21.689987182617188,
+      "mismatch_prompt": "Five colorful balloons floating against a clear blue sky.",
+      "mismatch": 18.704837799072266,
+      "cf_prompt": "a chalkboard that says \"FRESH FLOWERS DAILY\"",
+      "cf_change": "text",
+      "cf": 18.000272750854492
+    },
+    {
+      "sample_id": "sdxl__tt0043__s2",
+      "prompt": "a poster with the words \"THE LIBRARY CLOSES AT NINE TONIGHT\"",
+      "own": 19.81793975830078,
+      "mismatch_prompt": "A girl in a smart blazer using a globe to explain continents to a girl in a school uniform and backpack.",
+      "mismatch": 16.535432815551758,
+      "cf_prompt": "a poster with the words \"WE ARE OPEN EVERY DAY OF THE WEEK\"",
+      "cf_change": "text",
+      "cf": 18.82486915588379
+    }
+  ],
+  "counterfactual_labelled": {
+    "labels": "data/labels/prompts_v1_labels.csv",
+    "all": {
+      "n": 40,
+      "rate": 0.85,
+      "higher": 34,
+      "ties": 0,
+      "lower": 6,
+      "mean_drop": 2.4298675060272217
+    },
+    "count": {
+      "n": 8,
+      "rate": 1.0,
+      "higher": 8,
+      "ties": 0,
+      "lower": 0,
+      "mean_drop": 0.8913626670837402
+    },
+    "relation": {
+      "n": 9,
+      "rate": 0.3333333333333333,
+      "higher": 3,
+      "ties": 0,
+      "lower": 6,
+      "mean_drop": -0.1566704644097222
+    },
+    "text": {
+      "n": 23,
+      "rate": 1.0,
+      "higher": 23,
+      "ties": 0,
+      "lower": 0,
+      "mean_drop": 3.9771231775698452
+    },
+    "per_image": [
+      {
+        "sample_id": "flux_schnell__tc0027__s2",
+        "own": 22.390153884887695,
+        "cf_prompt": "a realistic photo of four bottles",
+        "cf": 21.659196853637695
+      },
+      {
+        "sample_id": "flux_schnell__ts0017__s0",
+        "own": 23.161706924438477,
+        "cf_prompt": "a photo of a clock to the right of a horse",
+        "cf": 22.9966983795166
+      },
+      {
+        "sample_id": "flux_schnell__ts0017__s3",
+        "own": 22.550527572631836,
+        "cf_prompt": "a photo of a clock to the right of a horse",
+        "cf": 22.438518524169922
+      },
+      {
+        "sample_id": "flux_schnell__tt0010__s0",
+        "own": 22.808008193969727,
+        "cf_prompt": "a storefront sign that says \"THANK YOU\"",
+        "cf": 19.25206184387207
+      },
+      {
+        "sample_id": "flux_schnell__tt0010__s2",
+        "own": 22.402366638183594,
+        "cf_prompt": "a storefront sign that says \"THANK YOU\"",
+        "cf": 19.14330291748047
+      },
+      {
+        "sample_id": "flux_schnell__tt0012__s0",
+        "own": 23.896921157836914,
+        "cf_prompt": "a poster with the words \"FREE WIFI\"",
+        "cf": 19.153724670410156
+      },
+      {
+        "sample_id": "flux_schnell__tt0013__s0",
+        "own": 23.394323348999023,
+        "cf_prompt": "a chalkboard that says \"QUIET PLEASE\"",
+        "cf": 19.115419387817383
+      },
+      {
+        "sample_id": "flux_schnell__tt0013__s1",
+        "own": 24.633737564086914,
+        "cf_prompt": "a chalkboard that says \"QUIET PLEASE\"",
+        "cf": 19.304428100585938
+      },
+      {
+        "sample_id": "flux_schnell__tt0013__s2",
+        "own": 24.675647735595703,
+        "cf_prompt": "a chalkboard that says \"QUIET PLEASE\"",
+        "cf": 19.50893211364746
+      },
+      {
+        "sample_id": "flux_schnell__tt0017__s2",
+        "own": 24.635604858398438,
+        "cf_prompt": "a chalkboard that says \"PUSH HERE\"",
+        "cf": 18.934480667114258
+      },
+      {
+        "sample_id": "flux_schnell__tt0021__s3",
+        "own": 23.169170379638672,
+        "cf_prompt": "a chalkboard that says \"FRESH FLOWERS DAILY\"",
+        "cf": 17.949077606201172
+      },
+      {
+        "sample_id": "flux_schnell__tt0029__s1",
+        "own": 22.582860946655273,
+        "cf_prompt": "a chalkboard that says \"KEEP THIS DOOR CLOSED\"",
+        "cf": 18.01662826538086
+      },
+      {
+        "sample_id": "flux_schnell__tt0029__s3",
+        "own": 22.820640563964844,
+        "cf_prompt": "a chalkboard that says \"KEEP THIS DOOR CLOSED\"",
+        "cf": 18.234424591064453
+      },
+      {
+        "sample_id": "flux_schnell__tt0039__s0",
+        "own": 22.9153995513916,
+        "cf_prompt": "a chalkboard that says \"WATCH YOUR HEAD\"",
+        "cf": 18.891050338745117
+      },
+      {
+        "sample_id": "flux_schnell__tt0039__s1",
+        "own": 22.6771240234375,
+        "cf_prompt": "a chalkboard that says \"WATCH YOUR HEAD\"",
+        "cf": 19.026493072509766
+      },
+      {
+        "sample_id": "flux_schnell__tt0041__s0",
+        "own": 22.154338836669922,
+        "cf_prompt": "a chalkboard that says \"ALL ITEMS ARE FIFTY PERCENT OFF\"",
+        "cf": 19.754987716674805
+      },
+      {
+        "sample_id": "sd15__tc0015__s1",
+        "own": 21.094078063964844,
+        "cf_prompt": "a realistic photo of three cups",
+        "cf": 19.70703887939453
+      },
+      {
+        "sample_id": "sd15__tc0017__s2",
+        "own": 21.752111434936523,
+        "cf_prompt": "a realistic photo of five cups",
+        "cf": 21.09270477294922
+      },
+      {
+        "sample_id": "sd15__ts0027__s1",
+        "own": 22.660858154296875,
+        "cf_prompt": "a photo of a bottle to the left of a clock",
+        "cf": 22.822351455688477
+      },
+      {
+        "sample_id": "sd35m__tc0017__s1",
+        "own": 22.528526306152344,
+        "cf_prompt": "a realistic photo of five cups",
+        "cf": 21.320547103881836
+      },
+      {
+        "sample_id": "sd35m__tc0027__s2",
+        "own": 21.89253044128418,
+        "cf_prompt": "a realistic photo of four bottles",
+        "cf": 21.654264450073242
+      },
+      {
+        "sample_id": "sd35m__tc0051__s3",
+        "own": 22.678308486938477,
+        "cf_prompt": "a photo of four cars",
+        "cf": 21.249736785888672
+      },
+      {
+        "sample_id": "sd35m__ts0027__s1",
+        "own": 21.159482955932617,
+        "cf_prompt": "a photo of a bottle to the left of a clock",
+        "cf": 21.40818214416504
+      },
+      {
+        "sample_id": "sd35m__ts0027__s2",
+        "own": 21.923908233642578,
+        "cf_prompt": "a photo of a bottle to the left of a clock",
+        "cf": 22.168289184570312
+      },
+      {
+        "sample_id": "sd35m__ts0048__s1",
+        "own": 22.63814353942871,
+        "cf_prompt": "a laptop below a bench",
+        "cf": 23.057987213134766
+      },
+      {
+        "sample_id": "sd35m__tt0010__s3",
+        "own": 22.348173141479492,
+        "cf_prompt": "a storefront sign that says \"THANK YOU\"",
+        "cf": 18.579355239868164
+      },
+      {
+        "sample_id": "sd35m__tt0012__s3",
+        "own": 22.27837371826172,
+        "cf_prompt": "a poster with the words \"FREE WIFI\"",
+        "cf": 19.024646759033203
+      },
+      {
+        "sample_id": "sd35m__tt0021__s2",
+        "own": 23.212692260742188,
+        "cf_prompt": "a chalkboard that says \"FRESH FLOWERS DAILY\"",
+        "cf": 17.833656311035156
+      },
+      {
+        "sample_id": "sd35m__tt0031__s0",
+        "own": 22.003332138061523,
+        "cf_prompt": "a storefront sign that says \"SOUP OF THE DAY\"",
+        "cf": 19.046192169189453
+      },
+      {
+        "sample_id": "sd35m__tt0039__s3",
+        "own": 22.752933502197266,
+        "cf_prompt": "a chalkboard that says \"WATCH YOUR HEAD\"",
+        "cf": 18.73089599609375
+      },
+      {
+        "sample_id": "sd35m__tt0055__s0",
+        "own": 22.623001098632812,
+        "cf_prompt": "a storefront sign that says \"WATCH YOUR STEP WHEN LEAVING THE TRAIN\"",
+        "cf": 20.213340759277344
+      },
+      {
+        "sample_id": "sd35m__tt0056__s0",
+        "own": 21.751968383789062,
+        "cf_prompt": "a storefront sign that says \"SUMMER SALE STARTS THIS FRIDAY MORNING\"",
+        "cf": 18.173158645629883
+      },
+      {
+        "sample_id": "sd35m__tt0056__s2",
+        "own": 22.166263580322266,
+        "cf_prompt": "a storefront sign that says \"SUMMER SALE STARTS THIS FRIDAY MORNING\"",
+        "cf": 18.16989517211914
+      },
+      {
+        "sample_id": "sdxl__tc0017__s1",
+        "own": 22.289840698242188,
+        "cf_prompt": "a realistic photo of five cups",
+        "cf": 22.09029769897461
+      },
+      {
+        "sample_id": "sdxl__tc0029__s2",
+        "own": 20.660907745361328,
+        "cf_prompt": "a photo of three books",
+        "cf": 19.38176918029785
+      },
+      {
+        "sample_id": "sdxl__ts0006__s2",
+        "own": 21.849008560180664,
+        "cf_prompt": "a cat to the right of a horse",
+        "cf": 22.47769546508789
+      },
+      {
+        "sample_id": "sdxl__ts0039__s1",
+        "own": 23.203094482421875,
+        "cf_prompt": "a horse below a bicycle",
+        "cf": 23.047367095947266
+      },
+      {
+        "sample_id": "sdxl__ts0039__s3",
+        "own": 23.176801681518555,
+        "cf_prompt": "a horse below a bicycle",
+        "cf": 23.316476821899414
+      },
+      {
+        "sample_id": "sdxl__tt0012__s2",
+        "own": 23.273469924926758,
+        "cf_prompt": "a poster with the words \"FREE WIFI\"",
+        "cf": 19.492799758911133
+      },
+      {
+        "sample_id": "sdxl__tt0031__s2",
+        "own": 21.473634719848633,
+        "cf_prompt": "a storefront sign that says \"SOUP OF THE DAY\"",
+        "cf": 19.627201080322266
+      }
+    ]
+  }
+}

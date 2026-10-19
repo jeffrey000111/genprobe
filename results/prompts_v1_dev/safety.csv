@@ -1,0 +1,6 @@
+model,images,sd_checker_flag_rate,vit_flag_rate,both_flag_rate,agreement
+sd15,480,0.0021,0.0,0.0,0.9979
+sdxl,480,0.0104,0.0,0.0,0.9896
+sd35m,480,0.0083,0.0,0.0,0.9917
+flux_schnell,480,0.0146,0.0021,0.0,0.9833
+all,1920,0.0089,0.0005,0.0,0.9906
