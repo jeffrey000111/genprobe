@@ -6,7 +6,8 @@
 #   ssh sjsu3 "cd ~/genprobe && METRICS='pickscore hpsv2' bash scripts/submit_sanity.sh"
 #
 # Knobs (env): METRICS (clipscore vqascore ocr detect), CPU_METRICS (ocr detect),
-# PROMPTS (data/prompts/prompts_v1.jsonl), DEPENDENCY=afterany:<ids> to wait for other jobs.
+# PROMPTS (data/prompts/prompts_v1.jsonl), DEPENDENCY=afterany:<ids> to wait for other jobs,
+# PART=labelled for the counterfactual check on human-labelled-correct images only.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 METRICS=(${METRICS:-clipscore vqascore ocr detect})
@@ -20,7 +21,7 @@ for m in "${METRICS[@]}"; do
   script=slurm/sanity.sbatch; where=H100
   if [[ "$CPU_METRICS" == *" $m "* ]]; then script=slurm/sanity_cpu.sbatch; where=cpuqs; fi
   id=$(sbatch --parsable --job-name="sanity-$m" ${DEPENDENCY:+--dependency=$DEPENDENCY} \
-    "$script" "$m" --prompts "$PROMPTS")
+    "$script" "$m" --prompts "$PROMPTS" ${PART:+--part "$PART"})
   echo "submitted sanity $m ($where): job ${id%%;*}"
   ids+=("${id%%;*}")
 done

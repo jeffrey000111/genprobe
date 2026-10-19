@@ -167,6 +167,13 @@ not changed on this (smoke is not dev); the dev check in M2 decides whether near
 Of the 3 misses (OCR text in `ocr_read`), two are OCR misreads of text people read without
 trouble (a stylised "A" in WAIT read as "WINIT"; small serif lettering on a facade); one
 ("DAILLY" for DAILY) can't be settled from the contact-sheet thumbnail.
+*Dev check (2026-10-19, 50 blind-labelled text images, D-024):* at the pre-set threshold
+(exact, value = 1) the verdict agrees with the label on 39 of 50 (0.78, CI 0.69–0.86): it passed
+none of the 27 images labelled wrong and failed 11 of the 23 labelled correct, again OCR misreads
+("RROGRESS", "OVT", "WIIF"). Lower thresholds on the same 50 images: 0.90 → 0.82, 0.85 or 0.80 →
+0.86 (3 wrong images pass, 4 correct ones fail), 0.75 → 0.88. A one-letter OCR misread and a
+one-letter misspelling get the same value (e.g. 0.929 for "RROGRESS", labelled y, and
+"PPROGRESS", labelled n), so no threshold separates them fully.
 
 **D-018 (2026-10-19) — Detector checker for counting and spatial prompts = Grounding DINO tiny
 (`IDEA-Research/grounding-dino-tiny`, main at a2bb814 when chosen), one text query per object
@@ -198,6 +205,14 @@ book); in one (flux, bicycle/car) the bicycle stands to the right of the car in 
 the label says `y`. Labels are not edited after metric outputs have been seen (D-015), so it
 stays and counts against the checker. Choosing the largest box, or accepting any qualifying
 pair, is a candidate rule to compare on dev, not on smoke.
+*Dev check (2026-10-19, 50 blind-labelled counting/spatial images, D-024):* verdict agrees on 45
+of 50 (0.90, CI 0.81–0.97): 4 images labelled wrong pass, 1 labelled correct fails. Counting: the
+detector's count equals the annotator's on 17 of 20 images where both counted, and is higher in
+all 3 others (never lower). Spatial disagreements are judgement calls noted by the annotator: a
+short seat not counted as a "bench", a dog standing on a book (above, not right of it), a cat
+left of the horse's head but right of its body centre; plus one bottle 0.07 above a teddy bear
+by box centres. No
+detector threshold is changed on this evidence.
 
 **D-019 (2026-10-19) — The checkers run on CPU nodes (cpuqs, 8 cores) through
 `slurm/score_cpu.sbatch`; CLIPScore and VQAScore stay on the H100s.** Both checker models are
@@ -239,6 +254,15 @@ left ↔ right / above ↔ below, or the next phrase of the same length tier. (3
 Results go to `results/sanity/`. No pass mark is set here: the rates are reported as measured,
 and a metric that prefers the mismatched or counterfactual prompt on a sizeable share is flagged
 in REPORT.md rather than silently dropped.
+*Revised 2026-10-19, after the first run and before any threshold depended on it:* on random
+images the counterfactual check is confounded. Where the generator drew the count or the
+position wrong (common), the changed prompt can fit the image better, so even a perfect metric
+scores below 1; the first run gave ~0.4–0.5 on left/right/above/below for every prompt metric.
+(CLIPScore and VQAScore had identical counts there, 13 higher / 14 lower of 27; the per-image
+scores show they disagreed on 12 of those 27 images, so it was a coincidence, not a bug.) The
+clean version now runs on the dev images a person labelled correct (D-024), where the original
+prompt is right and the changed one wrong (`--part labelled`); the random-image numbers stay in
+the report, marked as confounded.
 
 **D-024 (2026-10-19) — The checkers are measured on dev against blind human labels before any
 threshold is tuned: 25 counting, 25 spatial and 50 text images, seed 0, spread evenly over the

@@ -7,13 +7,18 @@ Run on a fixed random sample of dev-split images (never test), for one metric pe
    checkers). A metric that measures alignment should prefer the own prompt almost always.
 2. **Counterfactual**: for template prompts, change one thing (the count by 2, left <-> right /
    above <-> below, or the requested text) and score again. A score that doesn't drop is
-   reading the prompt as a bag of words.
+   reading the prompt as a bag of words. On random images this is confounded: when the
+   generator drew the scene wrong (often, for counts and positions), the changed prompt may fit
+   the image better. So the clean version runs on the images a person labelled correct
+   (data/labels/<prompt set>_labels.csv, ``--part labelled``): there the original prompt is
+   right and the changed one is wrong, and a valid metric should prefer the original.
 3. **Repeatability**: score the same images a second time in the same job, and compare with the
    scores stored by the scoring run (same ``metric_version``).
 4. **Direction and range** are covered by the human-label tables of the summaries (mean score of
    images labelled correct vs wrong) and their min / max columns.
 
     python -m genprobe.sanity --metric vqascore --prompts data/prompts/prompts_v1.jsonl --device cuda
+    python -m genprobe.sanity --metric vqascore --part labelled --device cuda   # adds the clean check
     python -m genprobe.sanity --report      # results/sanity/summary.md from all metrics run so far
 
 Metrics without a prompt (the safety filters) only get the repeatability check.
@@ -191,6 +196,11 @@ def run(metric_name: str, prompts_path: str, manifests: str, data: str = "data",
     pairs = [(v, stored[s.sample_id]["value"]) for s, v in zip(base, own) if s.sample_id in stored]
     res["repeat_vs_stored"] = repeat_stats([p[0] for p in pairs], [p[1] for p in pairs])
     res["per_image"] = per_image
+    old = OUT_DIR / f"{metric_name}.json"
+    if old.exists():                              # keep a labelled-images check run earlier
+        prev = json.loads(old.read_text()).get("counterfactual_labelled")
+        if prev:
+            res["counterfactual_labelled"] = prev
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     atomic_write_text(OUT_DIR / f"{metric_name}.json", json.dumps(res, indent=2, default=str))
     return res
@@ -208,6 +218,44 @@ def fmt_repeat(d: dict | None) -> str:
     return f"{d['identical']:.0%} identical, max |Δ| {d['max_abs_diff']:.2g} (n={d['n']})"
 
 
+def run_labelled(metric_name: str, prompts_path: str, manifests: str, labels_path: str | None = None,
+                 split: str = "dev", device: str = "cuda") -> dict[str, Any]:
+    """Counterfactual check on images people labelled correct; merged into <metric>.json."""
+    from .summarize import load_labels
+
+    metric = REGISTRY[metric_name]()
+    bs = metric.default_batch_size
+    labels_path = labels_path or str(Path("data/labels") / f"{Path(prompts_path).stem}_labels.csv")
+    labels = load_labels(labels_path)
+    split_ids = {p.prompt_id for p in load_prompts(prompts_path, split=split)}
+    good = [s for s in load_samples(manifests, prompts_path)
+            if s.prompt_id in split_ids and labels.get(s.sample_id, {}).get("correct") == "y"
+            and metric.applies_to(s)]
+    pairs = [(s, counterfactual(s.prompt, s.spec)) for s in good]
+    pairs = [(s, c) for s, c in pairs if c is not None]
+    metric.setup(device)
+    own = score_values(metric, [s for s, _ in pairs], bs)
+    cfv = score_values(metric, [replace(s, prompt=c[0], spec=c[1]) for s, c in pairs], bs)
+    out: dict[str, Any] = {"labels": labels_path, "all": own_higher(own, cfv)}
+    by: dict[str, tuple[list, list]] = {}
+    for (s, _), a, b in zip(pairs, own, cfv):
+        by.setdefault(spec_kind(s.spec), ([], []))
+        by[spec_kind(s.spec)][0].append(a)
+        by[spec_kind(s.spec)][1].append(b)
+    for kind, (a, b) in sorted(by.items()):
+        out[kind] = own_higher(a, b)
+    out["per_image"] = [{"sample_id": s.sample_id, "own": a, "cf_prompt": c[0], "cf": b}
+                        for (s, c), a, b in zip(pairs, own, cfv)]
+    path = OUT_DIR / f"{metric_name}.json"
+    res = json.loads(path.read_text()) if path.exists() else {"metric": metric_name, "n_images": 0,
+                                                               "metric_version": f"{metric.version}/bs{bs}",
+                                                               "device": device}
+    res["counterfactual_labelled"] = out
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    atomic_write_text(path, json.dumps(res, indent=2, default=str))
+    return res
+
+
 def report(out_dir: Path | None = None) -> str:
     out_dir = out_dir or OUT_DIR
     rows = [json.loads(p.read_text()) for p in sorted(out_dir.glob("*.json"))]
@@ -216,14 +264,28 @@ def report(out_dir: Path | None = None) -> str:
          "images only. Rates: share of images where the own prompt scores higher than the changed one "
          "(ties count 1/2); ↑ = / ↓ give the raw counts. Binary checkers tie often (both 0): read the ↓ "
          "column, which should be near 0.", "",
-         "| Metric | images | mismatched prompt | counterfactual (all) | count ±2 | left/right, above/below | "
-         "other text | repeat in job | repeat vs scoring run |",
-         "| --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
+         "## Mismatch and repeatability (200 random dev images)", "",
+         "| Metric | images | mismatched prompt | repeat in job | repeat vs scoring run |",
+         "| --- | --- | --- | --- | --- |"]
     for r in rows:
-        c = r.get("counterfactual", {})
-        L.append(f"| {r['metric']} | {r['n_images']} | {fmt_check(r.get('mismatch'))} | {fmt_check(c.get('all'))} | "
-                 f"{fmt_check(c.get('count'))} | {fmt_check(c.get('relation'))} | {fmt_check(c.get('text'))} | "
+        L.append(f"| {r['metric']} | {r['n_images']} | {fmt_check(r.get('mismatch'))} | "
                  f"{fmt_repeat(r.get('repeat_in_job'))} | {fmt_repeat(r.get('repeat_vs_stored'))} |")
+    L += ["", "## One-word counterfactuals", "",
+          "**On images labelled correct** (the clean test: the original prompt is right, the changed one wrong):", "",
+          "| Metric | all | count ±2 | left/right, above/below | other text |", "| --- | --- | --- | --- | --- |"]
+    for r in rows:
+        c = r.get("counterfactual_labelled")
+        if c:
+            L.append(f"| {r['metric']} | {fmt_check(c.get('all'))} | {fmt_check(c.get('count'))} | "
+                     f"{fmt_check(c.get('relation'))} | {fmt_check(c.get('text'))} |")
+    L += ["", "On the random template images of the sample (confounded: where the generator got the count or "
+          "position wrong, the changed prompt can fit the image better, so even a perfect metric scores below 1):", "",
+          "| Metric | all | count ±2 | left/right, above/below | other text |", "| --- | --- | --- | --- | --- |"]
+    for r in rows:
+        c = r.get("counterfactual")
+        if c:
+            L.append(f"| {r['metric']} | {fmt_check(c.get('all'))} | {fmt_check(c.get('count'))} | "
+                     f"{fmt_check(c.get('relation'))} | {fmt_check(c.get('text'))} |")
     L += ["", "Versions: " + "; ".join(f"{r['metric']} `{r['metric_version']}` on {r['device']}" for r in rows)]
     text = "\n".join(L) + "\n"
     atomic_write_text(out_dir / "summary.md", text)
@@ -238,12 +300,19 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--data", default="data")
     ap.add_argument("--n", type=int, default=200)
     ap.add_argument("--device", default="cuda")
+    ap.add_argument("--part", choices=["random", "labelled"], default="random",
+                    help="random: mismatch, counterfactual and repeat checks on --n random dev images; "
+                         "labelled: counterfactuals on the images people labelled correct")
+    ap.add_argument("--labels", default=None, help="default data/labels/<prompts stem>_labels.csv")
     ap.add_argument("--report", action="store_true", help="only rebuild results/sanity/summary.md")
     args = ap.parse_args(argv)
     if not args.report:
         if not args.metric:
             ap.error("--metric is required unless --report")
-        r = run(args.metric, args.prompts, args.samples, args.data, n=args.n, device=args.device)
+        if args.part == "labelled":
+            r = run_labelled(args.metric, args.prompts, args.samples, args.labels, device=args.device)
+        else:
+            r = run(args.metric, args.prompts, args.samples, args.data, n=args.n, device=args.device)
         print(json.dumps({k: v for k, v in r.items() if k not in ("metric_info", "per_image")}, indent=2, default=str))
     print(report())
     return 0

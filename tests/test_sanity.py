@@ -108,6 +108,22 @@ class TestRun(unittest.TestCase):
             self.assertTrue((out / "sanity" / "toy_prompt_len.json").is_file())
             self.assertIn("| toy_prompt_len | 8 | 1.00 (8↑ 0= 0↓ of 8)", md)
 
+            labels = out / "labels.csv"
+            labels.write_text("sample_id,correct,note,true_count\n"
+                              "toy__tc0000__s0,y,,2\ntoy__tc0001__s1,y,,3\ntoy__tc0002__s0,n,,\n")
+            with mock.patch.object(sanity, "OUT_DIR", out / "sanity"), \
+                    mock.patch.object(REGISTRY["toy_prompt_len"], "truth", truth, create=True):
+                r2 = sanity.run_labelled("toy_prompt_len", str(ppath), str(out / "manifests" / "gen_*.jsonl"),
+                                         str(labels), device="cpu")
+                md = sanity.report()
+                again = sanity.run("toy_prompt_len", str(ppath), str(out / "manifests" / "gen_*.jsonl"),
+                                   data=str(out), n=8, n_repeat=4, device="cpu")
+            c = r2["counterfactual_labelled"]
+            self.assertEqual((c["all"]["n"], c["all"]["higher"]), (2, 2))     # only the two labelled y
+            self.assertEqual(r2["n_images"], 8)                                 # merged into the same file
+            self.assertIn("On images labelled correct", md)
+            self.assertIn("counterfactual_labelled", again)                     # a rerun keeps it
+
 
 if __name__ == "__main__":
     unittest.main()
