@@ -7,19 +7,38 @@ file behind, never a truncated PNG at the real path.
 
 from __future__ import annotations
 
+import errno
 import os
+import time
 from pathlib import Path
 
 TMP_SUFFIX = ".tmp"
+# Transient NFS errors on HPC3's /home: "Stale file handle" killed one generation shard
+# (job 91975_2) at its first image save; retrying the write is enough.
+RETRY_ERRNOS = frozenset({errno.ESTALE})
+
+
+def retry_transient(fn, attempts: int = 4, delay: float = 2.0, sleep=time.sleep):
+    """Call fn(), retrying (with growing pauses) only on transient filesystem errors."""
+    for i in range(attempts):
+        try:
+            return fn()
+        except OSError as e:
+            if e.errno not in RETRY_ERRNOS or i == attempts - 1:
+                raise
+            sleep(delay * (i + 1))
 
 
 def atomic_save_image(img, path: str | Path, fmt: str = "PNG") -> None:
     """Save a PIL image atomically. Format is explicit because '.png.tmp' has no known extension."""
     path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_name(path.name + TMP_SUFFIX)
-    img.save(tmp, format=fmt)
-    os.replace(tmp, path)
+
+    def write():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        img.save(tmp, format=fmt)
+        os.replace(tmp, path)
+    retry_transient(write)
 
 
 def atomic_write_text(path: str | Path, text: str) -> None:

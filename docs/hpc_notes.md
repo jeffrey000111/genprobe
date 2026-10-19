@@ -116,3 +116,16 @@ Prompt set v1 (600 prompts × 4 seeds = 2,400 images per model) with SDXL at 50 
 of 30 (D-006): SD1.5 ~0.35, SDXL ~2.1, SD3.5M ~3.1, FLUX ~0.75 GPU-h, plus ~3 min of loading per
 shard (16 shards) ≈ 7 GPU-h; scoring 9,600 images with CLIPScore + VQAScore ≈ 1–1.5 GPU-h.
 `scripts/run_v1.sh` submits it all (4 generation shards per model, ≤ 2 at a time per model).
+
+**Prompt set v1, measured (2026-10-19, `sacct` elapsed times).** Generation: SD1.5 4 shards ×
+~7 min (0.46 GPU-h), SDXL 4 × ~38 min (2.53), SD3.5M 4 × ~53 min (3.52), FLUX 3 × ~18 min plus
+one failed shard (0.92): 7.4 GPU-h, as estimated. Scoring on the H100s: CLIPScore 2 × ~5 min
+(0.16 GPU-h), VQAScore 2 × ~50 min (1.68). On cpuqs (8 cores): OCR 4 × ~7 min, detector
+4 × ~46 min. nsfqs runs at most 2 of our jobs at once (`QOSMaxNodePerUserLimit`), so the four
+generators ran one after another, ~3.5 h end to end overnight.
+
+**NFS "Stale file handle".** FLUX shard 2 (job 91975_2) died 47 s in with
+`OSError: [Errno 116] Stale file handle` while saving its first image under `data/images/`;
+the other 15 shards were fine. `atomic_save_image` now retries that error (a few seconds apart)
+instead of crashing, and summaries report per-model generation coverage, so a missing shard
+can't hide behind complete-looking score counts.

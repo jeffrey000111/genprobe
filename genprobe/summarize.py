@@ -166,6 +166,19 @@ def metric_applies(name: str):
     return lambda prompt: inst.applies_to(prompt)
 
 
+def generation_coverage(gen: dict[str, dict], n_prompts: int, models: list[str]) -> dict[str, dict[str, int]]:
+    """Per model: images expected (prompts x seeds seen for any model), ok, blank, error, and
+    no record at all (a crashed job). Scores can only be as complete as this."""
+    seeds = {r.get("seed") for r in gen.values()}
+    out = {}
+    for model in models:
+        st = Counter(r.get("status") for r in gen.values() if r["model"] == model)
+        expected = n_prompts * len(seeds)
+        out[model] = {"expected": expected, "ok": st.get("ok", 0), "blank": st.get("blank", 0),
+                      "error": st.get("error", 0), "no_record": expected - sum(st.values())}
+    return out
+
+
 def category(tags: list[str]) -> str:
     return tags[0] if tags else "untagged"
 
@@ -181,6 +194,7 @@ def summarize(*, prompts_path: str, manifests: str, data: str, metrics: list[str
     gen = {sid: r for sid, r in gen.items() if r.get("prompt_id") in prompts}
     ok_ids = {sid for sid, r in gen.items() if r.get("status") == "ok"}
     models = sorted({r["model"] for r in gen.values()})
+    coverage = generation_coverage(gen, len(prompts), models)
     cats = sorted({category(p.tags) for p in prompts.values()})
 
     scores: dict[str, dict[str, dict]] = {}
@@ -271,7 +285,7 @@ def summarize(*, prompts_path: str, manifests: str, data: str, metrics: list[str
     result = {"prompts": prompts_path, "split": split or "all", "created_at": now_iso(), "git_commit": git_commit(),
               "n_prompts": len(prompts), "models": models, "categories": cats, "metrics": meta,
               "by_model": by_model, "by_model_category": by_cat, "generation_cost": cost,
-              "metric_agreement": agreement, "human_agreement": human,
+              "metric_agreement": agreement, "human_agreement": human, "generation_coverage": coverage,
               "bootstrap": {"n_boot": N_BOOT, "seed": 0, "unit": "prompt"}}
 
     outdir = Path(out)
@@ -288,7 +302,17 @@ def render_md(res: dict[str, Any], full_run_images: int) -> str:
          f"Generated {res['created_at']} at commit `{res['git_commit']}` by `python -m genprobe.summarize`. "
          f"{res['n_prompts']} prompts; means are over prompts, 95% CIs from {res['bootstrap']['n_boot']} "
          "bootstrap resamples of prompts.", ""]
-    L += ["## Metric scores by model", "",
+    cov = res.get("generation_coverage") or {}
+    short = {m: c for m, c in cov.items() if c["ok"] < c["expected"]}
+    L += ["## Generation coverage", "",
+          "| Model | expected images | ok | blank | error | no record |", "| --- | --- | --- | --- | --- | --- |"]
+    L += [f"| {m} | {c['expected']} | {c['ok']} | {c['blank']} | {c['error']} | {c['no_record']} |"
+          for m, c in cov.items()]
+    if short:
+        L += ["", "**Incomplete:** " + ", ".join(f"{m} is missing {c['expected'] - c['ok']} images"
+                                                for m, c in short.items())
+              + ". Its numbers below cover fewer images than the other models'; don't compare them yet."]
+    L += ["", "## Metric scores by model", "",
           "| Model | " + " | ".join(metrics) + " |", "| --- |" + " --- |" * len(metrics)]
     for model in models:
         cells = []
@@ -422,10 +446,13 @@ def main(argv: list[str] | None = None) -> int:
                     metrics=args.metrics, out=out, full_run_images=args.full_run_images, labels_path=labels,
                     split=args.split)
     missing = {m: d for m, d in res["metrics"].items() if d["n_ok"] < d["n_expected"]}
+    gaps = {m: c for m, c in res["generation_coverage"].items() if c["no_record"] > 0}
     print(f"wrote {out}/summary.md, summary.json, per_sample.csv")
+    for m, c in gaps.items():
+        print(f"  INCOMPLETE generation: {m} has no record for {c['no_record']} of {c['expected']} images")
     for m, d in res["metrics"].items():
         print(f"  {m}: {d['n_ok']}/{d['n_expected']} scored, version {d['metric_version']}")
-    return 1 if missing else 0
+    return 1 if missing or gaps else 0
 
 
 if __name__ == "__main__":
