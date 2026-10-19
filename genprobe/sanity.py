@@ -160,13 +160,19 @@ def run(metric_name: str, prompts_path: str, manifests: str, data: str = "data",
     res: dict[str, Any] = {"metric": metric_name, "metric_version": mversion, "split": split, "seed": seed,
                            "n_images": len(base), "created_at": now_iso(), "git_commit": git_commit(),
                            "device": device, "metric_info": getattr(metric, "info", {})}
+    # every score, so any rate in the table can be traced back to the images behind it
+    per_image = [{"sample_id": s.sample_id, "prompt": s.prompt, "own": v} for s, v in zip(base, own)]
     if uses_prompt or uses_spec:
         idx = [i for i, m in enumerate(mismatched) if m is not None]
         other = score_values(metric, [mismatched[i] for i in idx], bs)
         res["mismatch"] = own_higher([own[i] for i in idx], other)
+        for i, v in zip(idx, other):
+            per_image[i].update(mismatch_prompt=mismatched[i].prompt, mismatch=v)
         idx = [i for i, c in enumerate(cf) if c is not None]
         if idx:
             cf_vals = score_values(metric, [cf[i][0] for i in idx], bs)
+            for i, v in zip(idx, cf_vals):
+                per_image[i].update(cf_prompt=cf[i][0].prompt, cf_change=cf[i][1], cf=v)
             res["counterfactual"] = {"all": own_higher([own[i] for i in idx], cf_vals)}
             by: dict[str, tuple[list, list]] = {}
             for j, i in enumerate(idx):
@@ -184,6 +190,7 @@ def run(metric_name: str, prompts_path: str, manifests: str, data: str = "data",
         if score_dir.exists() else {}
     pairs = [(v, stored[s.sample_id]["value"]) for s, v in zip(base, own) if s.sample_id in stored]
     res["repeat_vs_stored"] = repeat_stats([p[0] for p in pairs], [p[1] for p in pairs])
+    res["per_image"] = per_image
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     atomic_write_text(OUT_DIR / f"{metric_name}.json", json.dumps(res, indent=2, default=str))
     return res
@@ -237,7 +244,7 @@ def main(argv: list[str] | None = None) -> int:
         if not args.metric:
             ap.error("--metric is required unless --report")
         r = run(args.metric, args.prompts, args.samples, args.data, n=args.n, device=args.device)
-        print(json.dumps({k: v for k, v in r.items() if k != "metric_info"}, indent=2, default=str))
+        print(json.dumps({k: v for k, v in r.items() if k not in ("metric_info", "per_image")}, indent=2, default=str))
     print(report())
     return 0
 

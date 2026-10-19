@@ -266,7 +266,8 @@ def summarize(*, prompts_path: str, manifests: str, data: str, metrics: list[str
         lab = {sid: d["correct"] for sid, d in labels.items()}
         prompt_of = {sid: gen[sid]["prompt_id"] for sid in gen}
         human = {"path": str(labels_path), "counts": dict(Counter(lab.values())), "by_metric": {}}
-        for m in metrics:
+        # only metrics that score prompt following (not the safety filters, where lower is better)
+        for m in (m for m in metrics if getattr(REGISTRY.get(m), "higher_is_better", True)):
             vals = {sid: r["value"] for sid, r in scores[m].items()}
             entry = {"all": pairwise_agreement(vals, lab, prompt_of)}
             for c in cats:

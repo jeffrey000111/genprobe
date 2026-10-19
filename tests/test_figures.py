@@ -44,6 +44,17 @@ class TestHelpers(unittest.TestCase):
         self.assertEqual((t["b"]["images"], t["b"]["both_flag_rate"]), (1, 1.0))
         self.assertEqual(t["all"]["images"], 3)
 
+    def test_frontier_title_names_ties(self):
+        pts = {"sd35m": (4.6, 0.68), "flux_schnell": (1.13, 0.67), "sd15": (0.53, 0.36)}
+        pairs = [{"metric": "vqascore", "model_a": "sd35m", "model_b": "flux_schnell", "ci_excludes_0": False},
+                 {"metric": "vqascore", "model_a": "sd15", "model_b": "sd35m", "ci_excludes_0": True}]
+        t = figures.frontier_title(pts, pairs, "vqascore")
+        self.assertIn("SD3.5 Medium (0.68) and FLUX.1 schnell (0.67), difference not significant", t)
+        self.assertIn("FLUX.1 schnell is 4.1× faster", t)
+        pairs[0]["ci_excludes_0"] = True
+        self.assertEqual(figures.frontier_title(pts, pairs, "vqascore"),
+                         "Highest vqascore: SD3.5 Medium (0.68 at 4.60 s/image)")
+
     def test_model_order_is_fixed(self):
         self.assertEqual(figures.ordered_models({"flux_schnell", "zzz", "sd15"}), ["sd15", "flux_schnell", "zzz"])
 

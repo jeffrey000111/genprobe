@@ -191,7 +191,7 @@ def _fig(w: float, h: float):
 
 
 def _footnote(fig, text: str) -> None:
-    lines = textwrap.wrap(text, width=int(fig.get_figwidth() * 22))
+    lines = textwrap.wrap(text, width=int(fig.get_figwidth() * 18))
     fig.text(0.01, 0.01, "\n".join(lines), fontsize=6.5, color=INK2, va="bottom")
     fig.tight_layout(rect=(0, 0.025 + 0.022 * len(lines), 1, 1))
 
@@ -257,17 +257,36 @@ def heatmap(models, vals, prompts, metric, out: Path) -> str | None:
     return title
 
 
-def frontier(models, board, cost, metric, gpu: str | None, out: Path) -> str | None:
+def frontier_title(pts: dict, pairs: list[dict], metric: str) -> str:
+    """Name the top model, or the models tied with it (paired CI includes 0), and how much
+    cheaper the cheapest of the tied ones is."""
+    lab = lambda m: MODEL_LABEL.get(m, m)  # noqa: E731
+    best = max(pts, key=lambda m: pts[m][1])
+    tied = [best]
+    for r in pairs:
+        if r["metric"] != metric or best not in (r["model_a"], r["model_b"]) or r["ci_excludes_0"]:
+            continue
+        other = r["model_b"] if r["model_a"] == best else r["model_a"]
+        if other in pts:
+            tied.append(other)
+    if len(tied) == 1:
+        return f"Highest {metric}: {lab(best)} ({pts[best][1]:.2f} at {pts[best][0]:.2f} s/image)"
+    tied.sort(key=lambda m: -pts[m][1])
+    fast = min(tied, key=lambda m: pts[m][0])
+    slow = max(tied, key=lambda m: pts[m][0])
+    names = " and ".join(f"{lab(m)} ({pts[m][1]:.2f})" for m in tied)
+    return (f"Top {metric}: {names}, difference not significant; "
+            f"{lab(fast)} is {pts[slow][0] / pts[fast][0]:.1f}× faster")
+
+
+def frontier(models, board, cost, metric, gpu: str | None, out: Path, pairs: list[dict] | None = None) -> str | None:
     pts = {r["model"]: (cost[r["model"]], r["mean"], r["ci95_lo"], r["ci95_hi"]) for r in board
            if r["metric"] == metric and r["model"] in cost and not math.isnan(r["mean"])}
     if len(pts) < 2:
         return None
     front = pareto_front({m: (c, s) for m, (c, s, _, _) in pts.items()})
-    best = max(pts, key=lambda m: pts[m][1])
-    cheapest = min(pts, key=lambda m: pts[m][0])
     lab = lambda m: MODEL_LABEL.get(m, m)  # noqa: E731
-    title = (f"Highest {metric}: {lab(best)} ({pts[best][1]:.2f}, {pts[best][0]:.2f} s/image); "
-             f"cheapest: {lab(cheapest)} ({pts[cheapest][1]:.2f}, {pts[cheapest][0]:.2f} s/image)")
+    title = frontier_title(pts, pairs or [], metric)
     plt, fig, ax = _fig(7.0, 4.6)
     fx = [pts[m][0] for m in front]
     fy = [pts[m][1] for m in front]
@@ -403,7 +422,7 @@ def run(results: str | Path, prompts_path: str, metric: str = "vqascore", split:
         titles["fig_category_heatmap.png"] = heatmap(models, t["per_metric"][metric], prompts, metric,
                                                      results / "fig_category_heatmap.png")
         titles["fig_frontier.png"] = frontier(models, t["leaderboard"], cost, metric, gpu,
-                                              results / "fig_frontier.png")
+                                              results / "fig_frontier.png", t["pairwise"])
     text_table: list[dict] = []
     if "ocr" in metrics:
         titles["fig_text_length.png"], text_table = text_length(models, rows, prompts,

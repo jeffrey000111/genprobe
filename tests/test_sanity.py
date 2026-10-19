@@ -103,6 +103,8 @@ class TestRun(unittest.TestCase):
             self.assertEqual(r["counterfactual"]["count"]["higher"], 8)
             self.assertEqual(r["repeat_in_job"]["identical"], 1.0)
             self.assertEqual(r["repeat_vs_stored"]["n"], 0)          # never scored by a scoring run
+            self.assertEqual(len(r["per_image"]), 8)
+            self.assertTrue(all("cf" in x and "mismatch" in x for x in r["per_image"]))
             self.assertTrue((out / "sanity" / "toy_prompt_len.json").is_file())
             self.assertIn("| toy_prompt_len | 8 | 1.00 (8↑ 0= 0↓ of 8)", md)
 

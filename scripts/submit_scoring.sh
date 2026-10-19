@@ -12,7 +12,8 @@
 # Knobs (env): METRICS, SUMMARY_METRICS, SCORE_SHARDS (1), SCORE_TIME (00:45:00), SPLITS (all;
 # e.g. "test dev" writes results/<set>_test and results/<set>_dev), DEPENDENCY=afterany:<ids>
 # to wait for other jobs (scripts/run_prompt_set.sh uses it), and SUMMARY_AFTER=<id>:<id> for
-# summaries that must also wait for scoring jobs submitted earlier (e.g. the H100 metrics). Scoring resumes: samples already
+# summaries that must also wait for scoring jobs submitted earlier (e.g. the H100 metrics), and
+# IDS_FILE=<path> to append the scoring job ids there (for jobs that must wait for them). Scoring resumes: samples already
 # scored with the same metric_version are skipped.
 # Logs: logs/score-<metric>_<id>_<shard>.out, logs/summarize_<id>.out
 set -euo pipefail
@@ -46,6 +47,7 @@ for m in "${METRICS[@]}"; do
     "$script" "$m" "$SAMPLES" "$TAG" "$SCORE_SHARDS" --prompts "$PROMPTS")
   id=${id%%;*}
   echo "submitted $m ($SCORE_SHARDS shard(s), $where): job $id"
+  [[ -z "${IDS_FILE:-}" ]] || echo "$id" >> "$IDS_FILE"
   ids+=("$id")
 done
 dep=$(IFS=:; echo "${ids[*]}")${SUMMARY_AFTER:+:$SUMMARY_AFTER}
