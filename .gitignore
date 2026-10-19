@@ -15,8 +15,10 @@ hf_cache/
 *.bin
 *.pt
 
-# Private notes (e.g. the full project guide) and per-user Claude Code settings
+# Private notes (e.g. the full project guide), raw cluster output that names the account,
+# and per-user Claude Code settings
 docs/private/
+docs/hpc_check.md
 .claude/settings.local.json
 
 __pycache__/

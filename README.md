@@ -8,9 +8,10 @@ metrics (VQAScore, CLIPScore, detector- and OCR-based checks, preference models,
 false positives, cost), meta-evaluates those metrics against human ratings by skill category,
 and uses the reliable ones in a generation-debugging agent.
 
-> **Status: in progress (M1 — smoke run).** Four generators run end to end on the cluster;
-> CLIPScore and VQAScore are being wired up. No results yet. Every number that appears here
-> later comes from a table in `results/`.
+> **Status: in progress.** M1 (smoke run) is done: four generators, CLIPScore and VQAScore run
+> end to end on the cluster, and every smoke image has a human label. Smoke numbers are
+> pipeline checks only (D-010); reportable results start with prompt set v1 (M2). Every
+> number that appears here later comes from a table in `results/`.
 
 ## Quick start (no GPU needed)
 
@@ -47,6 +48,18 @@ bash scripts/submit_smoke_scoring.sh      # CLIPScore + VQAScore on the smoke im
 
 Resubmitting any job is safe: finished samples are skipped, half-written files are cleaned up.
 
+### Reproduce the smoke run with one command
+
+```bash
+# on HPC3, once the envs and weights above exist
+bash scripts/run_smoke.sh     # 4 generation jobs -> CLIPScore + VQAScore jobs -> summary (CPU)
+# on the laptop, when squeue is empty
+scripts/hpc_sync.sh pull && cat results/smoke/summary.md
+```
+
+The summary has per-model scores with bootstrap CIs over prompts, per-category tables, metric
+sanity checks, agreement with the human labels in `data/labels/`, and generation cost.
+
 ## Working from a laptop
 
 Code is edited and unit-tested locally; the cluster only runs jobs. With an SSH alias `sjsu3`
@@ -77,7 +90,7 @@ genprobe/
   utils/            shard, manifest, atomic IO, environment fingerprint, HF cache checks
 slurm/              job scripts (common.sh: job settings, GPU check, env activation)
 scripts/            paths, env build + model download (coe-hpc1), HPC checks, laptop sync
-docs/               hpc_notes.md (curated), hpc_check.md (raw), decisions.md
+docs/               hpc_notes.md (curated), decisions.md; hpc_check.md (raw, not in git)
 results/            small tables and figures that back REPORT.md
 ```
 

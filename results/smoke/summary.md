@@ -1,6 +1,6 @@
 # Summary: `data/prompts/smoke.jsonl`
 
-Generated 2026-10-18T22:44:00.745+00:00 at commit `36131e1` by `python -m genprobe.summarize`. 20 prompts; means are over prompts, 95% CIs from 2000 bootstrap resamples of prompts.
+Generated 2026-10-19T03:58:02.251+00:00 at commit `c28a4a6` by `python -m genprobe.summarize`. 20 prompts; means are over prompts, 95% CIs from 2000 bootstrap resamples of prompts.
 
 ## Metric scores by model
 
@@ -39,6 +39,27 @@ Generated 2026-10-18T22:44:00.745+00:00 at commit `36131e1` by `python -m genpro
 Rank agreement between metrics over the same images (Spearman). This says how often the metrics agree with each other, not which one agrees with people.
 
 - clipscore~vqascore: ρ = 0.229 (n = 80)
+
+## Agreement with human labels
+
+Labels: `data/labels/smoke_labels.csv` (?=11, n=38, y=31; `?` excluded). Within each prompt, every pair of one image labelled correct and one labelled wrong: how often the metric scores the correct one higher (ties = 1/2). 95% CI from resampling prompts. One annotator, small sample: a sanity check, not a result (D-010, D-015).
+
+| Metric | all | counting | spatial | text | mean score if correct / wrong |
+| --- | --- | --- | --- | --- | --- |
+| clipscore | 0.73 [0.56, 0.89] (33 pairs) | 0.62 [0.33, 1.00] (8 pairs) | 0.92 [0.75, 1.00] (12 pairs) | 0.62 [0.38, 0.92] (13 pairs) | 0.265 / 0.257 |
+| vqascore | 0.97 [0.90, 1.00] (33 pairs) | 0.88 [0.67, 1.00] (8 pairs) | 1.00 [1.00, 1.00] (12 pairs) | 1.00 [1.00, 1.00] (13 pairs) | 0.904 / 0.438 |
+
+Largest clipscore mistakes (image labelled wrong scored above one labelled correct, same prompt):
+
+- `sd35m__sm002__s0` > `sd15__sm002__s0` by 0.0338
+- `sd15__sm016__s0` > `sd35m__sm016__s0` by 0.032
+- `sdxl__sm019__s0` > `sd35m__sm019__s0` by 0.0242
+- `sd15__sm016__s0` > `flux_schnell__sm016__s0` by 0.0127
+- `sdxl__sm015__s0` > `flux_schnell__sm015__s0` by 0.0109
+
+Largest vqascore mistakes (image labelled wrong scored above one labelled correct, same prompt):
+
+- `sd35m__sm005__s0` > `sdxl__sm005__s0` by 0.005
 
 ## Generation cost
 

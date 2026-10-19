@@ -4,6 +4,8 @@
 # (edited on the laptop), so the two never overwrite each other.
 #   cd ~/genprobe && bash scripts/hpc_check.sh
 # Light commands only (sinfo, df, a dry-run sbatch) — safe on a login node.
+# The output names no account: $HOME and the user name are replaced before writing. The file
+# is still kept out of git (raw cluster output; conclusions go to hpc_notes.md).
 set -uo pipefail
 cd "$(dirname "$0")/.."
 OUT=docs/hpc_check.md
@@ -43,7 +45,7 @@ mkdir -p logs
   curl -sI --max-time 10 https://huggingface.co | head -1 || echo "no internet from login node"
   curl -sI --max-time 10 https://github.com | head -1 || echo "no github from login node"
   echo '```'
-} >>"$OUT" 2>&1
+} 2>&1 | sed -e "s#$HOME#~#g" -e "s#${USER:0:8}[[:alnum:]]*#<user>#g" >>"$OUT"
 
 echo "Appended to $OUT. Next:"
 echo "  1. Read it (tail -60 $OUT); the --test-only lines show which GPU queues your account may use"

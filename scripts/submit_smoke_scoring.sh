@@ -7,6 +7,7 @@
 #   ssh sjsu3 "cd ~/genprobe && METRICS=vqascore bash scripts/submit_smoke_scoring.sh"   just one metric
 #
 # Needs the scoring weights first (on coe-hpc1): bash scripts/download_models.sh scorers
+# DEPENDENCY=afterany:<ids> makes the scoring jobs wait for other jobs (used by run_smoke.sh).
 # Logs: logs/score-clipscore_<id>_0.out, logs/score-vqascore_<id>_0.out, logs/summarize_<id>.out
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -19,12 +20,15 @@ SUMMARY_METRICS=(${SUMMARY_METRICS:-clipscore vqascore})     # what the summary 
 SCORE_TIME=${SCORE_TIME:-00:45:00}
 
 command -v sbatch >/dev/null || { echo "sbatch not found: run this on HPC3 (ssh sjsu3), not coe-hpc1" >&2; exit 2; }
-ls $SAMPLES >/dev/null 2>&1 || { echo "no manifests match $SAMPLES: generate the smoke images first" >&2; exit 2; }
+DEPENDENCY=${DEPENDENCY:-}
+if [[ -z "$DEPENDENCY" ]]; then
+  ls $SAMPLES >/dev/null 2>&1 || { echo "no manifests match $SAMPLES: generate the smoke images first" >&2; exit 2; }
+fi
 mkdir -p logs
 
 ids=()
 for m in "${METRICS[@]}"; do
-  id=$(sbatch --parsable --array=0 --time="$SCORE_TIME" --job-name="score-$m" \
+  id=$(sbatch --parsable --array=0 --time="$SCORE_TIME" --job-name="score-$m" ${DEPENDENCY:+--dependency=$DEPENDENCY} \
     slurm/score.sbatch "$m" "$SAMPLES" "$TAG" 1 --prompts "$PROMPTS")
   id=${id%%;*}
   echo "submitted $m: job $id"
