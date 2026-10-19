@@ -340,12 +340,40 @@ and no reported number comes from it.
 
 ## Pre-registered hypotheses (module B)
 
-Drafted from the guide (§9.1) before any meta-evaluation was run. Review and finalize before
-M3; anything not listed here is reported as exploratory.
+Drafted from the guide (§9.1) before any meta-evaluation was run; **finalized 2026-10-19**
+(project author's approval) before any metric was scored on GenAI-Bench images. Finalizing added
+the tests below; the three directions are the draft's, unchanged. Disclosure: at finalization we
+had seen within-prompt agreement with one annotator's labels on 100 of our own dev images (D-024:
+VQAScore 0.92, PickScore 0.94, HPSv2.1 0.86, CLIPScore 0.65; 78 pairs, 60 of them text). That
+does not point the same way as H2, and H2 was left as drafted. Anything not listed here is
+reported as exploratory.
 
-- **H1** — On counting prompts, VQAScore's pairwise agreement with human ratings is higher
-  than CLIPScore's.
-- **H2** — Preference models (PickScore etc.) agree with humans on instruction following less
-  often than VQAScore does.
-- **H3** — The VLM judge shows position bias in pairwise comparisons (verdict changes when
-  the two images are swapped).
+**Common method.** Data: GenAI-Bench-1600 (`BaiqiL/GenAI-Bench-1600` at e51e8a8), images from 6
+models with 3 human ratings (1–5) each. The two out-of-range ratings (`00231` DALLE_3: 41,
+`00252` DeepFloyd: 33) are dropped and those images use the mean of their two valid ratings.
+Within each prompt, every pair of two models' images whose mean human ratings differ is a pair
+(pairs with equal means are excluded and their share reported). A metric agrees on a pair when it
+orders the two images as the mean rating does; equal metric scores count 1/2. Agreement = share of
+agreeing pairs. Comparisons between metrics use the same pairs; 95 % CIs from 2,000 bootstrap
+resamples of prompts (seed 0). A hypothesis is **supported** if its CI lies entirely on the
+predicted side, **contradicted** if entirely on the other side, **inconclusive** otherwise.
+Metric versions are those of D-013, D-014 and D-021; nothing about them is tuned on GenAI-Bench.
+
+- **H1** — On GenAI-Bench prompts tagged `counting`, VQAScore's within-prompt pairwise agreement
+  with the mean human rating is higher than CLIPScore's. Statistic: agreement(VQAScore) −
+  agreement(CLIPScore) over the same pairs, 95 % CI.
+- **H2** — Over all GenAI-Bench prompts, each preference model has a lower agreement than
+  VQAScore: PickScore and HPSv2.1 are tested separately, VQAScore − model, with 97.5 % CIs
+  (Bonferroni for two comparisons); H2 holds for a model when its CI lies above 0.
+- **H3** — The VLM judge, comparing two images for the same prompt, has a position bias. 1,000
+  pairs drawn at random (seed 0) from the pairs above, restricted to prompts outside prompt set
+  v1's dev split (those 80 GenAI-Bench prompts are where the judge's rubric is iterated), each
+  shown in both orders at temperature 0. Statistic: among verdicts that pick an image (not "same"),
+  the share that pick the image shown first; H3 holds if its 95 % CI (prompt bootstrap) excludes
+  0.5. The share of pairs whose two verdicts agree is reported alongside, descriptively. Planned
+  judge: Qwen3-VL-8B-Instruct (not VQAScore's Qwen2.5-VL-7B); if it cannot run on HPC3, the
+  substitute is recorded here as a revision before any judge output exists.
+
+**Ceiling.** Human–human agreement on the same pairs, computed the same way: each rater's score
+against the mean of the other two (leave-one-rater-out), averaged over the three raters; plus
+Krippendorff's α (ordinal) over the three ratings. Metric numbers are read against this ceiling.
