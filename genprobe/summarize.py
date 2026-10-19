@@ -263,6 +263,7 @@ def summarize(*, prompts_path: str, manifests: str, data: str, metrics: list[str
     labels = {}
     if labels_path:
         labels = {sid: d for sid, d in load_labels(labels_path).items() if sid in gen}
+    if labels:
         lab = {sid: d["correct"] for sid, d in labels.items()}
         prompt_of = {sid: gen[sid]["prompt_id"] for sid in gen}
         human = {"path": str(labels_path), "counts": dict(Counter(lab.values())), "by_metric": {}}

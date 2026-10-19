@@ -240,6 +240,15 @@ Results go to `results/sanity/`. No pass mark is set here: the rates are reporte
 and a metric that prefers the mismatched or counterfactual prompt on a sizeable share is flagged
 in REPORT.md rather than silently dropped.
 
+**D-024 (2026-10-19) — The checkers are measured on dev against blind human labels before any
+threshold is tuned: 25 counting, 25 spatial and 50 text images, seed 0, spread evenly over the
+four models, labelled from numbered sheets that show no scores and no model names
+(`genprobe/label_set.py`).** The guide (§7.5, §7.6) asks for ~50 hand-checked dev images per
+checker and the checker's own accuracy on them. For counting images the annotator also writes the
+count they see (`true_count`), so the detector's count error can be measured, not just its
+verdict. Same rules as D-015; labels go to `data/labels/prompts_v1_labels.csv` and are never
+overwritten. The labelling set was drawn and sheeted before anyone looked at dev checker outputs.
+
 **D-020 (2026-10-19) — How results are tabulated and drawn (`genprobe/figures.py`, guide §8).**
 Every mean is over prompts (each prompt first averaged over its seeds), with 95 % CIs from 2000
 bootstrap resamples of prompts. Models are compared on the same prompts: the paired mean
