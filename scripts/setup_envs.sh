@@ -41,31 +41,47 @@ fi
 # --build-constraints: some sdists (image-reward) still need pkg_resources at build time.
 INSTALL=(uv pip install --python "$VENV/bin/python" --python-platform "$TARGET_PLATFORM"
          --build-constraints scripts/build-constraints.txt --excludes scripts/excludes.txt)
+# Fewer parallel writes into the env on NFS.
+export UV_CONCURRENT_INSTALLS=${UV_CONCURRENT_INSTALLS:-4}
+
+# On NFS, a file that is still open when uv tidies up becomes an `.nfs*` placeholder that can't
+# be removed yet ("Device or resource busy", os error 16; first seen installing vLLM's numba
+# into the judge env). The placeholder goes away once the handle closes and installs are
+# idempotent, so try again.
+install() {
+  local i
+  for i in 1 2 3; do
+    "${INSTALL[@]}" "$@" && return 0
+    echo "!! install attempt $i failed; retrying in 20 s (NFS placeholder files clear once closed)" >&2
+    sleep 20
+  done
+  return 1
+}
 
 case "$ENV" in
   gen)
     # PyPI's Linux torch wheels bundle their CUDA runtime; HPC3's driver (590, CUDA 13.1)
     # supports all current ones, so no special index is needed.
-    "${INSTALL[@]}" torch torchvision diffusers transformers accelerate sentencepiece protobuf safetensors
+    install torch torchvision diffusers transformers accelerate sentencepiece protobuf safetensors
     ;;
   eval)
     # Require t2v-metrics>=3.0 (Qwen2.5-VL backbones, transformers>=4.52). Left unpinned, the
     # resolver kept the newest torch and fell back to t2v-metrics 1.2 + transformers 4.36.
-    "${INSTALL[@]}" "t2v-metrics>=3.0" torchvision open_clip_torch
+    install "t2v-metrics>=3.0" torchvision open_clip_torch
     ;;
   aux)
     # Scorers whose dependencies shouldn't touch the eval env: EasyOCR (opencv, scikit-image,
     # shapely, ...) for the OCR checker. Its weights: download_models.sh easyocr.
-    "${INSTALL[@]}" torch torchvision easyocr
+    install torch torchvision easyocr
     ;;
   judge)
     # VLM judge (guide §9.4, D-027): vLLM runs Qwen3-VL-8B-Instruct offline. vLLM pins its own
     # torch and transformers, so it gets an env of its own; uv picks the newest vLLM wheel.
-    "${INSTALL[@]}" vllm
+    install vllm
     ;;
   *) echo "unknown env '$ENV' (expected gen, eval, aux or judge)" >&2; exit 2 ;;
 esac
-"${INSTALL[@]}" -e ".[analysis]"
+install -e ".[analysis]"
 
 if [[ "$ENV" == eval ]]; then
   # t2v_metrics refuses to import unless an `ffmpeg` program is on PATH (it only uses it for
