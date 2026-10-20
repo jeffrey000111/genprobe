@@ -1,0 +1,95 @@
+{
+  "created_at": "2026-10-20T00:59:22.480+00:00",
+  "git_commit": "8b0bdc9",
+  "prompts": 1600,
+  "images": 9600,
+  "pairs": 18098,
+  "pairs_tied_excluded": 5902,
+  "pairs_total": 24000,
+  "dropped_ratings": [
+    {
+      "prompt_id": "gb0231",
+      "model": "DALLE_3",
+      "rating": 41
+    },
+    {
+      "prompt_id": "gb0252",
+      "model": "DeepFloyd_I_XL_v1",
+      "rating": 33
+    }
+  ],
+  "krippendorff_alpha_ordinal": 0.7147860211250842,
+  "metric_versions": {
+    "clipscore": "open_clip==3.3.0/ViT-L-14:openai/cos/bs32",
+    "vqascore": "vqascore-port-of-t2v_metrics-qwen2vl/transformers==4.49.0/qwen2.5-vl-7b@cc59489/sdpa/tmpl-af8bcca9/bs8",
+    "pickscore": "transformers==4.49.0/pickscore-v1@a4e4367/fp32/bs16",
+    "hpsv2": "open_clip==3.3.0/ViT-H-14/hps-v2.1@697403c/fp32/cos/bs16"
+  },
+  "coverage": {
+    "clipscore": {
+      "scored": 9600,
+      "images": 9600,
+      "errors": 0
+    },
+    "vqascore": {
+      "scored": 9600,
+      "images": 9600,
+      "errors": 0
+    },
+    "pickscore": {
+      "scored": 9600,
+      "images": 9600,
+      "errors": 0
+    },
+    "hpsv2": {
+      "scored": 9600,
+      "images": 9600,
+      "errors": 0
+    }
+  },
+  "hypotheses": {
+    "H1": {
+      "difference": 0.1705607476635514,
+      "ci": [
+        0.14204394426416267,
+        0.19938113395153087
+      ],
+      "level": 0.95,
+      "agreement_a": 0.7476635514018691,
+      "agreement_b": 0.5771028037383178,
+      "pairs": 3852,
+      "n_prompts": 334,
+      "comparison": "vqascore - clipscore, prompts tagged 'counting'",
+      "verdict": "supported"
+    },
+    "H2a": {
+      "difference": 0.06216156481379158,
+      "ci": [
+        0.04583417667193663,
+        0.07739414289196653
+      ],
+      "level": 0.975,
+      "agreement_a": 0.7325671344899989,
+      "agreement_b": 0.6704055696762073,
+      "pairs": 18098,
+      "n_prompts": 1558,
+      "comparison": "vqascore - pickscore, all prompts",
+      "verdict": "supported"
+    },
+    "H2b": {
+      "difference": 0.06707923527461598,
+      "ci": [
+        0.051276046769726476,
+        0.08260600217302488
+      ],
+      "level": 0.975,
+      "agreement_a": 0.7325671344899989,
+      "agreement_b": 0.6654878992153829,
+      "pairs": 18098,
+      "n_prompts": 1558,
+      "comparison": "vqascore - hpsv2, all prompts",
+      "verdict": "supported"
+    }
+  },
+  "n_boot": 2000
+}

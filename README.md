@@ -10,14 +10,21 @@ and uses the reliable ones in a generation-debugging agent.
 
 > **Status: in progress.** M2 is done: 9,600 images (4 models × 600 prompts × 4 seeds) scored
 > with 8 metrics, checkers validated on 100 blind-labelled dev images, metric sanity checks run;
-> results in [`REPORT.md`](REPORT.md) and `results/prompts_v1_test/`. Next: M3, which metrics
-> agree with human ratings, by skill. Every number here comes from a table in `results/`.
+> results in [`REPORT.md`](REPORT.md) and `results/prompts_v1_test/`. M3 is under way: the
+> metrics are checked against GenAI-Bench's human ratings (`results/meta_eval/`); the VLM judge
+> and our own human evaluation come next. Every number here comes from a table in `results/`.
 
 **Headline (test split, 480 prompts):** SD3.5 Medium and FLUX.1 schnell tie on prompt following
 (VQAScore 0.680 vs 0.670, paired difference not significant) while FLUX is 4.1× faster; negation
 is among the hardest skills for every model (VQAScore 0.21–0.29); rendered text is right (OCR
 check) on 48 % of images at 1–2 words but 24 % at 5–8 words; CLIPScore barely separates the models. See
 [`REPORT.md`](REPORT.md) and `results/prompts_v1_test/figures.md`.
+
+**Which metric to trust (GenAI-Bench, 9,600 images rated by people):** VQAScore orders 73 % of
+image pairs the way people do (people among themselves: 81 %), PickScore 67 %, HPSv2.1 67 %,
+CLIPScore 58 %. Both pre-registered hypotheses tested so far hold: VQAScore beats CLIPScore on
+counting prompts and both preference models overall. The preference models fall furthest behind on
+negation (55–57 %, chance is 50 %). See `results/meta_eval/hypotheses.md`.
 
 ## Quick start (no GPU needed)
 
@@ -59,6 +66,10 @@ METRICS="pickscore hpsv2 nsfw_sd nsfw_vit" CPU_METRICS="" bash scripts/submit_sc
 bash scripts/submit_sanity.sh             # metric sanity checks on dev images -> results/sanity/
 bash scripts/make_label_set.sh            # blind labelling sheets for checking the checkers
 bash scripts/make_report_assets.sh        # figures + example panels for REPORT.md
+bash scripts/prepare_genai_bench.sh       # M3: GenAI-Bench prompts + image manifest (after fetch_genai_bench.sh on coe-hpc1)
+SAMPLES=data/manifests/ext_genai_bench.jsonl METRICS="clipscore vqascore pickscore hpsv2" CPU_METRICS="" SUMMARY=0 \
+  bash scripts/submit_scoring.sh data/prompts/genai_bench_1600.jsonl
+bash scripts/run_meta_eval.sh             # agreement with GenAI-Bench ratings, H1/H2 -> results/meta_eval/
 ```
 
 Resubmitting any job is safe: finished samples are skipped, half-written files are cleaned up.

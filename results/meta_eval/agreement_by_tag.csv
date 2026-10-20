@@ -1,0 +1,71 @@
+metric,tag,agreement,ci95_lo,ci95_hi,pairs,n_prompts,kendall_tau_mean
+human (leave-one-out),all,0.8069,0.8013,0.8126,16244,1558,
+clipscore,all,0.5772,0.5662,0.588,18098,1558,0.1333
+vqascore,all,0.7326,0.7227,0.742,18098,1558,0.4034
+pickscore,all,0.6704,0.6596,0.6816,18098,1558,0.296
+hpsv2,all,0.6655,0.6541,0.6765,18098,1558,0.2873
+human (leave-one-out),basic,0.8015,0.7933,0.8098,7372,699,
+clipscore,basic,0.5903,0.5749,0.606,8240,699,0.1587
+vqascore,basic,0.7397,0.7261,0.7532,8240,699,0.4206
+pickscore,basic,0.718,0.7044,0.7319,8240,699,0.3847
+hpsv2,basic,0.7198,0.7059,0.7327,8240,699,0.3872
+human (leave-one-out),advanced,0.8115,0.8046,0.8191,8801,853,
+clipscore,advanced,0.5661,0.5516,0.5814,9782,853,0.1124
+vqascore,advanced,0.7276,0.7138,0.7413,9782,853,0.3909
+pickscore,advanced,0.632,0.6164,0.6469,9782,853,0.2259
+hpsv2,advanced,0.6209,0.6051,0.636,9782,853,0.2074
+human (leave-one-out),action_relation,0.8091,0.7988,0.8189,4889,455,
+clipscore,action_relation,0.5895,0.5698,0.6082,5416,455,0.1597
+vqascore,action_relation,0.7387,0.7216,0.7566,5416,455,0.4213
+pickscore,action_relation,0.7142,0.6969,0.7304,5416,455,0.379
+hpsv2,action_relation,0.7212,0.7046,0.7369,5416,455,0.3919
+human (leave-one-out),attribute,0.8056,0.7955,0.8144,5603,534,
+clipscore,attribute,0.5966,0.5778,0.6153,6255,534,0.1705
+vqascore,attribute,0.7524,0.7357,0.7674,6255,534,0.4419
+pickscore,attribute,0.7265,0.7108,0.7422,6255,534,0.3971
+hpsv2,attribute,0.721,0.705,0.7366,6255,534,0.3868
+human (leave-one-out),comparison,0.8201,0.8047,0.8348,1706,159,
+clipscore,comparison,0.5912,0.5594,0.6212,1886,159,0.1595
+vqascore,comparison,0.72,0.6924,0.7475,1886,159,0.3833
+pickscore,comparison,0.6516,0.6208,0.6822,1886,159,0.2636
+hpsv2,comparison,0.6437,0.6142,0.6742,1886,159,0.257
+human (leave-one-out),counting,0.8215,0.8106,0.8319,3453,334,
+clipscore,counting,0.5771,0.5538,0.6007,3852,334,0.133
+vqascore,counting,0.7477,0.7281,0.7677,3852,334,0.4287
+pickscore,counting,0.6682,0.6453,0.6907,3852,334,0.292
+hpsv2,counting,0.649,0.6243,0.6737,3852,334,0.2609
+human (leave-one-out),differentiation,0.8265,0.8152,0.837,3127,292,
+clipscore,differentiation,0.5549,0.5308,0.579,3471,292,0.096
+vqascore,differentiation,0.7303,0.7085,0.751,3471,292,0.4012
+pickscore,differentiation,0.6488,0.6251,0.6717,3471,292,0.2594
+hpsv2,differentiation,0.6626,0.6392,0.6856,3471,292,0.2852
+human (leave-one-out),negation,0.7917,0.7787,0.8042,3284,337,
+clipscore,negation,0.5384,0.5159,0.5629,3672,337,0.0617
+vqascore,negation,0.7064,0.6822,0.7288,3672,337,0.3417
+pickscore,negation,0.5749,0.5507,0.601,3672,337,0.1231
+hpsv2,negation,0.546,0.5191,0.5735,3672,337,0.0748
+human (leave-one-out),part_relation,0.8226,0.8086,0.8362,2092,192,
+clipscore,part_relation,0.6241,0.5938,0.6548,2320,192,0.2201
+vqascore,part_relation,0.756,0.7295,0.7801,2320,192,0.4548
+pickscore,part_relation,0.7289,0.7024,0.7527,2320,192,0.4113
+hpsv2,part_relation,0.7172,0.6918,0.7406,2320,192,0.3869
+human (leave-one-out),scene,0.7846,0.7716,0.7978,3532,348,
+clipscore,scene,0.5815,0.5601,0.6038,3967,348,0.1452
+vqascore,scene,0.7353,0.7173,0.7552,3967,348,0.405
+pickscore,scene,0.7305,0.711,0.7498,3967,348,0.3989
+hpsv2,scene,0.7235,0.7041,0.7429,3967,348,0.3849
+human (leave-one-out),spatial_relation,0.8039,0.7929,0.8147,4005,377,
+clipscore,spatial_relation,0.589,0.5685,0.6094,4496,377,0.1567
+vqascore,spatial_relation,0.7496,0.7318,0.7679,4496,377,0.4403
+pickscore,spatial_relation,0.7053,0.6856,0.7247,4496,377,0.3651
+hpsv2,spatial_relation,0.7177,0.6988,0.7357,4496,377,0.387
+human (leave-one-out),universal,0.7935,0.775,0.8103,1432,143,
+clipscore,universal,0.5404,0.5006,0.5781,1597,143,0.0634
+vqascore,universal,0.7063,0.6729,0.7426,1597,143,0.3468
+pickscore,universal,0.6544,0.618,0.6891,1597,143,0.2612
+hpsv2,universal,0.6187,0.5804,0.6579,1597,143,0.2046
+human (leave-one-out),untagged,0.7915,0.6653,0.8881,73,6,
+clipscore,untagged,0.5789,0.4737,0.6842,76,6,0.1463
+vqascore,untagged,0.6053,0.4545,0.7821,76,6,0.1892
+pickscore,untagged,0.4605,0.3108,0.6,76,6,-0.0743
+hpsv2,untagged,0.5132,0.4167,0.6154,76,6,0.0193

@@ -1,6 +1,7 @@
 # GenProbe report
 
-_Status: M2 (benchmark on prompt set v1) done; M3 (metric meta-evaluation) next. Every number
+_Status: M2 (benchmark on prompt set v1) done; M3 (metric meta-evaluation) under way: H1 and H2
+done, the VLM judge (H3) and our own human evaluation next. Every number
 here is copied from a file in `results/`, named next to it; nothing is reported before it
 exists there. Choices behind the numbers are in `docs/decisions.md` (D-xxx)._
 
@@ -75,7 +76,49 @@ Test split, 480 prompts × 4 seeds, means over prompts with 95 % bootstrap CIs o
 Example images, picked by rule: `results/examples/index.md`.
 
 ## 3. Metric meta-evaluation
-Pre-registered hypotheses: see `docs/decisions.md`. — TODO (M3)
+
+**Data.** GenAI-Bench-1600 (D-016): 1,600 prompts, each rendered by six models other than §2's (DALL-E 3,
+DeepFloyd IF XL, Midjourney 6, SD 2.1, SDXL base, SDXL Turbo), and each image rated 1–5 by three
+people for how well it matches the prompt. 9,600 images, all scored by the four metrics with the
+same versions as in §2; nothing was tuned on GenAI-Bench.
+
+**Method** (pre-registered in `docs/decisions.md`, implementation D-026). Within each prompt,
+every two images whose mean human ratings differ form a pair; a metric agrees on a pair when it
+orders the two images as the mean rating does. 18,098 pairs from 1,558 prompts; 5,902 of 24,000
+pairs (24.6 %) have equal means and are left out, and in 42 prompts all six images got the same
+mean. 95 % CIs from 2,000 bootstrap resamples of prompts. The analysis code was committed (at
+`8b0bdc9`) before any GenAI-Bench score existed and refuses to run on partial scores, so the
+results below were computed once.
+
+**People among themselves.** Krippendorff's α (ordinal) over the three ratings: 0.715. Each
+rating against the mean of the other two agrees on 81 % of the pairs (equal ratings count 1/2):
+the ceiling the metrics are read against.
+
+**Pre-registered tests** (`results/meta_eval/hypotheses.md`):
+
+| Test | Prompts | Agreement with people | Difference | CI | Verdict |
+| --- | --- | --- | --- | --- | --- |
+| H1: VQAScore > CLIPScore | counting (334) | 0.748 vs 0.577 | +0.171 | 95 %: [0.142, 0.199] | supported |
+| H2: VQAScore > PickScore | all (1,558) | 0.733 vs 0.670 | +0.062 | 97.5 %: [0.046, 0.077] | supported |
+| H2: VQAScore > HPSv2.1 | all (1,558) | 0.733 vs 0.665 | +0.067 | 97.5 %: [0.051, 0.083] | supported |
+
+H3 (position bias of the VLM judge) is still to run.
+
+**By skill** (exploratory; `fig_meta_eval_heatmap.png`, `agreement_by_tag.csv`):
+
+- VQAScore agrees with people on 71–76 % of pairs in every skill; the human ceiling there is
+  78–83 %.
+- CLIPScore stays at 54–62 % everywhere, 54 % on negation and on universal prompts (chance is 50 %).
+- The two preference models are close to VQAScore on basic prompts (PickScore 0.72, HPSv2.1 0.72,
+  VQAScore 0.74) and fall behind on advanced ones (0.63, 0.62 vs 0.73), most on negation (0.57,
+  0.55 vs 0.71).
+- Within-prompt Kendall's τ-b, averaged: VQAScore 0.40, PickScore 0.30, HPSv2.1 0.29, CLIPScore 0.13.
+
+**What it means for §2.** GenAI-Bench's ratings are about prompt following. On that question
+VQAScore is the closest of the four metrics to people. That supports reading §2's prompt-following
+comparison by VQAScore, where SD3.5 Medium and FLUX.1 schnell tie. The preference models' lead for
+FLUX in §2 measures something else, and GenAI-Bench has no preference ratings to check it.
+CLIPScore is a weak guide to prompt following, as its narrow range in §2 already suggested.
 
 ## 4. Limitations
 - Detector and OCR checks have their own error rates (§1), measured on 50 dev images each by one
@@ -84,6 +127,13 @@ Pre-registered hypotheses: see `docs/decisions.md`. — TODO (M3)
   "SALE SAL SALE" for "SALE" (`sd15__tt0002__s0` in `results/prompts_v1_test/per_sample.csv`)
   scores OCR 1.00, VQAScore 0.18.
 - All checker labels and the smoke labels come from one annotator, the author.
-- Main meta-evaluation (M3) uses GenAI-Bench images from other models.
+- The meta-evaluation (§3) uses GenAI-Bench images from six other, mostly older models than §2's.
+- GenAI-Bench and VQAScore were introduced in the same paper (Lin et al., 2024,
+  arXiv:2404.01291). Our VQAScore uses a different backbone (Qwen2.5-VL-7B) and was not tuned on
+  GenAI-Bench, but the benchmark's prompts and rating instructions may still suit that kind of
+  metric.
+- The human ceiling in §3 is a rough reference rather than a strict bound: it compares one
+  rater's 1–5 rating, which ties often (ties count 1/2), with the mean of two others, while the
+  metrics are compared with the mean of all three.
 - One seed set (4 seeds) and one card type; generation settings are each model's defaults, not
   tuned.

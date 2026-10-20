@@ -126,6 +126,10 @@ Scoring on the H100s: CLIPScore 2 × ~5 min (0.16 GPU-h), VQAScore 2 × ~50 min 
 4 × ~46 min. nsfqs runs at most 2 of our jobs at once (`QOSMaxNodePerUserLimit`), so the four
 generators ran one after another, ~3.5 h end to end overnight.
 
+**GenAI-Bench scoring, measured (2026-10-19).** 9,600 images on the H100s: VQAScore 4 shards ×
+~21 min (1.4 GPU-h; 0.82–0.84 s per DALL-E 3 / Midjourney / SDXL base image, 0.09–0.35 s for
+the smaller ones), CLIPScore, PickScore and HPSv2.1 ~4 min each (0.2 GPU-h together).
+
 **NFS "Stale file handle".** FLUX shard 2 (job 91975_2) died 47 s in with
 `OSError: [Errno 116] Stale file handle` while saving its first image under `data/images/`;
 the other 15 shards were fine. `atomic_save_image` now retries that error (a few seconds apart)
