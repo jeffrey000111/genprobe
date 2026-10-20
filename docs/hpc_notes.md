@@ -130,6 +130,14 @@ generators ran one after another, ~3.5 h end to end overnight.
 ~21 min (1.4 GPU-h; 0.82–0.84 s per DALL-E 3 / Midjourney / SDXL base image, 0.09–0.35 s for
 the smaller ones), CLIPScore, PickScore and HPSv2.1 ~4 min each (0.2 GPU-h together).
 
+**Judge env (vLLM 0.32.0, torch 2.13.0, transformers 5.19.0; 2026-10-19).** Installing it, uv
+failed once to remove an `.nfs*` placeholder ("Device or resource busy") left by a file still open
+on NFS; `setup_envs.sh` now retries. In the first probe (job 92312) Qwen3-VL-8B loaded offline in
+~25 s (16.8 GiB) and torch.compile took 52 s (cached under `~/.cache/vllm` afterwards), but
+start-up died in vLLM's warm-up: its FlashInfer sampler tries to JIT-compile with nvcc, which the
+nodes don't have. `slurm/common.sh` sets `VLLM_USE_FLASHINFER_SAMPLER=0` (vLLM's PyTorch sampler);
+attention uses FlashAttention 3 and is unaffected.
+
 **NFS "Stale file handle".** FLUX shard 2 (job 91975_2) died 47 s in with
 `OSError: [Errno 116] Stale file handle` while saving its first image under `data/images/`;
 the other 15 shards were fine. `atomic_save_image` now retries that error (a few seconds apart)

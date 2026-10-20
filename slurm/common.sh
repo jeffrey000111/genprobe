@@ -12,6 +12,10 @@ export TRANSFORMERS_OFFLINE=1
 # vLLM (judge env) would otherwise try to send usage statistics from an offline node.
 export VLLM_NO_USAGE_STATS=1
 export DO_NOT_TRACK=1
+# vLLM 0.32 picks FlashInfer's top-k/top-p sampler even when FlashInfer can't JIT-compile it (no
+# nvcc on the nodes), and engine start-up then dies in its warm-up (judge-probe job 92312;
+# vllm-project/vllm issues 49497, 59954). Use vLLM's native PyTorch sampler instead.
+export VLLM_USE_FLASHINFER_SAMPLER=0
 # GPUs we accept by default; generation narrows this to one card type (slurm/gen.sbatch).
 export GENPROBE_GPU_REGEX="${GENPROBE_GPU_REGEX:-A100|H100}"
 
