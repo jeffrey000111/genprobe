@@ -454,3 +454,18 @@ results repeat across jobs). (3) After `dev_r3` the rubric is frozen: absolute =
 highest dev agreement by expected score, pairwise = the one with the higher dev pairwise agreement
 (r1 unless r3's rerun differs). Position bias plays no part in that choice, since H3 is about it.
 
+*D-028 revision 3 (2026-10-19, after `dev_r3`, rubric r3 = template `b9e98ed8`): the rubric is
+frozen.* Dev results by expected score, absolute: r1 0.705, r2 0.709 [0.665, 0.753], r3 0.680
+[0.632, 0.731] (VQAScore 0.737 on the same pairs). Blind test with grey images: r2 scored them like
+real ones (3.01 vs 2.88), r3 gives them 1.00 vs 3.00 for real images (the real image higher in
+100 % of 478 by expected score); another prompt's image scores ~1.0 in all three rounds. Pairwise,
+r1's prompt rerun unchanged in r3: 0.657 vs 0.660 in `dev_r1`, position bias 0.569 vs 0.567, so
+greedy answers do not repeat exactly across jobs (vLLM batches differ), but the summaries move by
+less than 0.01. **Frozen:** absolute = r3 with the expected score, pairwise = r1; `judge.py` refuses
+a test round with any other template (`FROZEN_TEMPLATE`). **This departs from the rule written in
+revision 2**, which would have picked r2 for its 0.029 higher dev agreement (the two CIs overlap
+widely). Project author's decision, on the recommendation that a judge which gives a blank grey
+image full marks cannot later grade an agent's images (module C), where degenerate images are a
+real risk. Pairwise is r1 under either rule, so H3 is unaffected. Because r2 and r3 were written
+after seeing the grey-image failure on dev, only the test round's blind test is a clean check.
+

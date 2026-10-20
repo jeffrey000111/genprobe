@@ -109,6 +109,9 @@ PAIR_SCHEMA = {"type": "object", "properties": {
     "reason": {"type": "string"}, "better": {"type": "string", "enum": ["1", "2", "same"]}},
     "required": ["reason", "better"], "additionalProperties": False}
 MAX_TOKENS = {"abs": 400, "pair": 160}
+# Frozen after the dev rounds (D-028 revision 3): absolute r3, pairwise r1. The test round runs
+# only with this template.
+FROZEN_TEMPLATE = "b9e98ed8"
 
 
 def template_id() -> str:
@@ -425,6 +428,10 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--tag", required=True)
     r.add_argument("--out", default="data/judge")
     args = ap.parse_args(argv)
+    if args.round == "test" and template_id() != FROZEN_TEMPLATE:
+        print(f"template {template_id()} is not the frozen rubric {FROZEN_TEMPLATE} (D-028); the test round "
+              "only runs with the frozen rubric", file=sys.stderr)
+        return 1
     if args.round == "test" and Path(args.out, f"{args.tag}.jsonl").exists():
         print(f"{args.out}/{args.tag}.jsonl exists; the test round runs once (pick a new tag only if it failed)",
               file=sys.stderr)

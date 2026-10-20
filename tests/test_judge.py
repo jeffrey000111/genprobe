@@ -74,6 +74,11 @@ class TestPieces(unittest.TestCase):
         self.assertAlmostEqual(sum(int(k) * v for k, v in d.items()), (3 * 0.6 + 4 * 0.3) / 0.9)
         self.assertIsNone(judge.score_digit_distribution(['{"', 'issues', '": []}'], [{}, {}, {}]))
 
+    def test_rubric_is_frozen(self):
+        # changing a prompt, schema or image size after the dev rounds changes this hash; the test
+        # round then refuses to run (D-028 revision 3)
+        self.assertEqual(judge.template_id(), judge.FROZEN_TEMPLATE)
+
     def test_parse(self):
         self.assertEqual(judge.parse_abs('{"issues": ["no dog"], "score": 2}'), (2, ["no dog"], True))
         self.assertEqual(judge.parse_abs('{"issues": ["no dog", "cut off'), (None, [], False))

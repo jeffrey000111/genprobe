@@ -1,0 +1,354 @@
+{
+  "tag": "dev_r3",
+  "round": "dev",
+  "created_at": "2026-10-20T04:59:51.590+00:00",
+  "git_commit": "18dfd43",
+  "judge_version": "vllm==0.32.0/qwen3-vl-8b@0c351dd/bf16/img1024/tmpl-b9e98ed8",
+  "records": 7575,
+  "requests": {
+    "abs/greedy/grey": 480,
+    "abs/greedy/mismatch": 480,
+    "abs/greedy/real": 480,
+    "abs/sample/real": 480,
+    "pair/greedy/pair": 1878,
+    "pair/sample/pair": 939
+  },
+  "generate_seconds": 568.7,
+  "parsing": {
+    "abs": {
+      "answers": 2880,
+      "json_ok": 0.9982638888888888,
+      "unreadable": 5,
+      "truncated": 5
+    },
+    "pair": {
+      "answers": 4695,
+      "json_ok": 0.9989350372736954,
+      "unreadable": 5,
+      "truncated": 5
+    }
+  },
+  "score_distribution": {
+    "1": 129,
+    "2": 108,
+    "3": 38,
+    "4": 41,
+    "5": 162,
+    "None": 2
+  },
+  "absolute_vs_people": {
+    "judge score (1-5)": {
+      "agreement": 0.6458557588805167,
+      "ci": [
+        0.6059568638675972,
+        0.6861858675848754
+      ],
+      "pairs": 929,
+      "n_prompts": 79
+    },
+    "judge expected score": {
+      "agreement": 0.6803013993541442,
+      "ci": [
+        0.6324900649442343,
+        0.7305648480214708
+      ],
+      "pairs": 929,
+      "n_prompts": 79
+    },
+    "vqascore (reference)": {
+      "agreement": 0.7369542066027689,
+      "ci": [
+        0.6935787847922618,
+        0.7809734513274337
+      ],
+      "pairs": 939,
+      "n_prompts": 79
+    }
+  },
+  "pairwise_vs_people": {
+    "value": 0.6570820021299254,
+    "ci": [
+      0.6256592300074536,
+      0.6902342243450915
+    ],
+    "n": 939,
+    "n_prompts": 79,
+    "pick_rate": 0.5292864749733759
+  },
+  "order_agreement": {
+    "value": 0.6624068157614483,
+    "ci": [
+      0.6199973821989528,
+      0.7055304944063515
+    ],
+    "n": 939,
+    "n_prompts": 79
+  },
+  "position_bias": {
+    "value": 0.5686015831134564,
+    "ci": [
+      0.534774483681964,
+      0.602922134989454
+    ],
+    "n": 1516,
+    "n_prompts": 76,
+    "verdict": "supported"
+  },
+  "consistency": {
+    "abs": {
+      "items": 480,
+      "samples_all_equal": 0.5791666666666667,
+      "sample_majority_equals_greedy": 0.7229166666666667,
+      "mean_sd_of_samples": 0.33422724028193007
+    },
+    "pair": {
+      "items": 939,
+      "samples_all_equal": 0.7007454739084132,
+      "sample_majority_equals_greedy": 0.8849840255591054
+    }
+  },
+  "blind_test": {
+    "grey": {
+      "images": 478,
+      "mean_score_real": 2.997907949790795,
+      "mean_score_grey": 1.0,
+      "share_real_higher": 0.8650627615062761,
+      "share_real_higher_expected": 1.0
+    },
+    "mismatch": {
+      "images": 478,
+      "mean_score_real": 2.997907949790795,
+      "mean_score_mismatch": 1.00836820083682,
+      "share_real_higher": 0.8640167364016736,
+      "share_real_higher_expected": 0.9916317991631799
+    }
+  },
+  "examples": {
+    "absolute": [
+      {
+        "prompt": "A starry night sky with more visible stars than the number of lights in the city below.",
+        "gap": 3.0,
+        "people_prefer": {
+          "model": "SDXL_2_1",
+          "mean": 4.666666666666667,
+          "judge": 4,
+          "issues": [
+            "Cannot count stars to verify if more stars are visible than city lights",
+            "No explicit comparison of star count vs. light count is visually verifiable"
+          ]
+        },
+        "other": {
+          "model": "DeepFloyd_I_XL_v1",
+          "mean": 1.6666666666666667,
+          "judge": 5,
+          "issues": []
+        }
+      },
+      {
+        "prompt": "A starry night sky with more visible stars than the number of lights in the city below.",
+        "gap": 3.0,
+        "people_prefer": {
+          "model": "SDXL_Turbo",
+          "mean": 4.666666666666667,
+          "judge": 4,
+          "issues": [
+            "The number of visible stars is not clearly more than the number of lights in the city; they appear roughly comparable or the stars are not visibly more numerous"
+          ]
+        },
+        "other": {
+          "model": "DeepFloyd_I_XL_v1",
+          "mean": 1.6666666666666667,
+          "judge": 5,
+          "issues": []
+        }
+      },
+      {
+        "prompt": "A vintage car show with more convertibles than sedans.",
+        "gap": 3.0,
+        "people_prefer": {
+          "model": "DeepFloyd_I_XL_v1",
+          "mean": 4.666666666666667,
+          "judge": 2,
+          "issues": [
+            "No sedans are visible to compare with convertibles",
+            "Cannot confirm if more convertibles than sedans are present as no sedans are visible"
+          ]
+        },
+        "other": {
+          "model": "SDXL_Turbo",
+          "mean": 1.6666666666666667,
+          "judge": 4,
+          "issues": [
+            "Not enough convertibles to be 'more than sedans' \u2014 the count is roughly equal or sedans slightly more numerous"
+          ]
+        }
+      },
+      {
+        "prompt": "A starry night sky with more visible stars than the number of lights in the city below.",
+        "gap": 2.666666666666667,
+        "people_prefer": {
+          "model": "SDXL_2_1",
+          "mean": 4.666666666666667,
+          "judge": 4,
+          "issues": [
+            "Cannot count stars to verify if more stars are visible than city lights",
+            "No explicit comparison of star count vs. light count is visually verifiable"
+          ]
+        },
+        "other": {
+          "model": "DALLE_3",
+          "mean": 2.0,
+          "judge": 5,
+          "issues": []
+        }
+      },
+      {
+        "prompt": "A starry night sky with more visible stars than the number of lights in the city below.",
+        "gap": 2.666666666666667,
+        "people_prefer": {
+          "model": "SDXL_Turbo",
+          "mean": 4.666666666666667,
+          "judge": 4,
+          "issues": [
+            "The number of visible stars is not clearly more than the number of lights in the city; they appear roughly comparable or the stars are not visibly more numerous"
+          ]
+        },
+        "other": {
+          "model": "DALLE_3",
+          "mean": 2.0,
+          "judge": 5,
+          "issues": []
+        }
+      },
+      {
+        "prompt": "A vintage car show with more convertibles than sedans.",
+        "gap": 2.666666666666667,
+        "people_prefer": {
+          "model": "DeepFloyd_I_XL_v1",
+          "mean": 4.666666666666667,
+          "judge": 2,
+          "issues": [
+            "No sedans are visible to compare with convertibles",
+            "Cannot confirm if more convertibles than sedans are present as no sedans are visible"
+          ]
+        },
+        "other": {
+          "model": "SDXL_Base",
+          "mean": 2.0,
+          "judge": 4,
+          "issues": [
+            "Not enough convertibles to be 'more than sedans' \u2014 the image shows roughly equal or slightly more sedans than convertibles.",
+            "Cannot verify exact counts of convertibles vs sedans due to depth and angle, but visual count suggests sedans are not outnumbered."
+          ]
+        }
+      },
+      {
+        "prompt": "Three vintage cars parked in a row, each a different color.",
+        "gap": 2.6666666666666665,
+        "people_prefer": {
+          "model": "DALLE_3",
+          "mean": 5.0,
+          "judge": 4,
+          "issues": [
+            "Only three cars are in the immediate foreground row as requested, but many more are visible in the background and foreground",
+            "The prompt asks for 'three vintage cars parked in a row', but the image shows more than three cars in the foreground row",
+            "The prompt does not specify background cars, but the image shows many more than three cars in the background row",
+            "The prompt does not specify the colors, but the image shows multiple colors including teal, yellow, beige, pink, green, and blue",
+            "The prompt does not specify spatial relations, but the image shows cars parked in rows with some in front of others",
+            "The prompt does not specify actions, but the image shows cars parked and stationary",
+            "The prompt does not specify materials, but the image shows metal and glass materials on the cars",
+            "The prompt does not specify text, but the image shows license plates with numbers and letters"
+          ]
+        },
+        "other": {
+          "model": "SDXL_Turbo",
+          "mean": 2.3333333333333335,
+          "judge": 5,
+          "issues": []
+        }
+      },
+      {
+        "prompt": "A monkey is stealing apples from a tourist's basket. The number of apples in the monkey's arms is less than the number of apples in the basket.",
+        "gap": 2.3333333333333335,
+        "people_prefer": {
+          "model": "DALLE_3",
+          "mean": 5.0,
+          "judge": 1,
+          "issues": [
+            "The monkey is not stealing from a tourist's basket; there is no tourist visible.",
+            "The monkey is holding a basket, not apples in its arms.",
+            "The number of apples in the monkey's arms is not less than the number in the basket, because it is holding a basket full of apples, not a small number of individual apples.",
+            "The prompt says 'the number of apples in the monkey's arms is less than the number in the basket' \u2014 but the monkey is holding a basket, so the apples in its arms are not being compared to the apples in the basket as separate entities; the basket is being held, not apples.",
+            "The prompt implies the monkey is stealing from a tourist's basket, but no tourist is visible."
+          ]
+        },
+        "other": {
+          "model": "SDXL_Base",
+          "mean": 2.6666666666666665,
+          "judge": 2,
+          "issues": [
+            "The monkey is not stealing apples from a tourist's basket; it is riding a bike with a basket of apples and reaching for apples from a tree.",
+            "The monkey's arms do not contain any apples; its hands are empty or one hand is reaching for an apple.",
+            "The prompt says 'the number of apples in the monkey's arms is less than the number in the basket' \u2014 but there are zero apples in the arms, which is less than the number in the basket, so this part is technically met, but the context of stealing from a tourist's basket is not shown."
+          ]
+        }
+      }
+    ],
+    "pairwise": [
+      {
+        "prompt": "A starry night sky with more visible stars than the number of lights in the city below.",
+        "gap": 3.0,
+        "people_prefer": "SDXL_Turbo (4.67)",
+        "judge_picks": "DeepFloyd_I_XL_v1 (1.67)"
+      },
+      {
+        "prompt": "A vintage car show with more convertibles than sedans.",
+        "gap": 3.0,
+        "people_prefer": "DeepFloyd_I_XL_v1 (4.67)",
+        "judge_picks": "SDXL_Turbo (1.67)"
+      },
+      {
+        "prompt": "A starry night sky with more visible stars than the number of lights in the city below.",
+        "gap": 2.666666666666667,
+        "people_prefer": "Midjourney_6 (4.67)",
+        "judge_picks": "DALLE_3 (2.00)"
+      },
+      {
+        "prompt": "A starry night sky with more visible stars than the number of lights in the city below.",
+        "gap": 2.666666666666667,
+        "people_prefer": "SDXL_2_1 (4.67)",
+        "judge_picks": "DALLE_3 (2.00)"
+      },
+      {
+        "prompt": "A starry night sky with more visible stars than the number of lights in the city below.",
+        "gap": 2.666666666666667,
+        "people_prefer": "SDXL_Turbo (4.67)",
+        "judge_picks": "DALLE_3 (2.00)"
+      },
+      {
+        "prompt": "A vintage car show with more convertibles than sedans.",
+        "gap": 2.3333333333333335,
+        "people_prefer": "DeepFloyd_I_XL_v1 (4.67)",
+        "judge_picks": "Midjourney_6 (2.33)"
+      },
+      {
+        "prompt": "The sun illuminates the garden, a shovel sticks in the soil, and gloves lay on the bench.",
+        "gap": 2.0000000000000004,
+        "people_prefer": "DALLE_3 (4.67)",
+        "judge_picks": "SDXL_Base (2.67)"
+      },
+      {
+        "prompt": "A girl in a smart blazer using a globe to explain continents to a girl in a school uniform and backpack.",
+        "gap": 2.0,
+        "people_prefer": "DALLE_3 (5.00)",
+        "judge_picks": "DeepFloyd_I_XL_v1 (3.00)"
+      }
+    ],
+    "grey": [],
+    "counts": {
+      "absolute": 17,
+      "pairwise": 9,
+      "grey_scored_3_plus": 0
+    }
+  }
+}
