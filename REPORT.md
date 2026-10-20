@@ -1,7 +1,7 @@
 # GenProbe report
 
-_Status: M2 (benchmark on prompt set v1) done; M3 (metric meta-evaluation) under way: H1 and H2
-done, the VLM judge (H3) and our own human evaluation next. Every number
+_Status: M2 (benchmark on prompt set v1) done; M3 (metric meta-evaluation) under way: H1, H2 and
+the VLM judge (H3) done, our own human evaluation next. Every number
 here is copied from a file in `results/`, named next to it; nothing is reported before it
 exists there. Choices behind the numbers are in `docs/decisions.md` (D-xxx)._
 
@@ -101,8 +101,10 @@ the ceiling the metrics are read against.
 | H1: VQAScore > CLIPScore | counting (334) | 0.748 vs 0.577 | +0.171 | 95 %: [0.142, 0.199] | supported |
 | H2: VQAScore > PickScore | all (1,558) | 0.733 vs 0.670 | +0.062 | 97.5 %: [0.046, 0.077] | supported |
 | H2: VQAScore > HPSv2.1 | all (1,558) | 0.733 vs 0.665 | +0.067 | 97.5 %: [0.051, 0.083] | supported |
+| H3: the VLM judge has a position bias | 1,000 pairs (639 prompts) | – | 0.581 pick the first image (0.5 = none) | 95 %: [0.562, 0.601] | supported |
 
-H3 (position bias of the VLM judge) is still to run.
+H3 comes from `results/judge/test_r1/summary.md`: of the 1,565 pairwise verdicts that picked an
+image, the share that picked the one shown first.
 
 **By skill** (exploratory; `fig_meta_eval_heatmap.png`, `agreement_by_tag.csv`):
 
@@ -120,6 +122,34 @@ comparison by VQAScore, where SD3.5 Medium and FLUX.1 schnell tie. The preferenc
 FLUX in §2 measures something else, and GenAI-Bench has no preference ratings to check it.
 CLIPScore is a weak guide to prompt following, as its narrow range in §2 already suggested.
 
+**VLM judge** (D-027, D-028; `results/judge/test_r1/summary.md`, `judge_bias.csv`). Qwen3-VL-8B-Instruct,
+run with vLLM, answers in two ways. Absolute: a 1–5 score after listing the unmet requirements,
+reported as the expected score from the probabilities of the five digits. Pairwise: which of two
+images fits the prompt better, asked in both orders. The rubric was revised twice on the 80 dev
+prompts and then frozen; the test round ran once, on the other 1,520 prompts (9,120 images).
+
+- **Position bias (H3, supported).** 58.1 % [56.2, 60.1] of the verdicts that picked an image picked
+  the one shown first. The two orders gave the same verdict for 65 % of pairs, and the same image
+  was picked both times in only 50 %.
+- **Agreement with people.** Absolute (expected score): 0.712 [0.701, 0.723]; with the integer
+  score 0.673. That is below VQAScore on the same 17,049 pairs: −0.020 [−0.031, −0.011] (paired,
+  exploratory; added after the test round). Pairwise verdicts on the 1,000 H3 pairs: 0.646
+  [0.624, 0.668], counting a pick only when both orders agree.
+- **Blind test.** Mean score 3.20 with the real image, 1.01 with a grey image, 1.03 with another
+  prompt's image (500 images); by expected score the real image wins 99 % of the time.
+- **Consistency and spread.** With 3 samples at temperature 0.7, the absolute scores all agree for
+  59 % of images and the pairwise verdicts for 69 % of pairs. Scores bunch at the ends: 1 for
+  25 % of images, 5 for 37 %, 3 or 4 for 15 %.
+- **On dev, an earlier rubric failed the blind test.** Rubric r2 scored a plain grey image like
+  a real one (3.01 vs 2.88), often 5 with no issue listed. Asking for a description of what the
+  image shows before the check fixed that (r3), at a small cost in dev agreement (0.680 vs 0.709,
+  overlapping CIs). Picking r3 departed from the selection rule written before that round
+  (D-028 revision 3).
+
+So on this benchmark the 8B judge is a weaker prompt-following metric than VQAScore, and its
+pairwise verdicts depend on which image comes first. Any pairwise use needs both orders. VQAScore
+stays the main automatic metric; the judge's lists of unmet requirements are what it adds.
+
 ## 4. Limitations
 - Detector and OCR checks have their own error rates (§1), measured on 50 dev images each by one
   annotator; the OCR threshold was chosen on the same images.
@@ -132,6 +162,11 @@ CLIPScore is a weak guide to prompt following, as its narrow range in §2 alread
   arXiv:2404.01291). Our VQAScore uses a different backbone (Qwen2.5-VL-7B) and was not tuned on
   GenAI-Bench, but the benchmark's prompts and rating instructions may still suit that kind of
   metric.
+- The VLM judge (Qwen3-VL-8B) and VQAScore's backbone (Qwen2.5-VL-7B) come from the same model
+  family; before the judge grades anything in module C, a judge from another family is added
+  (D-027). Its rubric was tuned by the author on 80 dev prompts.
+- Greedy decoding with vLLM does not repeat exactly across jobs: rerunning the same pairwise
+  prompt on dev gave 0.657 instead of 0.660 agreement (D-028 revision 3).
 - The human ceiling in §3 is a rough reference rather than a strict bound: it compares one
   rater's 1–5 rating, which ties often (ties count 1/2), with the mean of two others, while the
   metrics are compared with the mean of all three.

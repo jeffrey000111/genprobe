@@ -1,6 +1,6 @@
 # VLM judge, round `test` (`test_r1`)
 
-Made 2026-10-20T05:55:18.020+00:00 at commit `c266102` by `python -m genprobe.judge_eval`. Judge `vllm==0.32.0/qwen3-vl-8b@0c351dd/bf16/img1024/tmpl-b9e98ed8`; 16620 answers; generation took 1750.0 s.
+Made 2026-10-20T08:37:00.545+00:00 at commit `f47699e` by `python -m genprobe.judge_eval`. Judge `vllm==0.32.0/qwen3-vl-8b@0c351dd/bf16/img1024/tmpl-b9e98ed8`; 16620 answers; generation took 1750.0 s.
 
 ## Parsing
 
@@ -18,6 +18,8 @@ Agreement with people (within-prompt pairs with different mean ratings, ties 1/2
 | judge score (1-5) | 0.673 | [0.664, 0.682] | 17049 |
 | judge expected score | 0.712 | [0.701, 0.723] | 17049 |
 | vqascore (reference) | 0.732 | [0.722, 0.742] | 17159 |
+
+Paired on the same 17049 pairs (exploratory): judge expected score 0.712 − VQAScore 0.733 = -0.020 [-0.031, -0.011].
 
 ## Pairwise verdicts
 

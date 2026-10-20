@@ -11,8 +11,9 @@ and uses the reliable ones in a generation-debugging agent.
 > **Status: in progress.** M2 is done: 9,600 images (4 models × 600 prompts × 4 seeds) scored
 > with 8 metrics, checkers validated on 100 blind-labelled dev images, metric sanity checks run;
 > results in [`REPORT.md`](REPORT.md) and `results/prompts_v1_test/`. M3 is under way: the
-> metrics are checked against GenAI-Bench's human ratings (`results/meta_eval/`); the VLM judge
-> and our own human evaluation come next. Every number here comes from a table in `results/`.
+> metrics and a VLM judge are checked against GenAI-Bench's human ratings (`results/meta_eval/`,
+> `results/judge/`); our own human evaluation comes next. Every number here comes from a table in
+> `results/`.
 
 **Headline (test split, 480 prompts):** SD3.5 Medium and FLUX.1 schnell tie on prompt following
 (VQAScore 0.680 vs 0.670, paired difference not significant) while FLUX is 4.1× faster; negation
@@ -24,7 +25,10 @@ check) on 48 % of images at 1–2 words but 24 % at 5–8 words; CLIPScore barel
 image pairs the way people do (people among themselves: 81 %), PickScore 67 %, HPSv2.1 67 %,
 CLIPScore 58 %. Both pre-registered hypotheses tested so far hold: VQAScore beats CLIPScore on
 counting prompts and both preference models overall. The preference models fall furthest behind on
-negation (55–57 %, chance is 50 %). See `results/meta_eval/hypotheses.md`.
+negation (55–57 %, chance is 50 %). A VLM judge (Qwen3-VL-8B) agrees on 71 %, 2 points below
+VQAScore on the same pairs, and when comparing two images it picks the one shown first 58 % of the
+time (pre-registered H3 holds). See `results/meta_eval/hypotheses.md` and
+`results/judge/test_r1/summary.md`.
 
 ## Quick start (no GPU needed)
 
@@ -60,6 +64,8 @@ bash scripts/download_models.sh judge     # Qwen3-VL-8B-Instruct, ~17.5 GB
 bash scripts/hpc_check.sh                 # partitions, GPU nodes, storage -> docs/hpc_check.md
 sbatch slurm/probe_gpu.sbatch             # envs import torch and see the H100?
 sbatch slurm/judge_probe.sbatch           # vLLM + Qwen3-VL-8B load offline and answer test questions?
+sbatch slurm/judge.sbatch dev dev_r3      # VLM judge on the 80 dev prompts (rubric iteration) -> results/judge/
+sbatch --time=01:00:00 slurm/judge.sbatch test test_r1   # once, frozen rubric: H3 and agreement with people
 sbatch --array=0-1 slurm/gen.sbatch configs/gen/sdxl.yaml data/prompts/smoke.jsonl 2 --seeds 0
 bash scripts/submit_scoring.sh data/prompts/smoke.jsonl   # CLIPScore + VQAScore, then
                                           # results/smoke/summary.md (CPU job)
