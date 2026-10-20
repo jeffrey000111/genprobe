@@ -397,3 +397,16 @@ Krippendorff 2011: 0.815). (5) Kendall's τ-b within prompts (6 images), average
 exploratory. (6) The smoke run on 20 GenAI-Bench prompts (120 images) is checked for counts,
 errors, value ranges and timing only (`genprobe/score_check.py`); agreement with people is not
 computed on it.
+
+**D-027 (2026-10-19) — The VLM judge is Qwen3-VL-8B-Instruct (as pre-registered for H3), run by
+vLLM in a fourth env, `judge`.** Weights pinned to the snapshot downloaded on coe-hpc1
+(`download_models.sh judge`, ~17.5 GB, not gated); vLLM pins its own torch and transformers, so it
+does not share the eval env (guide §9.4). Before any judge code is written, `slurm/judge_probe.sbatch`
+checks on an H100 that vLLM loads the model offline and handles one image, two images in one
+prompt, JSON-constrained output and first-token logprobs, and measures its speed; judge.py is
+then written against the vLLM version actually installed. Qwen3-VL and VQAScore's Qwen2.5-VL come
+from the same family. That is acceptable for module B, where the judge is itself checked against
+people, but module C's final grader must differ from the metric the agent optimizes (guide §10),
+so before module C a judge from another model family will be added and meta-evaluated the same
+way.
+

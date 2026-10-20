@@ -9,6 +9,9 @@ source "${SLURM_SUBMIT_DIR:-$PWD}/scripts/paths.sh"
 # (scripts/download_models.sh on coe-hpc1 puts them there).
 export HF_HUB_OFFLINE=1
 export TRANSFORMERS_OFFLINE=1
+# vLLM (judge env) would otherwise try to send usage statistics from an offline node.
+export VLLM_NO_USAGE_STATS=1
+export DO_NOT_TRACK=1
 # GPUs we accept by default; generation narrows this to one card type (slurm/gen.sbatch).
 export GENPROBE_GPU_REGEX="${GENPROBE_GPU_REGEX:-A100|H100}"
 

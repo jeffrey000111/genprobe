@@ -5,6 +5,7 @@
 #   ssh sjsu "cd ~/genprobe && bash scripts/setup_envs.sh gen"
 #   ssh sjsu "cd ~/genprobe && bash scripts/setup_envs.sh eval"
 #   ssh sjsu "cd ~/genprobe && bash scripts/setup_envs.sh aux"    EasyOCR for the OCR checker
+#   ssh sjsu "cd ~/genprobe && bash scripts/setup_envs.sh judge"  vLLM for the VLM judge
 #
 # coe-hpc1 runs CentOS 7 (glibc 2.17) and HPC3 runs glibc 2.34, so packages are selected for
 # HPC3's platform with uv's --python-platform, not for the machine doing the install. uv and
@@ -12,7 +13,7 @@
 # Afterwards, test the env on a GPU node: sbatch slurm/probe_gpu.sbatch (on HPC3).
 set -euo pipefail
 cd "$(dirname "$0")/.."
-ENV=${1:?usage: setup_envs.sh gen|eval|aux}
+ENV=${1:?usage: setup_envs.sh gen|eval|aux|judge}
 # shellcheck disable=SC1091
 source scripts/paths.sh
 TARGET_PLATFORM=${TARGET_PLATFORM:-x86_64-manylinux_2_34}   # HPC3's glibc
@@ -57,7 +58,12 @@ case "$ENV" in
     # shapely, ...) for the OCR checker. Its weights: download_models.sh easyocr.
     "${INSTALL[@]}" torch torchvision easyocr
     ;;
-  *) echo "unknown env '$ENV' (expected gen, eval or aux)" >&2; exit 2 ;;
+  judge)
+    # VLM judge (guide §9.4, D-027): vLLM runs Qwen3-VL-8B-Instruct offline. vLLM pins its own
+    # torch and transformers, so it gets an env of its own; uv picks the newest vLLM wheel.
+    "${INSTALL[@]}" vllm
+    ;;
+  *) echo "unknown env '$ENV' (expected gen, eval, aux or judge)" >&2; exit 2 ;;
 esac
 "${INSTALL[@]}" -e ".[analysis]"
 
@@ -74,7 +80,7 @@ if [[ "$ENV" == eval ]]; then
 fi
 
 uv pip freeze --python "$VENV/bin/python" --exclude-editable > "env/$ENV.lock.txt"
-grep -iE "^(torch|torchvision|diffusers|transformers|accelerate|t2v-metrics|open-clip-torch|easyocr)==" "env/$ENV.lock.txt" || true
+grep -iE "^(torch|torchvision|diffusers|transformers|accelerate|t2v-metrics|open-clip-torch|easyocr|vllm)==" "env/$ENV.lock.txt" || true
 echo
 echo "Built $VENV for $TARGET_PLATFORM; locked to env/$ENV.lock.txt."
 echo "Packages were chosen for HPC3, so test there, not here:"

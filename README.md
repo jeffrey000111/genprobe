@@ -53,10 +53,13 @@ bash scripts/download_models.sh scorers   # CLIP ViT-L/14 + Qwen2.5-VL-7B, ~18 G
 bash scripts/setup_envs.sh aux            # EasyOCR for the OCR checker
 bash scripts/download_models.sh checkers  # Grounding DINO tiny + EasyOCR weights
 bash scripts/download_models.sh m2        # PickScore, HPSv2.1, two safety filters, ~7.5 GB
+bash scripts/setup_envs.sh judge          # vLLM for the VLM judge (own env: vLLM pins torch)
+bash scripts/download_models.sh judge     # Qwen3-VL-8B-Instruct, ~17.5 GB
 
 # on HPC3 (g17), from ~/genprobe
 bash scripts/hpc_check.sh                 # partitions, GPU nodes, storage -> docs/hpc_check.md
 sbatch slurm/probe_gpu.sbatch             # envs import torch and see the H100?
+sbatch slurm/judge_probe.sbatch           # vLLM + Qwen3-VL-8B load offline and answer test questions?
 sbatch --array=0-1 slurm/gen.sbatch configs/gen/sdxl.yaml data/prompts/smoke.jsonl 2 --seeds 0
 bash scripts/submit_scoring.sh data/prompts/smoke.jsonl   # CLIPScore + VQAScore, then
                                           # results/smoke/summary.md (CPU job)

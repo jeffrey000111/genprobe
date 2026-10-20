@@ -11,6 +11,7 @@
 #   ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh checkers"   grounding_dino_tiny + easyocr
 #                                                                          (easyocr needs the aux env)
 #   ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh m2"         pickscore hpsv2 sd_safety nsfw_vit
+#   ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh judge"      qwen3vl8b (VLM judge)
 #
 # SD3.5 Medium and FLUX.1-schnell are gated: accept their terms on huggingface.co first.
 # Re-running is safe: files already in the cache are skipped.
@@ -50,6 +51,7 @@ if [[ "$1" == all ]]; then set -- sd15 sdxl sd35m flux_schnell; fi
 if [[ "$1" == scorers ]]; then set -- clip_l14 qwen25vl7b; fi
 if [[ "$1" == checkers ]]; then set -- grounding_dino_tiny easyocr; fi
 if [[ "$1" == m2 ]]; then set -- pickscore hpsv2 sd_safety nsfw_vit; fi
+if [[ "$1" == judge ]]; then set -- qwen3vl8b; fi
 
 for m in "$@"; do
   case "$m" in
@@ -115,6 +117,13 @@ for m in "$@"; do
         --include "config.json" "preprocessor_config.json" "model.safetensors" \
         --expect config.json preprocessor_config.json model.safetensors
       ;;
+    qwen3vl8b)
+      # VLM judge (genprobe/judge.py, D-027), ~17.5 GB. Not gated. A different model from
+      # VQAScore's Qwen2.5-VL-7B, as the H3 pre-registration requires.
+      download qwen3vl8b Qwen/Qwen3-VL-8B-Instruct \
+        --include "*.json" "*.txt" "*.safetensors" \
+        --expect config.json preprocessor_config.json tokenizer_config.json chat_template.json model.safetensors.index.json
+      ;;
     easyocr)
       # OCR checker (genprobe/metrics/ocr.py): CRAFT detector + english_g2 recognizer, ~100 MB,
       # into $EASYOCR_MODULE_PATH/model. URLs and md5 sums come from the installed EasyOCR's
@@ -130,7 +139,8 @@ for m in "$@"; do
       fi
       ;;
     *) echo "unknown model '$m' (expected login, sd15, sdxl, sd35m, flux_schnell, all, clip_l14, qwen25vl7b," \
-            "scorers, grounding_dino_tiny, easyocr, checkers, pickscore, hpsv2, sd_safety, nsfw_vit or m2)" >&2; exit 2 ;;
+            "scorers, grounding_dino_tiny, easyocr, checkers, pickscore, hpsv2, sd_safety, nsfw_vit, m2," \
+            "qwen3vl8b or judge)" >&2; exit 2 ;;
   esac
 done
 
