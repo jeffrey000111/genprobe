@@ -1,0 +1,127 @@
+{
+  "tag": "test_r1",
+  "round": "test",
+  "created_at": "2026-10-20T05:55:18.020+00:00",
+  "git_commit": "c266102",
+  "judge_version": "vllm==0.32.0/qwen3-vl-8b@0c351dd/bf16/img1024/tmpl-b9e98ed8",
+  "records": 16620,
+  "requests": {
+    "abs/greedy/grey": 500,
+    "abs/greedy/mismatch": 500,
+    "abs/greedy/real": 9120,
+    "abs/sample/real": 500,
+    "pair/greedy/pair": 2000,
+    "pair/sample/pair": 1000
+  },
+  "generate_seconds": 1750.0,
+  "parsing": {
+    "abs": {
+      "answers": 11620,
+      "json_ok": 0.9976764199655765,
+      "unreadable": 27,
+      "truncated": 27
+    },
+    "pair": {
+      "answers": 5000,
+      "json_ok": 0.9992,
+      "unreadable": 4,
+      "truncated": 4
+    }
+  },
+  "score_distribution": {
+    "1": 2325,
+    "2": 2007,
+    "3": 671,
+    "4": 714,
+    "5": 3377,
+    "None": 26
+  },
+  "absolute_vs_people": {
+    "judge score (1-5)": {
+      "agreement": 0.6732946213854185,
+      "ci": [
+        0.6641990578962943,
+        0.6820339718174807
+      ],
+      "pairs": 17049,
+      "n_prompts": 1479
+    },
+    "judge expected score": {
+      "agreement": 0.7121825326998651,
+      "ci": [
+        0.7014030330636042,
+        0.7226774474334753
+      ],
+      "pairs": 17049,
+      "n_prompts": 1479
+    },
+    "vqascore (reference)": {
+      "agreement": 0.7323270586864037,
+      "ci": [
+        0.7222508808709205,
+        0.742275554327477
+      ],
+      "pairs": 17159,
+      "n_prompts": 1479
+    }
+  },
+  "pairwise_vs_people": {
+    "value": 0.6465,
+    "ci": [
+      0.6239846045952444,
+      0.6676906548513796
+    ],
+    "n": 1000,
+    "n_prompts": 733,
+    "pick_rate": 0.505
+  },
+  "order_agreement": {
+    "value": 0.652,
+    "ci": [
+      0.6215386787125917,
+      0.683073302408981
+    ],
+    "n": 1000,
+    "n_prompts": 733
+  },
+  "position_bias": {
+    "value": 0.5814696485623003,
+    "ci": [
+      0.5622206336014706,
+      0.6009028248048968
+    ],
+    "n": 1565,
+    "n_prompts": 639,
+    "verdict": "supported",
+    "h3_pairs_complete": true
+  },
+  "consistency": {
+    "abs": {
+      "items": 500,
+      "samples_all_equal": 0.594,
+      "sample_majority_equals_greedy": 0.744,
+      "mean_sd_of_samples": 0.32610910617970373
+    },
+    "pair": {
+      "items": 1000,
+      "samples_all_equal": 0.694,
+      "sample_majority_equals_greedy": 0.869
+    }
+  },
+  "blind_test": {
+    "grey": {
+      "images": 498,
+      "mean_score_real": 3.1967871485943773,
+      "mean_score_grey": 1.0080321285140563,
+      "share_real_higher": 0.8805220883534136,
+      "share_real_higher_expected": 0.9919678714859438
+    },
+    "mismatch": {
+      "images": 498,
+      "mean_score_real": 3.1967871485943773,
+      "mean_score_mismatch": 1.034136546184739,
+      "share_real_higher": 0.8775100401606426,
+      "share_real_higher_expected": 0.9899598393574297
+    }
+  }
+}
