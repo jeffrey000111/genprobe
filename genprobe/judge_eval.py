@@ -34,7 +34,7 @@ from typing import Any
 import numpy as np
 
 from .judge import Bench, h3_pairs, load_bench, round_prompts
-from .meta_eval import agreement, load_metric_scores
+from .meta_eval import agreement, difference, load_metric_scores
 from .summarize import N_BOOT
 from .utils.env import git_commit, now_iso
 from .utils.io import atomic_write_text
@@ -217,6 +217,10 @@ def run(tag: str, rnd: str, data: str = "data", out_root: str = "results/judge",
     res["absolute_vs_people"] = {name: _flat(agreement(bench.pairs, pids, sc, n_boot))
                                  for name, sc in (("judge score (1-5)", judge_int), ("judge expected score", judge_exp),
                                                   ("vqascore (reference)", vqa)) if sc}
+    if judge_exp and vqa:     # exploratory (added after the test round): same pairs, paired bootstrap
+        d = difference(bench.pairs, pids, judge_exp, vqa, n_boot)
+        res["judge_minus_vqascore"] = {k: d[k] for k in ("difference", "ci", "agreement_a", "agreement_b", "pairs",
+                                                          "n_prompts")}
     dec = pair_decisions(pair_recs)
     res["pairwise_vs_people"] = _flat2(pairwise_agreement(dec, n_boot))
     res["pairwise_vs_people"]["pick_rate"] = float(np.mean([d["pick"] is not None for d in dec.values()])) if dec else math.nan
@@ -295,6 +299,11 @@ def render(res: dict) -> str:
         "| Scorer | Agreement | CI | Pairs |", "| --- | --- | --- | --- |"]
     for name, a in res["absolute_vs_people"].items():
         L.append(f"| {name} | {_f(a['agreement'])} | [{_f(a['ci'][0])}, {_f(a['ci'][1])}] | {a['pairs']} |")
+    jd = res.get("judge_minus_vqascore")
+    if jd:
+        L += ["", f"Paired on the same {jd['pairs']} pairs (exploratory): judge expected score "
+                  f"{_f(jd['agreement_a'])} − VQAScore {_f(jd['agreement_b'])} = {_f(jd['difference'])} "
+                  f"[{_f(jd['ci'][0])}, {_f(jd['ci'][1])}]."]
     pw, oa, pb = res["pairwise_vs_people"], res["order_agreement"], res["position_bias"]
     L += ["", "## Pairwise verdicts", "",
           f"- Agreement with people: {_f(pw['value'])} [{_f(pw['ci'][0])}, {_f(pw['ci'][1])}] over {pw['n']} pairs "

@@ -146,6 +146,7 @@ class TestPlan(unittest.TestCase):
         self.assertEqual(a["judge score (1-5)"]["agreement"], 1.0)            # orders like people
         self.assertEqual(a["judge expected score"]["agreement"], 1.0)
         self.assertNotIn("vqascore (reference)", a)                             # no scores in the fake data dir
+        self.assertNotIn("judge_minus_vqascore", res)
         self.assertEqual(res["position_bias"]["value"], 1.0)                    # always "1"
         self.assertEqual(res["position_bias"]["verdict"], "supported")
         self.assertEqual(res["order_agreement"]["value"], 0.0)                  # never the same image twice
