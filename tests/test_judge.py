@@ -80,6 +80,9 @@ class TestPieces(unittest.TestCase):
         self.assertEqual(judge.parse_abs('{"issues": [], "score": 4, "x'), (4, [], False))
         self.assertEqual(judge.parse_pair('{"reason": "r", "better": "2"}'), ("second", "r", True))
         self.assertEqual(judge.parse_pair('{"reason": "r", "better": "same"}')[0], "same")
+        v, why, ok = judge.parse_pair('{"issues_1": ["no cat"], "issues_2": [], "better": "2"}')
+        self.assertEqual((v, ok), ("second", True))
+        self.assertEqual(json.loads(why), {"issues_1": ["no cat"], "issues_2": []})
         self.assertEqual(judge.parse_pair('{"reason": "cut'), (None, "", False))
 
 
@@ -150,6 +153,7 @@ class TestPlan(unittest.TestCase):
         self.assertIn("dev round: descriptive only", (self.d / "res" / "t1" / "summary.md").read_text())
         self.assertEqual(res["examples"]["counts"]["absolute"], 0)              # fake judge orders like people
         self.assertEqual(res["examples"]["counts"]["pairwise"], 0)              # it never picks consistently
+        self.assertEqual(res["examples"]["counts"]["grey_scored_3_plus"], 0)    # fake grey images score 1
 
 
 if __name__ == "__main__":

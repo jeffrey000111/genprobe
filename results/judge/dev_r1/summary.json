@@ -1,0 +1,358 @@
+{
+  "tag": "dev_r1",
+  "round": "dev",
+  "created_at": "2026-10-20T03:28:59.660+00:00",
+  "git_commit": "596f309",
+  "judge_version": "vllm==0.32.0/qwen3-vl-8b@0c351dd/bf16/img1024/tmpl-51cfbc75",
+  "records": 7575,
+  "requests": {
+    "abs/greedy/grey": 480,
+    "abs/greedy/mismatch": 480,
+    "abs/greedy/real": 480,
+    "abs/sample/real": 480,
+    "pair/greedy/pair": 1878,
+    "pair/sample/pair": 939
+  },
+  "generate_seconds": 526.4,
+  "parsing": {
+    "abs": {
+      "answers": 2880,
+      "json_ok": 0.9996527777777777,
+      "unreadable": 1,
+      "truncated": 1
+    },
+    "pair": {
+      "answers": 4695,
+      "json_ok": 0.9987220447284345,
+      "unreadable": 6,
+      "truncated": 6
+    }
+  },
+  "score_distribution": {
+    "1": 59,
+    "2": 158,
+    "3": 130,
+    "4": 13,
+    "5": 120
+  },
+  "absolute_vs_people": {
+    "judge score (1-5)": {
+      "agreement": 0.6554845580404686,
+      "ci": [
+        0.6217424830710337,
+        0.6896969879355284
+      ],
+      "pairs": 939,
+      "n_prompts": 79
+    },
+    "judge expected score": {
+      "agreement": 0.7050053248136315,
+      "ci": [
+        0.6599763536691062,
+        0.75
+      ],
+      "pairs": 939,
+      "n_prompts": 79
+    },
+    "vqascore (reference)": {
+      "agreement": 0.7369542066027689,
+      "ci": [
+        0.6935787847922618,
+        0.7809734513274337
+      ],
+      "pairs": 939,
+      "n_prompts": 79
+    }
+  },
+  "pairwise_vs_people": {
+    "value": 0.6602768903088392,
+    "ci": [
+      0.6284478783292319,
+      0.6930220642841695
+    ],
+    "n": 939,
+    "n_prompts": 79,
+    "pick_rate": 0.5335463258785943
+  },
+  "order_agreement": {
+    "value": 0.6656017039403621,
+    "ci": [
+      0.625529936801396,
+      0.7080155457323405
+    ],
+    "n": 939,
+    "n_prompts": 79
+  },
+  "position_bias": {
+    "value": 0.5667324128862591,
+    "ci": [
+      0.5327975837777339,
+      0.6015967648032512
+    ],
+    "n": 1521,
+    "n_prompts": 76,
+    "verdict": "supported"
+  },
+  "consistency": {
+    "abs": {
+      "items": 480,
+      "samples_all_equal": 0.65625,
+      "sample_majority_equals_greedy": 0.8645833333333334,
+      "mean_sd_of_samples": 0.22009045955879966
+    },
+    "pair": {
+      "items": 939,
+      "samples_all_equal": 0.7018104366347178,
+      "sample_majority_equals_greedy": 0.8807241746538871
+    }
+  },
+  "blind_test": {
+    "grey": {
+      "images": 480,
+      "mean_score_real": 2.9520833333333334,
+      "mean_score_grey": 3.175,
+      "share_real_higher": 0.496875,
+      "share_real_higher_expected": 0.5770833333333333
+    },
+    "mismatch": {
+      "images": 480,
+      "mean_score_real": 2.9520833333333334,
+      "mean_score_mismatch": 1.0,
+      "share_real_higher": 0.9385416666666667,
+      "share_real_higher_expected": 0.9916666666666667
+    }
+  },
+  "examples": {
+    "absolute": [
+      {
+        "prompt": "The girl with glasses is drawing, and the girl without glasses is singing.",
+        "gap": 3.0,
+        "people_prefer": {
+          "model": "DALLE_3",
+          "mean": 5.0,
+          "judge": 2,
+          "issues": [
+            "The girl without glasses is not singing; she is screaming into a microphone",
+            "The girl with glasses is not drawing; she is sketching a face with musical notes"
+          ]
+        },
+        "other": {
+          "model": "DeepFloyd_I_XL_v1",
+          "mean": 2.0,
+          "judge": 3,
+          "issues": [
+            "The girl without glasses is not singing; she is also drawing"
+          ]
+        }
+      },
+      {
+        "prompt": "A starry night sky with more visible stars than the number of lights in the city below.",
+        "gap": 2.666666666666667,
+        "people_prefer": {
+          "model": "SDXL_2_1",
+          "mean": 4.666666666666667,
+          "judge": 3,
+          "issues": [
+            "Cannot verify exact count of stars vs city lights",
+            "Cannot verify 'more visible stars than the number of lights' as counts are not discernible"
+          ]
+        },
+        "other": {
+          "model": "DALLE_3",
+          "mean": 2.0,
+          "judge": 4,
+          "issues": [
+            "Cannot verify exact count of stars vs city lights",
+            "Cannot verify if more stars are visible than lights in city"
+          ]
+        }
+      },
+      {
+        "prompt": "Three vintage cars parked in a row, each a different color.",
+        "gap": 2.6666666666666665,
+        "people_prefer": {
+          "model": "DALLE_3",
+          "mean": 5.0,
+          "judge": 3,
+          "issues": [
+            "More than three vintage cars are visible",
+            "The cars are not all in a single row",
+            "The prompt does not specify colors, but the cars are different colors, which is fine, but the image shows many colors, not just three"
+          ]
+        },
+        "other": {
+          "model": "SDXL_Turbo",
+          "mean": 2.3333333333333335,
+          "judge": 5,
+          "issues": []
+        }
+      },
+      {
+        "prompt": "A monkey is stealing apples from a tourist's basket. The number of apples in the monkey's arms is less than the number of apples in the basket.",
+        "gap": 2.3333333333333335,
+        "people_prefer": {
+          "model": "DALLE_3",
+          "mean": 5.0,
+          "judge": 2,
+          "issues": [
+            "The monkey is not stealing apples from a tourist's basket; it is holding a basket of apples while another basket sits nearby",
+            "The monkey is holding a basket, not apples in its arms",
+            "The number of apples in the monkey's arms is not less than the number in the basket, since it is holding a basket of apples"
+          ]
+        },
+        "other": {
+          "model": "SDXL_Turbo",
+          "mean": 2.6666666666666665,
+          "judge": 3,
+          "issues": [
+            "The monkey is not stealing apples from a tourist's basket; it is interacting with a basket of apples, but no tourist is visible",
+            "The monkey has no apples in its arms",
+            "The prompt requires a comparison of counts, but the monkey has zero apples in arms and the basket has many, so the comparison holds, but the absence of apples in arms is a key unmet requirement"
+          ]
+        }
+      },
+      {
+        "prompt": "Three vintage cars parked in a row, each a different color.",
+        "gap": 2.3333333333333335,
+        "people_prefer": {
+          "model": "DALLE_3",
+          "mean": 5.0,
+          "judge": 3,
+          "issues": [
+            "More than three vintage cars are visible",
+            "The cars are not all in a single row",
+            "The prompt does not specify colors, but the cars are different colors, which is fine, but the image shows many colors, not just three"
+          ]
+        },
+        "other": {
+          "model": "SDXL_2_1",
+          "mean": 2.6666666666666665,
+          "judge": 5,
+          "issues": []
+        }
+      },
+      {
+        "prompt": "A monkey is stealing apples from a tourist's basket. The number of apples in the monkey's arms is less than the number of apples in the basket.",
+        "gap": 2.0000000000000004,
+        "people_prefer": {
+          "model": "Midjourney_6",
+          "mean": 4.666666666666667,
+          "judge": 2,
+          "issues": [
+            "The monkey is not stealing apples; it is holding one apple and sitting beside a basket full of apples",
+            "The monkey is not interacting with a tourist's basket; the basket is just in front of it"
+          ]
+        },
+        "other": {
+          "model": "SDXL_Turbo",
+          "mean": 2.6666666666666665,
+          "judge": 3,
+          "issues": [
+            "The monkey is not stealing apples from a tourist's basket; it is interacting with a basket of apples, but no tourist is visible",
+            "The monkey has no apples in its arms",
+            "The prompt requires a comparison of counts, but the monkey has zero apples in arms and the basket has many, so the comparison holds, but the absence of apples in arms is a key unmet requirement"
+          ]
+        }
+      },
+      {
+        "prompt": "A starry night sky with more visible stars than the number of lights in the city below.",
+        "gap": 2.0000000000000004,
+        "people_prefer": {
+          "model": "SDXL_2_1",
+          "mean": 4.666666666666667,
+          "judge": 3,
+          "issues": [
+            "Cannot verify exact count of stars vs city lights",
+            "Cannot verify 'more visible stars than the number of lights' as counts are not discernible"
+          ]
+        },
+        "other": {
+          "model": "SDXL_Base",
+          "mean": 2.6666666666666665,
+          "judge": 4,
+          "issues": [
+            "Cannot verify exact count of stars vs. lights due to image resolution and lack of precise enumeration"
+          ]
+        }
+      },
+      {
+        "prompt": "The sun illuminates the garden, a shovel sticks in the soil, and gloves lay on the bench.",
+        "gap": 2.0000000000000004,
+        "people_prefer": {
+          "model": "DALLE_3",
+          "mean": 4.666666666666667,
+          "judge": 2,
+          "issues": [
+            "no shovel is sticking in the soil",
+            "gloves are not on the bench, they are on the wooden surface next to the tools",
+            "the shovel is not sticking in the soil, it is resting on the soil"
+          ]
+        },
+        "other": {
+          "model": "DeepFloyd_I_XL_v1",
+          "mean": 2.6666666666666665,
+          "judge": 3,
+          "issues": [
+            "shovel is not stuck in soil",
+            "gloves are on a bench, not in the soil",
+            "sun is illuminating the scene but not clearly shown as 'illuminating the garden'"
+          ]
+        }
+      }
+    ],
+    "pairwise": [
+      {
+        "prompt": "A starry night sky with more visible stars than the number of lights in the city below.",
+        "gap": 3.0,
+        "people_prefer": "SDXL_Turbo (4.67)",
+        "judge_picks": "DeepFloyd_I_XL_v1 (1.67)"
+      },
+      {
+        "prompt": "A starry night sky with more visible stars than the number of lights in the city below.",
+        "gap": 2.666666666666667,
+        "people_prefer": "Midjourney_6 (4.67)",
+        "judge_picks": "DALLE_3 (2.00)"
+      },
+      {
+        "prompt": "A starry night sky with more visible stars than the number of lights in the city below.",
+        "gap": 2.666666666666667,
+        "people_prefer": "SDXL_2_1 (4.67)",
+        "judge_picks": "DALLE_3 (2.00)"
+      },
+      {
+        "prompt": "A starry night sky with more visible stars than the number of lights in the city below.",
+        "gap": 2.666666666666667,
+        "people_prefer": "SDXL_Turbo (4.67)",
+        "judge_picks": "DALLE_3 (2.00)"
+      },
+      {
+        "prompt": "Some balls are on the table and on the floor, and the number of balls on the table is more than the number of balls on the floor.",
+        "gap": 2.6666666666666665,
+        "people_prefer": "Midjourney_6 (3.67)",
+        "judge_picks": "DeepFloyd_I_XL_v1 (1.00)"
+      },
+      {
+        "prompt": "A vintage car show with more convertibles than sedans.",
+        "gap": 2.3333333333333335,
+        "people_prefer": "DeepFloyd_I_XL_v1 (4.67)",
+        "judge_picks": "Midjourney_6 (2.33)"
+      },
+      {
+        "prompt": "The sun illuminates the garden, a shovel sticks in the soil, and gloves lay on the bench.",
+        "gap": 2.0000000000000004,
+        "people_prefer": "DALLE_3 (4.67)",
+        "judge_picks": "SDXL_Base (2.67)"
+      },
+      {
+        "prompt": "A girl in a smart blazer using a globe to explain continents to a girl in a school uniform and backpack.",
+        "gap": 2.0,
+        "people_prefer": "DALLE_3 (5.00)",
+        "judge_picks": "DeepFloyd_I_XL_v1 (3.00)"
+      }
+    ],
+    "counts": {
+      "absolute": 11,
+      "pairwise": 9
+    }
+  }
+}

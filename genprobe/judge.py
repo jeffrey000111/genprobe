@@ -59,33 +59,41 @@ GREY = (128, 128, 128)
 
 # ---------- prompts (the rubric is iterated on dev only; its hash goes into the version) ----------
 
+# Rubric r2 (dev_r1 -> r2, D-028 revision): the judge treated what it could not see as fine (a grey
+# image scored higher than the real one, issues like "cannot verify ..."), listed non-problems as
+# issues, almost never used 4, and in pairs often flipped with the order. So: what can't be seen is
+# unmet; quantities too large to count are judged by eye; only real problems are listed; the scale
+# is anchored on how much of the prompt is met; pairs list each image's problems before the verdict.
 CHECKS = ("every object it mentions is present; counts are exact; colours, shapes, materials and other "
           "attributes belong to the right objects; spatial relations (left/right, above/below, in front/"
           "behind, inside) and actions are as described; negations (\"no\", \"without\") are respected; "
           "comparisons (bigger, more, same) hold; any requested text is spelled correctly")
+RULES = ("A requirement is met only if you can actually see it in the image; anything you cannot see "
+         "counts as not met. Quantities too large to count exactly (stars, crowds) are judged by eye, as a "
+         "typical viewer would. Extra details that don't contradict the prompt are fine. Ignore image "
+         "quality and artistic style unless the prompt asks for them.")
 
 ABS_TEMPLATE = (
     "You are checking whether an AI-generated image matches its text prompt.\n\n"
     "Prompt: {prompt}\n\n"
-    "Check every requirement of the prompt: " + CHECKS + ". Ignore image quality and artistic style "
-    "unless the prompt asks for them.\n\n"
+    "Check every requirement of the prompt: " + CHECKS + ". " + RULES + "\n\n"
     "Then score the match:\n"
     "5 = every requirement is met\n"
-    "4 = only a minor detail is off\n"
-    "3 = some requirements are met, but at least one important one is not\n"
-    "2 = most requirements are not met\n"
-    "1 = the image has little or nothing to do with the prompt\n\n"
-    'Reply with JSON only: {{"issues": [one short phrase per unmet requirement; empty if none], '
-    '"score": 1-5}}'
+    "4 = all the main requirements are met; one minor detail is off\n"
+    "3 = about half of the requirements are met\n"
+    "2 = only a few requirements are met\n"
+    "1 = nothing or almost nothing in the prompt is shown\n\n"
+    'Reply with JSON only: {{"issues": [one short phrase per requirement that is not met; nothing that is '
+    'fine], "score": 1-5}}'
 )
 
 PAIR_TEMPLATE = (
     "Two AI-generated images for the same text prompt are shown: image 1 first, then image 2.\n\n"
     "Prompt: {prompt}\n\n"
-    "Which image matches the prompt more closely? Check every requirement: " + CHECKS + ". Ignore "
-    "image quality and artistic style unless the prompt asks for them. Answer \"same\" only if both "
-    "match equally well or equally badly.\n\n"
-    'Reply with JSON only: {{"reason": one short sentence, "better": "1", "2" or "same"}}'
+    "For each image, list the requirements of the prompt it does not meet. Check: " + CHECKS + ". " + RULES +
+    "\n\nThen say which image matches the prompt more closely: the one whose unmet requirements are fewer "
+    "or less important. Answer \"same\" only if both match equally well or equally badly.\n\n"
+    'Reply with JSON only: {{"issues_1": [...], "issues_2": [...], "better": "1", "2" or "same"}}'
 )
 
 ABS_SCHEMA = {"type": "object", "properties": {
@@ -93,9 +101,11 @@ ABS_SCHEMA = {"type": "object", "properties": {
     "score": {"type": "integer", "minimum": 1, "maximum": 5}},
     "required": ["issues", "score"], "additionalProperties": False}
 PAIR_SCHEMA = {"type": "object", "properties": {
-    "reason": {"type": "string"}, "better": {"type": "string", "enum": ["1", "2", "same"]}},
-    "required": ["reason", "better"], "additionalProperties": False}
-MAX_TOKENS = {"abs": 320, "pair": 160}
+    "issues_1": {"type": "array", "items": {"type": "string"}, "maxItems": 6},
+    "issues_2": {"type": "array", "items": {"type": "string"}, "maxItems": 6},
+    "better": {"type": "string", "enum": ["1", "2", "same"]}},
+    "required": ["issues_1", "issues_2", "better"], "additionalProperties": False}
+MAX_TOKENS = {"abs": 320, "pair": 480}
 
 
 def template_id() -> str:
@@ -258,7 +268,9 @@ def parse_pair(text: str) -> tuple[str | None, str, bool]:
         d = json.loads(text)
         b = str(d.get("better", "")).strip().lower()
         if b in names:
-            return names[b], str(d.get("reason", "")), True
+            reason = d["reason"] if "reason" in d else json.dumps(
+                {"issues_1": d.get("issues_1", []), "issues_2": d.get("issues_2", [])}, ensure_ascii=False)
+            return names[b], str(reason), True
     except (json.JSONDecodeError, AttributeError):
         pass
     m = re.search(r'"better"\s*:\s*"(1|2|same)"', text, re.I)

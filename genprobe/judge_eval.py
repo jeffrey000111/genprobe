@@ -156,7 +156,7 @@ def blind_test(abs_recs: list[dict]) -> dict[str, Any]:
 
 
 def dev_examples(bench: Bench, pids: list[str], real: list[dict], dec: dict[str, dict], k: int = 8,
-                 min_gap: float = 2.0) -> dict[str, list[dict]]:
+                 min_gap: float = 2.0, abs_recs: list[dict] | None = None) -> dict[str, list[dict]]:
     """Clear disagreements with people (mean ratings at least min_gap apart): absolute scores in the
     wrong order, and pairwise picks of the worse image in both orders."""
     by = {r["sample_id"]: r for r in real}
@@ -181,8 +181,11 @@ def dev_examples(bench: Bench, pids: list[str], real: list[dict], dec: dict[str,
                              "people_prefer": f"{model(better)} ({m[better]:.2f})",
                              "judge_picks": f"{model(worse)} ({m[worse]:.2f})"})
     key = lambda e: (-e["gap"], e["prompt"])  # noqa: E731
-    return {"absolute": sorted(absolute, key=key)[:k], "pairwise": sorted(pairwise, key=key)[:k],
-            "counts": {"absolute": len(absolute), "pairwise": len(pairwise)}}
+    grey = sorted(({"prompt": bench.prompts[r["prompt_id"]].prompt, "score": r["score"], "issues": r.get("issues")}
+                   for r in abs_recs or [] if r["mode"] == "greedy" and r.get("variant") == "grey"
+                   and (r.get("score") or 0) >= 3), key=lambda e: (-e["score"], e["prompt"]))
+    return {"absolute": sorted(absolute, key=key)[:k], "pairwise": sorted(pairwise, key=key)[:k], "grey": grey[:k],
+            "counts": {"absolute": len(absolute), "pairwise": len(pairwise), "grey_scored_3_plus": len(grey)}}
 
 
 def run(tag: str, rnd: str, data: str = "data", out_root: str = "results/judge", bench: Bench | None = None,
@@ -225,7 +228,7 @@ def run(tag: str, rnd: str, data: str = "data", out_root: str = "results/judge",
     res["consistency"] = consistency(recs)
     res["blind_test"] = blind_test(abs_recs)
     if rnd == "dev":                      # failure cases to iterate the rubric on; never shown for test
-        res["examples"] = dev_examples(bench, pids, real, dec)
+        res["examples"] = dev_examples(bench, pids, real, dec, abs_recs=abs_recs)
 
     out = Path(out_root) / tag
     out.mkdir(parents=True, exist_ok=True)
@@ -327,6 +330,10 @@ def render(res: dict) -> str:
         for e in ex["pairwise"]:
             L.append(f"- pairwise, {json.dumps(e['prompt'], ensure_ascii=False)}: people prefer {e['people_prefer']}, "
                      f"the judge picks {e['judge_picks']} in both orders")
+        if ex.get("grey"):
+            L += ["", f"Grey images scored 3 or more: {ex['counts']['grey_scored_3_plus']}. Examples:", ""]
+            for e in ex["grey"]:
+                L.append(f"- {json.dumps(e['prompt'], ensure_ascii=False)}: score {e['score']}; issues {e['issues']}")
     return "\n".join(L) + "\n"
 
 

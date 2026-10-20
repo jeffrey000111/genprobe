@@ -430,3 +430,15 @@ disagreements with people to learn from. Test = the other 1,520 prompts: all 9,1
 images (seed 0) and on those pairs. The test round runs once, with the rubric frozen;
 `genprobe.judge` refuses to overwrite a test tag.
 
+*D-028 revision 1 (2026-10-19, after dev round `dev_r1`, rubric r1 = template `51cfbc75`).* On the
+80 dev prompts the judge agreed with people on 0.655 of pairs by integer score, 0.705 by expected
+score (VQAScore 0.737 on the same 939 pairs), and 0.660 pairwise, with a consistent pick in only
+53 % of pairs and 0.567 of image-picking verdicts going to the image shown first. Scores were
+bimodal (4 used for 3 % of images). Worst: grey images scored higher than the real ones (mean 3.17
+vs 2.95), with issues like "cannot verify ..."; another prompt's image scored 1.00. Rubric r2
+(`results/judge/dev_r1/summary.md` lists the failures it responds to): what cannot be seen counts as
+unmet; quantities too large to count are judged by eye; only unmet requirements are listed; the
+scale is anchored on how much of the prompt is met; in pairs, each image's unmet requirements are
+listed before the verdict. Because r2 was written after seeing the grey-image failure on dev, the
+dev blind test is no longer a clean check of r2; the test round's blind test is.
+
