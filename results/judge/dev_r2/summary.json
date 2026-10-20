@@ -1,0 +1,397 @@
+{
+  "tag": "dev_r2",
+  "round": "dev",
+  "created_at": "2026-10-20T04:15:19.442+00:00",
+  "git_commit": "1fc0a2f",
+  "judge_version": "vllm==0.32.0/qwen3-vl-8b@0c351dd/bf16/img1024/tmpl-1c6bef16",
+  "records": 7575,
+  "requests": {
+    "abs/greedy/grey": 480,
+    "abs/greedy/mismatch": 480,
+    "abs/greedy/real": 480,
+    "abs/sample/real": 480,
+    "pair/greedy/pair": 1878,
+    "pair/sample/pair": 939
+  },
+  "generate_seconds": 644.6,
+  "parsing": {
+    "abs": {
+      "answers": 2880,
+      "json_ok": 0.9986111111111111,
+      "unreadable": 4,
+      "truncated": 4
+    },
+    "pair": {
+      "answers": 4695,
+      "json_ok": 0.9682641107561235,
+      "unreadable": 149,
+      "truncated": 149
+    }
+  },
+  "score_distribution": {
+    "1": 140,
+    "2": 125,
+    "3": 25,
+    "4": 31,
+    "5": 158,
+    "None": 1
+  },
+  "absolute_vs_people": {
+    "judge score (1-5)": {
+      "agreement": 0.6588235294117647,
+      "ci": [
+        0.6197399558405612,
+        0.6954167925443776
+      ],
+      "pairs": 935,
+      "n_prompts": 79
+    },
+    "judge expected score": {
+      "agreement": 0.7090909090909091,
+      "ci": [
+        0.6645018108253402,
+        0.7530380519299191
+      ],
+      "pairs": 935,
+      "n_prompts": 79
+    },
+    "vqascore (reference)": {
+      "agreement": 0.7369542066027689,
+      "ci": [
+        0.6935787847922618,
+        0.7809734513274337
+      ],
+      "pairs": 939,
+      "n_prompts": 79
+    }
+  },
+  "pairwise_vs_people": {
+    "value": 0.5591054313099042,
+    "ci": [
+      0.5345001469088355,
+      0.5827225130890052
+    ],
+    "n": 939,
+    "n_prompts": 79,
+    "pick_rate": 0.288604898828541
+  },
+  "order_agreement": {
+    "value": 0.4909478168264111,
+    "ci": [
+      0.4480620253500095,
+      0.5317392849644924
+    ],
+    "n": 939,
+    "n_prompts": 79
+  },
+  "position_bias": {
+    "value": 0.46808510638297873,
+    "ci": [
+      0.43737268851515704,
+      0.5004725828424613
+    ],
+    "n": 1128,
+    "n_prompts": 76,
+    "verdict": "inconclusive"
+  },
+  "consistency": {
+    "abs": {
+      "items": 480,
+      "samples_all_equal": 0.6666666666666666,
+      "sample_majority_equals_greedy": 0.84375,
+      "mean_sd_of_samples": 0.2904498428622972
+    },
+    "pair": {
+      "items": 939,
+      "samples_all_equal": 0.4281150159744409,
+      "sample_majority_equals_greedy": 0.6645367412140575
+    }
+  },
+  "blind_test": {
+    "grey": {
+      "images": 479,
+      "mean_score_real": 2.8789144050104385,
+      "mean_score_grey": 3.012526096033403,
+      "share_real_higher": 0.5104384133611691,
+      "share_real_higher_expected": 0.6576200417536534
+    },
+    "mismatch": {
+      "images": 479,
+      "mean_score_real": 2.8789144050104385,
+      "mean_score_mismatch": 1.0083507306889352,
+      "share_real_higher": 0.8517745302713987,
+      "share_real_higher_expected": 0.9686847599164927
+    }
+  },
+  "examples": {
+    "absolute": [
+      {
+        "prompt": "A starry night sky with more visible stars than the number of lights in the city below.",
+        "gap": 3.0,
+        "people_prefer": {
+          "model": "SDXL_2_1",
+          "mean": 4.666666666666667,
+          "judge": 3,
+          "issues": [
+            "Cannot count stars to verify 'more visible stars than the number of lights'",
+            "Cannot verify if stars are 'more' than lights as both are too numerous to count exactly"
+          ]
+        },
+        "other": {
+          "model": "DeepFloyd_I_XL_v1",
+          "mean": 1.6666666666666667,
+          "judge": 4,
+          "issues": [
+            "Cannot verify if more stars are visible than city lights due to image resolution and lack of exact count"
+          ]
+        }
+      },
+      {
+        "prompt": "A starry night sky with more visible stars than the number of lights in the city below.",
+        "gap": 3.0,
+        "people_prefer": {
+          "model": "SDXL_Turbo",
+          "mean": 4.666666666666667,
+          "judge": 3,
+          "issues": [
+            "Cannot verify if number of visible stars is more than number of lights in city",
+            "Cannot verify if stars are more than lights due to image resolution and scale"
+          ]
+        },
+        "other": {
+          "model": "DeepFloyd_I_XL_v1",
+          "mean": 1.6666666666666667,
+          "judge": 4,
+          "issues": [
+            "Cannot verify if more stars are visible than city lights due to image resolution and lack of exact count"
+          ]
+        }
+      },
+      {
+        "prompt": "A vintage car show with more convertibles than sedans.",
+        "gap": 3.0,
+        "people_prefer": {
+          "model": "DeepFloyd_I_XL_v1",
+          "mean": 4.666666666666667,
+          "judge": 3,
+          "issues": [
+            "No exact count of convertibles vs sedans is visible to confirm 'more convertibles than sedans'",
+            "The text '189' on the car is not clearly readable as '189' in the image",
+            "The text on the sign is not clearly readable as 'HISTORIC CARS'"
+          ]
+        },
+        "other": {
+          "model": "SDXL_Turbo",
+          "mean": 1.6666666666666667,
+          "judge": 4,
+          "issues": [
+            "Not enough convertibles to clearly satisfy 'more convertibles than sedans'"
+          ]
+        }
+      },
+      {
+        "prompt": "A starry night sky with more visible stars than the number of lights in the city below.",
+        "gap": 2.666666666666667,
+        "people_prefer": {
+          "model": "SDXL_2_1",
+          "mean": 4.666666666666667,
+          "judge": 3,
+          "issues": [
+            "Cannot count stars to verify 'more visible stars than the number of lights'",
+            "Cannot verify if stars are 'more' than lights as both are too numerous to count exactly"
+          ]
+        },
+        "other": {
+          "model": "DALLE_3",
+          "mean": 2.0,
+          "judge": 5,
+          "issues": []
+        }
+      },
+      {
+        "prompt": "A starry night sky with more visible stars than the number of lights in the city below.",
+        "gap": 2.666666666666667,
+        "people_prefer": {
+          "model": "SDXL_Turbo",
+          "mean": 4.666666666666667,
+          "judge": 3,
+          "issues": [
+            "Cannot verify if number of visible stars is more than number of lights in city",
+            "Cannot verify if stars are more than lights due to image resolution and scale"
+          ]
+        },
+        "other": {
+          "model": "DALLE_3",
+          "mean": 2.0,
+          "judge": 5,
+          "issues": []
+        }
+      },
+      {
+        "prompt": "A vintage car show with more convertibles than sedans.",
+        "gap": 2.666666666666667,
+        "people_prefer": {
+          "model": "DeepFloyd_I_XL_v1",
+          "mean": 4.666666666666667,
+          "judge": 3,
+          "issues": [
+            "No exact count of convertibles vs sedans is visible to confirm 'more convertibles than sedans'",
+            "The text '189' on the car is not clearly readable as '189' in the image",
+            "The text on the sign is not clearly readable as 'HISTORIC CARS'"
+          ]
+        },
+        "other": {
+          "model": "SDXL_Base",
+          "mean": 2.0,
+          "judge": 4,
+          "issues": [
+            "Not enough convertibles to confirm 'more convertibles than sedans'"
+          ]
+        }
+      },
+      {
+        "prompt": "A monkey is stealing apples from a tourist's basket. The number of apples in the monkey's arms is less than the number of apples in the basket.",
+        "gap": 2.3333333333333335,
+        "people_prefer": {
+          "model": "DALLE_3",
+          "mean": 5.0,
+          "judge": 1,
+          "issues": [
+            "The monkey is not stealing from a tourist's basket; the basket is not clearly associated with a tourist",
+            "The monkey is holding a basket, not apples in its arms",
+            "The number of apples in the monkey's arms is not less than the number in the basket (it's holding a basket, not apples)"
+          ]
+        },
+        "other": {
+          "model": "SDXL_Turbo",
+          "mean": 2.6666666666666665,
+          "judge": 2,
+          "issues": [
+            "The monkey is not stealing apples; it is sitting beside the basket and appears to be selecting one apple",
+            "The monkey has no apples in its arms",
+            "The number of apples in the monkey's arms is not less than the number in the basket because there are zero in its arms"
+          ]
+        }
+      },
+      {
+        "prompt": "A vintage car show with more convertibles than sedans.",
+        "gap": 2.3333333333333335,
+        "people_prefer": {
+          "model": "DeepFloyd_I_XL_v1",
+          "mean": 4.666666666666667,
+          "judge": 3,
+          "issues": [
+            "No exact count of convertibles vs sedans is visible to confirm 'more convertibles than sedans'",
+            "The text '189' on the car is not clearly readable as '189' in the image",
+            "The text on the sign is not clearly readable as 'HISTORIC CARS'"
+          ]
+        },
+        "other": {
+          "model": "Midjourney_6",
+          "mean": 2.3333333333333335,
+          "judge": 4,
+          "issues": [
+            "No sedans are visible, but the prompt requires 'more convertibles than sedans' \u2014 since no sedans are present, the comparison cannot be verified as 'more'"
+          ]
+        }
+      }
+    ],
+    "pairwise": [
+      {
+        "prompt": "A swan with a silver anklet on a crystal lake.",
+        "gap": 3.0,
+        "people_prefer": "DALLE_3 (4.67)",
+        "judge_picks": "SDXL_Base (1.67)"
+      },
+      {
+        "prompt": "A red fox sneaking up on two unsuspecting rabbits.",
+        "gap": 2.666666666666667,
+        "people_prefer": "DALLE_3 (4.67)",
+        "judge_picks": "SDXL_2_1 (2.00)"
+      },
+      {
+        "prompt": "Three vintage cars parked in a row, each a different color.",
+        "gap": 2.6666666666666665,
+        "people_prefer": "DALLE_3 (5.00)",
+        "judge_picks": "SDXL_Turbo (2.33)"
+      },
+      {
+        "prompt": "A vintage car show with more convertibles than sedans.",
+        "gap": 2.3333333333333335,
+        "people_prefer": "DALLE_3 (4.67)",
+        "judge_picks": "Midjourney_6 (2.33)"
+      },
+      {
+        "prompt": "A vintage car show with more convertibles than sedans.",
+        "gap": 2.3333333333333335,
+        "people_prefer": "DeepFloyd_I_XL_v1 (4.67)",
+        "judge_picks": "Midjourney_6 (2.33)"
+      },
+      {
+        "prompt": "The sun illuminates the garden, a shovel sticks in the soil, and gloves lay on the bench.",
+        "gap": 2.3333333333333335,
+        "people_prefer": "DALLE_3 (4.67)",
+        "judge_picks": "SDXL_2_1 (2.33)"
+      },
+      {
+        "prompt": "The sun illuminates the garden, a shovel sticks in the soil, and gloves lay on the bench.",
+        "gap": 2.3333333333333335,
+        "people_prefer": "DALLE_3 (4.67)",
+        "judge_picks": "SDXL_Turbo (2.33)"
+      },
+      {
+        "prompt": "A swan with a silver anklet on a crystal lake.",
+        "gap": 2.0000000000000004,
+        "people_prefer": "DALLE_3 (4.67)",
+        "judge_picks": "SDXL_Turbo (2.67)"
+      }
+    ],
+    "grey": [
+      {
+        "prompt": "A Bengal tiger in the shade looks stronger than another Bengal tiger not in the shade.",
+        "score": 5,
+        "issues": []
+      },
+      {
+        "prompt": "A Bengal tiger in the shade looks stronger than another Bengal tiger not in the shade.",
+        "score": 5,
+        "issues": []
+      },
+      {
+        "prompt": "A Bengal tiger in the shade looks stronger than another Bengal tiger not in the shade.",
+        "score": 5,
+        "issues": []
+      },
+      {
+        "prompt": "A Bengal tiger in the shade looks stronger than another Bengal tiger not in the shade.",
+        "score": 5,
+        "issues": []
+      },
+      {
+        "prompt": "A Bengal tiger in the shade looks stronger than another Bengal tiger not in the shade.",
+        "score": 5,
+        "issues": []
+      },
+      {
+        "prompt": "A black cat wearing a pink bow tie sits on the windowsill and stares into the distance.",
+        "score": 5,
+        "issues": []
+      },
+      {
+        "prompt": "A black cat wearing a pink bow tie sits on the windowsill and stares into the distance.",
+        "score": 5,
+        "issues": []
+      },
+      {
+        "prompt": "A black cat wearing a pink bow tie sits on the windowsill and stares into the distance.",
+        "score": 5,
+        "issues": []
+      }
+    ],
+    "counts": {
+      "absolute": 14,
+      "pairwise": 10,
+      "grey_scored_3_plus": 241
+    }
+  }
+}

@@ -442,3 +442,15 @@ scale is anchored on how much of the prompt is met; in pairs, each image's unmet
 listed before the verdict. Because r2 was written after seeing the grey-image failure on dev, the
 dev blind test is no longer a clean check of r2; the test round's blind test is.
 
+*D-028 revision 2 (2026-10-19, after `dev_r2`, rubric r2 = template `1c6bef16`).* Absolute scores
+barely moved (0.659 by integer score, 0.709 by expected score), pairwise got worse (0.559; a
+consistent pick in 29 % of pairs; 3 % of answers cut off at the token limit), and grey images still
+scored as high as real ones (3.01 vs 2.88; 241 of 480 scored 3 or more, many 5 with no issues
+listed). Decisions, made on dev before any test output: (1) the judge's reported absolute score is
+the **expected score** (better than the integer score in both rounds: 0.705 vs 0.655, 0.709 vs
+0.659). (2) Rubric r3: the absolute question asks first for a description of what the image shows,
+then the check; the pairwise question returns to r1 unchanged (its rerun also shows whether
+results repeat across jobs). (3) After `dev_r3` the rubric is frozen: absolute = the round with the
+highest dev agreement by expected score, pairwise = the one with the higher dev pairwise agreement
+(r1 unless r3's rerun differs). Position bias plays no part in that choice, since H3 is about it.
+

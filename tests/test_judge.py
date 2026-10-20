@@ -61,7 +61,7 @@ class TestPieces(unittest.TestCase):
     def test_prompt_text_keeps_quotes_and_braces(self):
         r = judge.Request("k", "abs", "greedy", "gb0000", 'a "red" {cube}', ["x"])
         self.assertIn('Prompt: "a \\"red\\" {cube}"', r.text())
-        self.assertIn('{"issues": [', r.text())
+        self.assertIn('{"seen": what the image shows, "issues": [', r.text())
         r = judge.Request("k", "pair", "greedy", "gb0000", "two cats", ["x", "y"])
         self.assertIn('"better": "1", "2" or "same"}', r.text())
 
