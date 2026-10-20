@@ -410,3 +410,23 @@ people, but module C's final grader must differ from the metric the agent optimi
 so before module C a judge from another model family will be added and meta-evaluated the same
 way.
 
+**D-028 (2026-10-19) — How the VLM judge is run and checked (`genprobe/judge.py`,
+`genprobe/judge_eval.py`; guide §9.4).** Two question types, both answered as JSON under vLLM's
+structured output (the schema fixes the keys, so answers parse; truncation and unreadable answers
+are still counted): absolute (`{"issues": [...], "score": 1-5}`; issues come first so the score
+follows the check) and pairwise (`{"reason": ..., "better": "1" | "2" | "same"}`). Besides the
+integer score, the probabilities of the five digits at the score position give an expected score
+(continuous, fewer ties); which of the two is the judge's reported absolute score is decided on dev
+and recorded here before the test round. Images are shrunk to fit 1024 × 1024 (never enlarged) and
+sent as PNG; greedy decoding (temperature 0) gives the results. Checks: position bias (each pair in
+both orders; the H3 statistic as pre-registered), consistency (3 samples at temperature 0.7, seed 0),
+blind test (grey image; same model's image for another prompt), score distribution. Pairwise
+agreement with people counts a pick only when both orders agree; inconsistent or "same" verdicts
+count 1/2 (guide §9.4). **Rounds:** dev = the 80 GenAI-Bench prompts of prompt set v1's dev split,
+all images and all pairs with different mean ratings; the rubric (prompt text, scale, schema) is
+changed only after dev rounds, each with a new tag, and the dev summaries list the clearest
+disagreements with people to learn from. Test = the other 1,520 prompts: all 9,120 images
+(absolute), the 1,000 pre-registered H3 pairs (both orders), blind test and consistency on 500
+images (seed 0) and on those pairs. The test round runs once, with the rubric frozen;
+`genprobe.judge` refuses to overwrite a test tag.
+
