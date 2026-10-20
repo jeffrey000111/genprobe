@@ -469,3 +469,17 @@ image full marks cannot later grade an agent's images (module C), where degenera
 real risk. Pairwise is r1 under either rule, so H3 is unaffected. Because r2 and r3 were written
 after seeing the grey-image failure on dev, only the test round's blind test is a clean check.
 
+**D-029 (2026-10-20) — Own human evaluation (guide §9.5) with one annotator, the project author.**
+Project author's decision: no classmates are asked. What is lost: agreement between annotators
+(Krippendorff's α) on our images; the multi-rater view comes from GenAI-Bench's three ratings (§3,
+α = 0.715). What stands in for it: 40 hidden repeats (main pairs shown again ≥ ~50 items later,
+sides re-drawn), reported as same-answer share and Cohen's κ. Kept from the guide: blind pairs
+(same prompt and seed, two models; no model names, scores or item types shown; sides and order
+random; all images 768 × 768), 50 pairs per stratum (counting, spatial, text, GenAI-Bench) from the
+test split, 20 attention checks (the same model's image for a prompt of another stratum; pass mark
+18 of 20, fixed now), 20 practice pairs from dev that may still change the protocol, and four
+answers (A, B, same, neither). Images flagged by either safety filter are excluded. The labelling
+page is a static HTML file that works offline (no install, nothing leaves the laptop). Protocol:
+`docs/human_eval_protocol.md`; code: `genprobe/human_eval.py`. The author bias this adds goes into
+the report's limitations.
+

@@ -66,6 +66,7 @@ sbatch slurm/probe_gpu.sbatch             # envs import torch and see the H100?
 sbatch slurm/judge_probe.sbatch           # vLLM + Qwen3-VL-8B load offline and answer test questions?
 sbatch slurm/judge.sbatch dev dev_r3      # VLM judge on the 80 dev prompts (rubric iteration) -> results/judge/
 sbatch --time=01:00:00 slurm/judge.sbatch test test_r1   # once, frozen rubric: H3 and agreement with people
+bash scripts/make_human_eval.sh           # own human evaluation: offline labelling package (docs/human_eval_protocol.md)
 sbatch --array=0-1 slurm/gen.sbatch configs/gen/sdxl.yaml data/prompts/smoke.jsonl 2 --seeds 0
 bash scripts/submit_scoring.sh data/prompts/smoke.jsonl   # CLIPScore + VQAScore, then
                                           # results/smoke/summary.md (CPU job)
