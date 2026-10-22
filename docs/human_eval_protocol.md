@@ -108,4 +108,41 @@ agrees with the annotator more often than CLIPScore, PickScore and HPSv2.1.
 
 ## Changes after the practice round
 
-(none yet)
+**2026-10-22.** The practice round (20 items) raised seven unclear cases. The rules below are
+fixed from this date and are not changed once the main part has started. They add to the
+decision rules above.
+
+1. **Above / below** is judged by position in the image, comparing the centres of the two
+   objects. X is "above" Y only when X's centre is clearly higher than Y's; it need not be
+   directly above. Resting on top counts (a laptop on a bench is above the bench); touching
+   and overlap are allowed. Side by side at about the same height does not count, even if X
+   is taller (a tall bottle standing next to a bear is not above the bear).
+2. **"a" / "an" means at least one**, not exactly one; an extra one doesn't matter. Only a
+   written number ("two", "six") asks for an exact count.
+3. **Visible and right / can't tell / visible and wrong.** A requirement that is hidden,
+   cropped or too small to see counts as half a miss; one that is visibly wrong or missing
+   counts as a full miss. "Can't see the jeans" is not "wrong trousers". A partly visible
+   object exists if it can be recognised.
+4. **Actions** are met only if most people would describe the image with that action (paws in
+   a fresh hole with soil flying = burrowing; sitting in a hole is not; one bird flying behind
+   another is not, on that alone, chasing). A **negated action** ("isn't burrowing") needs
+   the subject present and visibly not doing it. **Figurative wording** takes its everyday
+   meaning ("flowers dancing in the sun" = lively, swaying flowers in sunlight).
+5. **A missing object is one miss**, not also a miss for each of its actions or attributes.
+   When both images get a count wrong, the one closer to the target is better (for six
+   chairs, five beats nine).
+6. **Requested text must read as one phrase in reading order.** Extra text before, after or
+   beside it is fine; a line of other text inserted inside the phrase ("LIVE / MVE / MUSIC")
+   counts as a misspelling. Between two wrong versions, the closer one is better.
+7. **Things on a screen, poster or photo are not real objects**: they don't satisfy "is
+   there an X" or a position relation, unless the prompt itself asks for a picture or photo.
+
+The practice items and a first pass over the main part were done as an **AI pre-evaluation**,
+not as the author's annotation. Those AI labels were not kept and are not used anywhere; the
+author did not look at the AI's answers for main-part items before labelling them himself.
+
+**Provenance of `data/labels/human_eval_labels.csv`.** Its 260 main-part rows are the author's own
+labels. They were typed into the CSV rather than exported from the labelling page, so the
+`answered_at` and `seconds` columns are empty. Its 20 practice rows are the AI pre-evaluation's
+answers (practice is not analysed). The file was committed before the answer key was copied off
+HPC3 (D-029 note).

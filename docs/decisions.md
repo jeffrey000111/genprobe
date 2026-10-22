@@ -483,3 +483,14 @@ page is a static HTML file that works offline (no install, nothing leaves the la
 `docs/human_eval_protocol.md`; code: `genprobe/human_eval.py`. The author bias this adds goes into
 the report's limitations.
 
+*D-029 note (2026-10-22), written and committed before the answer key was copied off HPC3.*
+(1) The 20 practice items raised seven unclear cases; seven rules were added under "Changes after
+the practice round" in `docs/human_eval_protocol.md` before any main item was labelled. (2) The
+practice round and a first pass over the main items were run as an AI pre-evaluation; those AI
+labels were not kept and are not used, and the author states he did not see the AI's main-item
+answers before labelling them. (3) `data/labels/human_eval_labels.csv` holds the author's labels
+for the 260 main items (its practice rows are the AI's); they were typed in, not exported from the
+labelling page, so there are no answer times. SHA-1 of the file:
+`642425a9faab39071534e25e006805b7077575eb`. The labels are not changed after the analysis.
+(4) Points 2 and 3 go into the report's limitations.
+
