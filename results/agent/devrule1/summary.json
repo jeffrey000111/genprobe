@@ -1,0 +1,149 @@
+{
+  "run": "devrule1",
+  "split": "dev",
+  "policy": "rule",
+  "created_at": "2026-10-22T22:13:37.148+00:00",
+  "git_commit": "e2359f5",
+  "costs": {
+    "gen": {
+      "sdxl": 3.0505,
+      "sd35m": 4.6018,
+      "flux_schnell": 1.1286
+    },
+    "score": {
+      "vqascore": 0.8519,
+      "detect": 4.4642,
+      "ocr": 2.3489
+    }
+  },
+  "settings": {
+    "tau_genai": 0.9,
+    "delta": 0.02,
+    "cfg_high": 7.5,
+    "route": {
+      "counting": "sd35m",
+      "spatial": "sd35m",
+      "text": "flux_schnell",
+      "genai": "flux_schnell"
+    },
+    "rules": {
+      "wrong_count": [
+        "rewrite",
+        "reseed",
+        "switch_model",
+        "reseed"
+      ],
+      "missing_object": [
+        "rewrite",
+        "switch_model",
+        "reseed"
+      ],
+      "wrong_relation": [
+        "rewrite",
+        "switch_model",
+        "reseed"
+      ],
+      "misspelled_text": [
+        "switch_model",
+        "reseed",
+        "rewrite"
+      ],
+      "missing_text": [
+        "switch_model",
+        "rewrite",
+        "reseed"
+      ],
+      "low_alignment": [
+        "raise_cfg",
+        "switch_model",
+        "reseed"
+      ]
+    },
+    "max_attempts": 8
+  },
+  "internal_pass_rate": {
+    "agent_rule|all": {
+      "n": 120,
+      "pass_rate": 0.6666666666666666
+    },
+    "agent_rule|counting": {
+      "n": 14,
+      "pass_rate": 0.7857142857142857
+    },
+    "agent_rule|genai": {
+      "n": 80,
+      "pass_rate": 0.55
+    },
+    "agent_rule|spatial": {
+      "n": 14,
+      "pass_rate": 1.0
+    },
+    "agent_rule|text": {
+      "n": 12,
+      "pass_rate": 0.9166666666666666
+    },
+    "best_of_4|all": {
+      "n": 120,
+      "pass_rate": 0.5333333333333333
+    },
+    "best_of_4|counting": {
+      "n": 14,
+      "pass_rate": 0.6428571428571429
+    },
+    "best_of_4|genai": {
+      "n": 80,
+      "pass_rate": 0.4625
+    },
+    "best_of_4|spatial": {
+      "n": 14,
+      "pass_rate": 0.8571428571428571
+    },
+    "best_of_4|text": {
+      "n": 12,
+      "pass_rate": 0.5
+    },
+    "single|all": {
+      "n": 120,
+      "pass_rate": 0.325
+    },
+    "single|counting": {
+      "n": 14,
+      "pass_rate": 0.35714285714285715
+    },
+    "single|genai": {
+      "n": 80,
+      "pass_rate": 0.3125
+    },
+    "single|spatial": {
+      "n": 14,
+      "pass_rate": 0.5
+    },
+    "single|text": {
+      "n": 12,
+      "pass_rate": 0.16666666666666666
+    }
+  },
+  "agent": {
+    "attempts_mean": 2.625,
+    "spent_mean": 11.20969,
+    "budget_mean": 20.715899999999998,
+    "over_budget": 0,
+    "stop_reasons": {
+      "passed": 80,
+      "no affordable action left": 40
+    },
+    "actions": {
+      "raise_cfg": 55,
+      "switch_model": 73,
+      "reseed": 50,
+      "rewrite": 17
+    },
+    "improved_by": {
+      "switch_model": 42,
+      "reseed": 19,
+      "raise_cfg": 7,
+      "rewrite": 1
+    }
+  },
+  "prompts": 120
+}

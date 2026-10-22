@@ -441,6 +441,40 @@ def run(rnd: str, tag: str, out_dir: str = "data/judge", engine=None, bench: Ben
     return meta
 
 
+def grade_requests(images: list[dict]) -> list[Request]:
+    """Absolute, greedy questions for a list of images (sample_id, prompt_id, prompt, path), each
+    image once, always with its original prompt (module C's final grading, D-032)."""
+    seen, reqs = set(), []
+    for im in images:
+        sid = im["sample_id"]
+        if sid in seen:
+            continue
+        seen.add(sid)
+        reqs.append(Request(f"abs:real:greedy:{sid}", "abs", "greedy", im["prompt_id"], im["prompt"], [im["path"]],
+                            {"sample_id": sid, "model": sid.split("__")[0], "variant": "real"}))
+    return reqs
+
+
+def grade(images_path: str, tag: str, out_dir: str = "data/judge", judge: str = "gemma4_31b", engine=None,
+          log=print) -> dict[str, Any]:
+    images = [json.loads(line) for line in Path(images_path).read_text().splitlines() if line.strip()]
+    reqs = grade_requests(images)
+    log(f"[judge] grading {len(reqs)} images from {images_path} with {judge}")
+    t0 = time.perf_counter()
+    engine = engine or VLLMJudge(judge)
+    load_s = time.perf_counter() - t0
+    t1 = time.perf_counter()
+    recs = to_records(reqs, engine.generate(reqs, log=log), engine.version)
+    out = Path(out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    atomic_write_text(out / f"{tag}.jsonl", "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in recs))
+    meta = {"tag": tag, "kind": "grade", "images": images_path, "judge": judge, "judge_version": engine.version,
+            "template_id": template_id(), "records": len(recs), "load_seconds": round(load_s, 1),
+            "generate_seconds": round(time.perf_counter() - t1, 1), "created_at": now_iso(), "env": fingerprint()}
+    atomic_write_text(out / f"{tag}.meta.json", json.dumps(meta, indent=2, default=str))
+    return meta
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -449,7 +483,21 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--tag", required=True)
     r.add_argument("--out", default="data/judge")
     r.add_argument("--judge", choices=sorted(JUDGES), default=DEFAULT_JUDGE)
+    g = sub.add_parser("grade", help="final grading of a list of images (module C, D-032)")
+    g.add_argument("--images", required=True, help="JSONL with sample_id, prompt_id, prompt, path")
+    g.add_argument("--tag", required=True)
+    g.add_argument("--out", default="data/judge")
+    g.add_argument("--judge", choices=sorted(JUDGES), default="gemma4_31b")
     args = ap.parse_args(argv)
+    if args.cmd == "grade":
+        if template_id() != FROZEN_TEMPLATE:
+            print(f"template {template_id()} is not the frozen rubric {FROZEN_TEMPLATE}", file=sys.stderr)
+            return 1
+        if Path(args.out, f"{args.tag}.jsonl").exists():
+            print(f"{args.out}/{args.tag}.jsonl exists; grades are written once", file=sys.stderr)
+            return 1
+        grade(args.images, args.tag, args.out, args.judge)
+        return 0
     if args.round == "test" and template_id() != FROZEN_TEMPLATE:
         print(f"template {template_id()} is not the frozen rubric {FROZEN_TEMPLATE} (D-028); the test round "
               "only runs with the frozen rubric", file=sys.stderr)

@@ -536,3 +536,20 @@ noise margin (0.02), the cfg value, the rule order and the routing. Internal pas
 agent's own checkers) are reported but are not the result; the result is the independent judge's
 (D-030). The LLM-planned version comes next and is recorded separately.
 
+**D-032 (2026-10-22) — How module C is graded, fixed before any grade exists.** The independent
+judge is Gemma 4 31B (D-030) with the frozen rubric (absolute r3, greedy), always given the
+**original** prompt. **Pass = integer score 5** ("every requirement is met"; project author's
+choice); an unreadable answer counts as a fail and is reported. Groups, one image per prompt each,
+picked with the agent's own comparison: *single* (SDXL seed 0), *best_of_4* (SDXL seeds 0–3, the
+budget), *routed_best_of_k* (the category's dev-best model, SD3.5 Medium for counting and spatial
+or FLUX.1 schnell for text and GenAI-Bench, with as many of its prompt-set-v1 seeds as the same
+budget pays for, at most 4; added after the first dev run showed that most of the agent's gains came
+from switching model, so the agent must beat plain routing to count as useful), and *agent_rule*
+(later also *agent_llm*). Reported: pass rate per group and category with 95 % CIs from 2,000
+bootstrap resamples of prompts (seed 0); the paired difference agent − each baseline on the same
+prompts, an improvement claimed only when its CI excludes 0; mean GPU-seconds per prompt and per
+success; what the agent leaves unfixed, by the first image's diagnosis. Each image is graded once
+(`genprobe.judge grade` refuses to overwrite). Dev runs may still change the agent's rules (each
+change recorded); the test run is graded once. A small blind human check of the judge's pass /
+fail calls on test images follows.
+

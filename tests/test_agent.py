@@ -6,7 +6,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from genprobe.agent import core, gen, run
+from genprobe import judge
+from genprobe.agent import compare, core, gen, run
 from genprobe.agent.core import Attempt, PromptState
 
 COSTS = {"gen": {"sdxl": 3.0, "sd35m": 4.6, "flux_schnell": 1.1}, "score": {"vqascore": 0.5, "detect": 1.0, "ocr": 0.2}}
@@ -109,8 +110,7 @@ class TestRun(unittest.TestCase):
                     gen_recs.append({"sample_id": sid, "model": m, "prompt_id": p["prompt_id"], "prompt": p["prompt"],
                                      "seed": s, "path": f"/v1/{sid}.png", "status": "ok", "gen_seconds": t[m],
                                      "warmup": False})
-                    if m == "sdxl":
-                        self.add_checks(sid, p["prompt_id"], s, base=True)
+                    self.add_checks(sid, p["prompt_id"], s, base=True, model=m)
         for m in t:
             (d / "manifests" / f"gen_{m}_shard000of001.jsonl").write_text(
                 "".join(json.dumps(r) + "\n" for r in gen_recs if r["model"] == m))
@@ -182,10 +182,41 @@ class TestRun(unittest.TestCase):
         self.assertEqual(pr["agent_rule|all"]["pass_rate"], 3 / 5)
         self.assertEqual(pr["single|all"]["pass_rate"], 1 / 5)
         self.assertEqual(pr["best_of_4|all"]["pass_rate"], 2 / 5)
+        rb = {f["prompt_id"]: f for f in final if f["group"] == "routed_best_of_k"}
+        self.assertEqual(rb["tc0001"]["model"], "sd35m")
+        self.assertEqual(rb["tc0001"]["k"], 2)                                      # 16 // (4.6 + 1.0)
+        self.assertEqual(rb["gb0001"]["k"], 4)                                      # flux is cheap
+        self.assertTrue(rb["gb0001"]["sample_id"].startswith("flux_schnell__gb0001__s"))
+        self.assertTrue(all(f["gpu_seconds"] <= states[f["prompt_id"]].budget + 1e-6 for f in final))
+        self.assertEqual(rb["tt0001"]["sample_id"].split("__")[0], "flux_schnell")
         audit = [json.loads(x) for x in (root / "t1" / "audit.jsonl").read_text().splitlines()]
         self.assertEqual(sum(a["step"] == 0 for a in audit), 5)
         self.assertTrue(all("budget_left" in a and "decision_reason" in a for a in audit))
         self.assertTrue((d / "results" / "t1" / "summary.md").is_file())
+
+        # final grading by a (fake) independent judge: passes the agent's final images for tc0001
+        # and tt0001, and gb0002's base image
+        good = {f["sample_id"] for f in final if f["group"] == "agent_rule" and f["prompt_id"] in ("tc0001", "tt0001")}
+        good.add("sdxl__gb0002__s0")
+
+        class FakeJudge:
+            version = "fake-judge"
+
+            def generate(self, reqs, log=print):
+                return [[judge.Raw(json.dumps({"seen": "x", "issues": [], "score": 5 if r.meta["sample_id"] in good
+                                               else 2}), "stop")] for r in reqs]
+
+        meta = judge.grade(str(root / "t1" / "final.jsonl"), "g1", str(d / "judge"), engine=FakeJudge(),
+                           log=lambda *a: None)
+        self.assertEqual(meta["records"], len({f["sample_id"] for f in final}))      # each image once
+        cmp_ = compare.compare("t1", "g1", data=str(d), root=root, results=d / "results", n_boot=200)
+        rate = lambda g: cmp_["pass_rate"][g]["all"]["value"]  # noqa: E731
+        self.assertAlmostEqual(rate("agent_rule"), 3 / 5)
+        self.assertAlmostEqual(rate("single"), 1 / 5)
+        self.assertAlmostEqual(cmp_["paired_difference"]["agent_rule - single|all"]["value"], 2 / 5)
+        self.assertIn("agent_rule - routed_best_of_k|all", cmp_["paired_difference"])
+        self.assertEqual(cmp_["agent_unfixed_by_first_diagnosis"], {"wrong_relation": 1, "low_alignment": 1})
+        self.assertTrue((d / "results" / "t1" / "judged.md").is_file())
 
 
 if __name__ == "__main__":

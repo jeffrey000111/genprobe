@@ -215,12 +215,12 @@ def ingest(run: str, rnd: int, data: str = "data", root: Path = ROOT) -> dict:
     return dict(counts)
 
 
-def best_of_n(st: PromptState, v1_checks: dict[str, dict], n: int = 4) -> str | None:
-    """The image best-of-n picks among the base model's v1 seeds 0..n-1, with the agent's own
+def best_of_n(st: PromptState, v1_checks: dict[str, dict], n: int = 4, model: str = core.BASE_MODEL) -> str | None:
+    """The image best-of-n picks among `model`'s prompt-set-v1 seeds 0..n-1, with the agent's own
     comparison, in seed order."""
     best = None
     for s in range(n):
-        sid = make_sample_id(core.BASE_MODEL, st.prompt_id, s)
+        sid = make_sample_id(model, st.prompt_id, s)
         c = v1_checks.get(sid)
         if c is None:
             continue
@@ -229,22 +229,41 @@ def best_of_n(st: PromptState, v1_checks: dict[str, dict], n: int = 4) -> str | 
     return best
 
 
+def routed_k(st: PromptState, costs: dict, max_k: int = 4) -> int:
+    """How many images of the category's routed model the same budget pays for (at most the four
+    seeds prompt set v1 already has; FLUX could afford more, so this baseline is if anything
+    a little weak)."""
+    per = core.expected_cost(core.ROUTE[st.category], costs) + core.score_cost(st.category, costs)
+    return max(1, min(max_k, int(st.budget // per)))
+
+
 def report(run: str, data: str = "data", root: Path = ROOT, results: Path = Path("results/agent")) -> dict:
+    """Groups (guide §10.4, D-032): single = the base image; best_of_4 = SDXL seeds 0-3; routed_best_of_k
+    = the category's dev-best model, as many v1 seeds as the budget pays for; agent_<policy>. All
+    picks use the agent's comparison; final.jsonl lists them for the independent judge."""
     states, meta = load_states(run, root), load_meta(run, root)
-    ids = {make_sample_id(core.BASE_MODEL, st.prompt_id, s) for st in states for s in range(4)}
+    costs = meta["costs"]
+    ids = {make_sample_id(m, st.prompt_id, s) for st in states for s in range(4)
+           for m in {core.BASE_MODEL, core.ROUTE[st.category]}}
     v1_checks, _ = read_checks(data, ids)
-    gen = latest_by_id(read_many(sorted((Path(data) / "manifests").glob(f"gen_{core.BASE_MODEL}_*.jsonl"))))
+    gen = latest_by_id(read_many(sorted((Path(data) / "manifests").glob("gen_*.jsonl"))))
     final, rows = [], []
     for st in states:
-        b4 = best_of_n(st, v1_checks)
-        picks = {"single": st.attempts[0].sample_id, "best_of_4": b4, f"agent_{st.policy}": st.best_attempt().sample_id}
-        for group, sid in picks.items():
+        k = routed_k(st, costs)
+        per_routed = core.expected_cost(core.ROUTE[st.category], costs) + core.score_cost(st.category, costs)
+        picks = {"single": (st.attempts[0].sample_id, st.attempts[0].cost()),
+                 "best_of_4": (best_of_n(st, v1_checks), st.budget),
+                 "routed_best_of_k": (best_of_n(st, v1_checks, k, core.ROUTE[st.category]), k * per_routed),
+                 f"agent_{st.policy}": (st.best_attempt().sample_id, st.spent())}
+        for group, (sid, cost) in picks.items():
             if sid is None:
                 continue
-            path = st.best_attempt().path if group.startswith("agent") else gen.get(sid, {}).get("path")
-            c = st.best_attempt().checks if group.startswith("agent") else v1_checks.get(sid, {})
+            agent = group.startswith("agent")
+            path = st.best_attempt().path if agent else gen.get(sid, {}).get("path")
+            c = st.best_attempt().checks if agent else v1_checks.get(sid, {})
             final.append({"prompt_id": st.prompt_id, "group": group, "sample_id": sid, "path": path,
-                          "prompt": st.prompt, "category": st.category})
+                          "prompt": st.prompt, "category": st.category, "gpu_seconds": round(cost, 3),
+                          **({"k": k, "model": core.ROUTE[st.category]} if group == "routed_best_of_k" else {})})
             rows.append({"group": group, "category": st.category, "passed_internal": core.passed(st.category, c)})
     by = defaultdict(list)
     for r in rows:
@@ -257,9 +276,10 @@ def report(run: str, data: str = "data", root: Path = ROOT, results: Path = Path
                    "over_budget": sum(st.spent() > st.budget + 1e-6 for st in states),
                    "stop_reasons": dict(Counter(st.stop_reason or "open" for st in states)),
                    "actions": dict(Counter(a.action for st in states for a in st.attempts[1:])),
-                   "improved_by": dict(Counter(st.best_attempt().action for st in states if st.best > 0))}
+                   "improved_by": dict(Counter(st.best_attempt().action for st in states if st.best > 0)),
+                   "routed_k": dict(Counter(f"{st.category}:{routed_k(st, costs)}" for st in states))}
     res = {"run": run, "split": meta["split"], "policy": meta["policy"], "created_at": now_iso(),
-           "git_commit": git_commit(), "costs": meta["costs"], "settings": meta["settings"],
+           "git_commit": git_commit(), "costs": costs, "settings": meta["settings"],
            "internal_pass_rate": internal, "agent": agent_stats, "prompts": len(states)}
     d = run_dir(run, root)
     atomic_write_text(d / "final.jsonl", "".join(json.dumps(x, ensure_ascii=False) + "\n" for x in final))
@@ -286,6 +306,7 @@ def render(res: dict) -> str:
               f"{a['over_budget']} prompts over budget.",
           f"Stops: {a['stop_reasons']}. Actions taken: {a['actions']}. The final image came from: {a['improved_by']} "
           "(prompts where it is not the base image).", "",
+          f"Routed best-of-k used k = {a['routed_k']} (category:k: prompts).",
           "Costs (median seconds per image): " + json.dumps(res["costs"]) + ".",
           "Settings: " + json.dumps(res["settings"]) + "."]
     return "\n".join(L) + "\n"
