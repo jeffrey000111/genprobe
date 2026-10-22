@@ -15,7 +15,15 @@ import math
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
+from pathlib import Path
+
 from ..build_prompts import COUNT_OBJECTS, NUMBER_WORDS
+
+ROOT = Path("data/agent")
+
+
+def run_dir(run: str, root: Path = ROOT) -> Path:
+    return Path(root) / run
 
 BASE_MODEL = "sdxl"
 BASE_SEED = 0

@@ -29,13 +29,10 @@ from ..utils.manifest import latest_by_id, read_many
 from . import core
 from .core import Attempt, PromptState
 
-ROOT = Path("data/agent")
+ROOT = core.ROOT
+run_dir = core.run_dir
 GEN_MODELS = ("sdxl", "sd35m", "flux_schnell")
 SCORE_METRICS = ("vqascore", "detect", "ocr")
-
-
-def run_dir(run: str, root: Path = ROOT) -> Path:
-    return root / run
 
 
 def load_states(run: str, root: Path = ROOT) -> list[PromptState]:

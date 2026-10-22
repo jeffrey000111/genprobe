@@ -25,7 +25,7 @@ from ..utils.env import fingerprint, now_iso, run_id
 from ..utils.io import atomic_save_image
 from ..utils.manifest import ManifestWriter, done_ids, read_many
 from ..utils.shard import chunks
-from .run import ROOT, run_dir
+from .core import ROOT, run_dir
 
 
 def generate_round(run: str, rnd: int, backend_kind: str = "diffusers", root: Path = ROOT, log=print,
