@@ -508,3 +508,31 @@ for agreement with people and the bias checks. SDXL is the agent's base model be
 most room to improve among the four (§2: VQAScore 0.505, detector 0.438, OCR 0.664) and its cfg
 and step count can be changed; FLUX.1 schnell is already strong and has no cfg.
 
+**D-031 (2026-10-22) — How the agent works (`genprobe/agent/`, guide §10), first version, before
+any agent output.** *Rounds in one GPU job* (`slurm/agent.sbatch`): plan (eval env) → generate
+(gen env) → check (VQAScore on the GPU; detector and OCR on CPU, as in prompt set v1) → ingest,
+until no prompt has a next step, so no round waits in the queue. *Start:* attempt 0 is the SDXL
+seed-0 image of prompt set v1 with its existing checks. *Checks* use the original prompt and spec,
+never a rewrite: counting and spatial pass on the detector, text on OCR ≥ 0.85, GenAI-Bench prompts
+on VQAScore ≥ 0.9; VQAScore is computed for every image. *Comparison:* pass beats fail; then the
+nearer miss (count closer to the target; both objects found; higher OCR match); then a VQAScore gain
+of at least 0.02 (smaller gains are noise, guide §10.6). Each new attempt changes one thing of the
+best attempt so far and replaces it only if clearly better. *Diagnosis → ordered actions (rule
+policy):* wrong count → rewrite, reseed, switch model, reseed; missing object → rewrite, switch
+model, reseed; wrong relation → rewrite, switch model, reseed; misspelt text → switch model, reseed,
+rewrite; missing text → switch model, rewrite, reseed; GenAI-Bench low alignment → cfg 7.5 (SDXL's
+default is 5.0), switch model, reseed. Rewrites are templates built from the prompt's own spec
+that state the failing requirement and add nothing else (e.g. "a photo of exactly three cups, three
+in total, each one fully visible and clearly separated"); GenAI-Bench prompts get no rule rewrite.
+Model routing from the **dev** per-category results: SD3.5 Medium for counting and spatial,
+FLUX.1 schnell for text and GenAI-Bench. New seeds are 1000+. *Budget:* GPU-seconds per prompt =
+4 × (median SDXL generation + median checks for that category), i.e. what best-of-4 costs; each
+attempt is charged its measured generation and checking seconds, and an action is taken only if
+its expected cost still fits. Model loading is not charged to either side. At most 8 attempts.
+*Best-of-4* is SDXL seeds 0–3 of prompt set v1, picked with the same comparison. *Audit log:* one
+JSON line per attempt (action, parameters, checks, diagnosis, reason, seconds, budget left).
+*Tuned on dev only, recorded here before the test run:* the GenAI-Bench threshold (0.9), the
+noise margin (0.02), the cfg value, the rule order and the routing. Internal pass rates (the
+agent's own checkers) are reported but are not the result; the result is the independent judge's
+(D-030). The LLM-planned version comes next and is recorded separately.
+
