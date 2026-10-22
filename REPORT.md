@@ -1,7 +1,7 @@
 # GenProbe report
 
-_Status: M2 (benchmark on prompt set v1) done; M3 (metric meta-evaluation) under way: H1, H2 and
-the VLM judge (H3) done, our own human evaluation next. Every number
+_Status: M2 (benchmark on prompt set v1) and M3 (metric meta-evaluation: H1–H3, the VLM judge
+and a human check on our own images) done; module C (the generation-debugging agent) next. Every number
 here is copied from a file in `results/`, named next to it; nothing is reported before it
 exists there. Choices behind the numbers are in `docs/decisions.md` (D-xxx)._
 
@@ -150,6 +150,28 @@ So on this benchmark the 8B judge is a weaker prompt-following metric than VQASc
 pairwise verdicts depend on which image comes first. Any pairwise use needs both orders. VQAScore
 stays the main automatic metric; the judge's lists of unmet requirements are what it adds.
 
+**Our own images, one annotator** (guide §9.5, D-029; `results/human_eval/summary.md`,
+`human_eval_agreement.csv`; protocol in `docs/human_eval_protocol.md`). The author labelled 200
+blind pairs from the test split: the same prompt and seed from two of our four models, 50 pairs
+per stratum (counting, spatial, text, GenAI-Bench). For each pair: which image matches the text
+better (A, B, same, neither)? Attention checks: 19 of 20 right (pass mark 18). Hidden repeats:
+the same answer on 0.95 of 40 pairs, Cohen's κ 0.92. Answers: A 71, B 58, same 71, neither 0. The
+129 pairs where an image was picked are used below; equal metric scores count 1/2.
+
+| Metric | Agreement with the annotator | 95 % CI (prompts) | Pairs |
+| --- | --- | --- | --- |
+| VQAScore | 0.860 | [0.798, 0.915] | 129 |
+| PickScore | 0.775 | [0.703, 0.847] | 129 |
+| HPSv2.1 | 0.752 | [0.677, 0.827] | 129 |
+| CLIPScore | 0.643 | [0.559, 0.727] | 129 |
+| Detector check (counting, spatial) | 0.706 | [0.618, 0.784] | 51 |
+| OCR check (text) | 0.860 | [0.756, 0.943] | 43 |
+
+The order matches GenAI-Bench: VQAScore first, the two preference models next, CLIPScore last.
+That order was written down as the expectation before labelling; this comparison is exploratory,
+not a test. With 129 pairs, VQAScore's CI overlaps the preference models'. CLIPScore is at
+chance on counting: 0.455 [0.303, 0.606] over 33 pairs. Each stratum rests on 18–43 pairs.
+
 ## 4. Limitations
 - Detector and OCR checks have their own error rates (§1), measured on 50 dev images each by one
   annotator; the OCR threshold was chosen on the same images.
@@ -157,6 +179,12 @@ stays the main automatic metric; the judge's lists of unmet requirements are wha
   "SALE SAL SALE" for "SALE" (`sd15__tt0002__s0` in `results/prompts_v1_test/per_sample.csv`)
   scores OCR 1.00, VQAScore 0.18.
 - All checker labels and the smoke labels come from one annotator, the author.
+- The human check on our own images (§3) also has one annotator, the author, who knew the
+  aggregate results. Consistency comes from hidden repeats, not from a second person. Before
+  labelling, an AI pre-evaluation was run on the practice items and a first pass over the main
+  items. Its labels were not kept, and the author states he did not see them before labelling.
+  The labels were typed into a CSV rather than exported from the labelling page, so there are
+  no answer times. The file was committed before the answer key was opened (D-029 note).
 - The meta-evaluation (§3) uses GenAI-Bench images from six other, mostly older models than §2's.
 - GenAI-Bench and VQAScore were introduced in the same paper (Lin et al., 2024,
   arXiv:2404.01291). Our VQAScore uses a different backbone (Qwen2.5-VL-7B) and was not tuned on

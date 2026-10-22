@@ -1,0 +1,256 @@
+{
+  "created_at": "2026-10-22T20:52:40.877+00:00",
+  "git_commit": "e5289d1",
+  "labelled": {
+    "practice": 20,
+    "main": 260
+  },
+  "items": {
+    "practice": 20,
+    "main": 260
+  },
+  "gold": {
+    "answered": 20,
+    "right": 19,
+    "pass_mark": 18,
+    "passed": true
+  },
+  "repeat": {
+    "pairs": 40,
+    "same_answer": 0.95,
+    "cohen_kappa": 0.921259842519685
+  },
+  "label_counts": {
+    "same": 71,
+    "A": 71,
+    "B": 58
+  },
+  "agreement": [
+    {
+      "metric": "vqascore",
+      "stratum": "all",
+      "agreement": 0.8604651162790697,
+      "ci95_lo": 0.7984102470930232,
+      "ci95_hi": 0.9153846153846154,
+      "pairs": 129,
+      "n_prompts": 127
+    },
+    {
+      "metric": "vqascore",
+      "stratum": "counting",
+      "agreement": 0.8181818181818182,
+      "ci95_lo": 0.6666666666666666,
+      "ci95_hi": 0.9393939393939394,
+      "pairs": 33,
+      "n_prompts": 33
+    },
+    {
+      "metric": "vqascore",
+      "stratum": "spatial",
+      "agreement": 1.0,
+      "ci95_lo": 1.0,
+      "ci95_hi": 1.0,
+      "pairs": 18,
+      "n_prompts": 18
+    },
+    {
+      "metric": "vqascore",
+      "stratum": "text",
+      "agreement": 0.8372093023255814,
+      "ci95_lo": 0.7209302325581395,
+      "ci95_hi": 0.9333333333333333,
+      "pairs": 43,
+      "n_prompts": 41
+    },
+    {
+      "metric": "vqascore",
+      "stratum": "genai",
+      "agreement": 0.8571428571428571,
+      "ci95_lo": 0.7428571428571429,
+      "ci95_hi": 0.9714285714285714,
+      "pairs": 35,
+      "n_prompts": 35
+    },
+    {
+      "metric": "clipscore",
+      "stratum": "all",
+      "agreement": 0.6434108527131783,
+      "ci95_lo": 0.5590551181102362,
+      "ci95_hi": 0.7265625,
+      "pairs": 129,
+      "n_prompts": 127
+    },
+    {
+      "metric": "clipscore",
+      "stratum": "counting",
+      "agreement": 0.45454545454545453,
+      "ci95_lo": 0.30303030303030304,
+      "ci95_hi": 0.6060606060606061,
+      "pairs": 33,
+      "n_prompts": 33
+    },
+    {
+      "metric": "clipscore",
+      "stratum": "spatial",
+      "agreement": 0.6666666666666666,
+      "ci95_lo": 0.4444444444444444,
+      "ci95_hi": 0.8888888888888888,
+      "pairs": 18,
+      "n_prompts": 18
+    },
+    {
+      "metric": "clipscore",
+      "stratum": "text",
+      "agreement": 0.6744186046511628,
+      "ci95_lo": 0.5365853658536586,
+      "ci95_hi": 0.813953488372093,
+      "pairs": 43,
+      "n_prompts": 41
+    },
+    {
+      "metric": "clipscore",
+      "stratum": "genai",
+      "agreement": 0.7714285714285715,
+      "ci95_lo": 0.6285714285714286,
+      "ci95_hi": 0.9142857142857143,
+      "pairs": 35,
+      "n_prompts": 35
+    },
+    {
+      "metric": "pickscore",
+      "stratum": "all",
+      "agreement": 0.7751937984496124,
+      "ci95_lo": 0.703125,
+      "ci95_hi": 0.8473282442748091,
+      "pairs": 129,
+      "n_prompts": 127
+    },
+    {
+      "metric": "pickscore",
+      "stratum": "counting",
+      "agreement": 0.7575757575757576,
+      "ci95_lo": 0.6060606060606061,
+      "ci95_hi": 0.8795454545454504,
+      "pairs": 33,
+      "n_prompts": 33
+    },
+    {
+      "metric": "pickscore",
+      "stratum": "spatial",
+      "agreement": 0.7222222222222222,
+      "ci95_lo": 0.5,
+      "ci95_hi": 0.8888888888888888,
+      "pairs": 18,
+      "n_prompts": 18
+    },
+    {
+      "metric": "pickscore",
+      "stratum": "text",
+      "agreement": 0.8604651162790697,
+      "ci95_lo": 0.7498670212765958,
+      "ci95_hi": 0.9534883720930233,
+      "pairs": 43,
+      "n_prompts": 41
+    },
+    {
+      "metric": "pickscore",
+      "stratum": "genai",
+      "agreement": 0.7142857142857143,
+      "ci95_lo": 0.5714285714285714,
+      "ci95_hi": 0.8571428571428571,
+      "pairs": 35,
+      "n_prompts": 35
+    },
+    {
+      "metric": "hpsv2",
+      "stratum": "all",
+      "agreement": 0.751937984496124,
+      "ci95_lo": 0.676923076923077,
+      "ci95_hi": 0.8267716535433071,
+      "pairs": 129,
+      "n_prompts": 127
+    },
+    {
+      "metric": "hpsv2",
+      "stratum": "counting",
+      "agreement": 0.7575757575757576,
+      "ci95_lo": 0.6060606060606061,
+      "ci95_hi": 0.8787878787878788,
+      "pairs": 33,
+      "n_prompts": 33
+    },
+    {
+      "metric": "hpsv2",
+      "stratum": "spatial",
+      "agreement": 0.6666666666666666,
+      "ci95_lo": 0.4444444444444444,
+      "ci95_hi": 0.8888888888888888,
+      "pairs": 18,
+      "n_prompts": 18
+    },
+    {
+      "metric": "hpsv2",
+      "stratum": "text",
+      "agreement": 0.813953488372093,
+      "ci95_lo": 0.6904761904761905,
+      "ci95_hi": 0.9111111111111111,
+      "pairs": 43,
+      "n_prompts": 41
+    },
+    {
+      "metric": "hpsv2",
+      "stratum": "genai",
+      "agreement": 0.7142857142857143,
+      "ci95_lo": 0.5714285714285714,
+      "ci95_hi": 0.8571428571428571,
+      "pairs": 35,
+      "n_prompts": 35
+    },
+    {
+      "metric": "detect",
+      "stratum": "all",
+      "agreement": 0.7058823529411765,
+      "ci95_lo": 0.6176470588235294,
+      "ci95_hi": 0.7843137254901961,
+      "pairs": 51,
+      "n_prompts": 51
+    },
+    {
+      "metric": "detect",
+      "stratum": "counting",
+      "agreement": 0.6666666666666666,
+      "ci95_lo": 0.5606060606060606,
+      "ci95_hi": 0.7727272727272727,
+      "pairs": 33,
+      "n_prompts": 33
+    },
+    {
+      "metric": "detect",
+      "stratum": "spatial",
+      "agreement": 0.7777777777777778,
+      "ci95_lo": 0.6388888888888888,
+      "ci95_hi": 0.9166666666666666,
+      "pairs": 18,
+      "n_prompts": 18
+    },
+    {
+      "metric": "ocr",
+      "stratum": "all",
+      "agreement": 0.8604651162790697,
+      "ci95_lo": 0.7558139534883721,
+      "ci95_hi": 0.9431818181818182,
+      "pairs": 43,
+      "n_prompts": 41
+    },
+    {
+      "metric": "ocr",
+      "stratum": "text",
+      "agreement": 0.8604651162790697,
+      "ci95_lo": 0.7558139534883721,
+      "ci95_hi": 0.9431818181818182,
+      "pairs": 43,
+      "n_prompts": 41
+    }
+  ],
+  "decided_pairs": 129
+}

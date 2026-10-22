@@ -10,10 +10,10 @@ and uses the reliable ones in a generation-debugging agent.
 
 > **Status: in progress.** M2 is done: 9,600 images (4 models × 600 prompts × 4 seeds) scored
 > with 8 metrics, checkers validated on 100 blind-labelled dev images, metric sanity checks run;
-> results in [`REPORT.md`](REPORT.md) and `results/prompts_v1_test/`. M3 is under way: the
-> metrics and a VLM judge are checked against GenAI-Bench's human ratings (`results/meta_eval/`,
-> `results/judge/`); our own human evaluation comes next. Every number here comes from a table in
-> `results/`.
+> results in [`REPORT.md`](REPORT.md) and `results/prompts_v1_test/`. M3 is done too: the
+> metrics and a VLM judge were checked against GenAI-Bench's human ratings (`results/meta_eval/`,
+> `results/judge/`) and against one blind annotator on our own images (`results/human_eval/`).
+> Next: the generation-debugging agent. Every number here comes from a table in `results/`.
 
 **Headline (test split, 480 prompts):** SD3.5 Medium and FLUX.1 schnell tie on prompt following
 (VQAScore 0.680 vs 0.670, paired difference not significant) while FLUX is 4.1× faster; negation
@@ -28,7 +28,9 @@ counting prompts and both preference models overall. The preference models fall 
 negation (55–57 %, chance is 50 %). A VLM judge (Qwen3-VL-8B) agrees on 71 %, 2 points below
 VQAScore on the same pairs, and when comparing two images it picks the one shown first 58 % of the
 time (pre-registered H3 holds). See `results/meta_eval/hypotheses.md` and
-`results/judge/test_r1/summary.md`.
+`results/judge/test_r1/summary.md`. On our own images, one blind annotator (the author) agreed
+with VQAScore on 86 % of 129 pairs, PickScore 78 %, HPSv2.1 75 % and CLIPScore 64 %
+(`results/human_eval/summary.md`).
 
 ## Quick start (no GPU needed)
 
