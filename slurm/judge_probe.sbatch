@@ -3,7 +3,8 @@
 # test questions (one image, two images, JSON-constrained output, logprobs, throughput);
 # scripts/check_judge_env.py. On HPC3, after setup_envs.sh judge + download_models.sh judge:
 #
-#   cd ~/genprobe && sbatch slurm/judge_probe.sbatch
+#   cd ~/genprobe && sbatch slurm/judge_probe.sbatch                       Qwen3-VL-8B
+#   cd ~/genprobe && sbatch slurm/judge_probe.sbatch --judge gemma4_31b    Gemma 4 31B (D-030)
 #
 # Output: logs/judge-probe_<jobid>.out
 #SBATCH --job-name=judge-probe
@@ -21,4 +22,4 @@ require_gpu
 activate_env judge
 cd "$GENPROBE_ROOT"
 echo "C compiler (triton builds small helpers at run time): $(command -v gcc || command -v cc || echo none)"
-python scripts/check_judge_env.py
+python scripts/check_judge_env.py "$@"

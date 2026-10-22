@@ -16,7 +16,6 @@ import sys
 import time
 import traceback
 
-REPO = "Qwen/Qwen3-VL-8B-Instruct"
 
 
 def data_url(img) -> str:
@@ -57,7 +56,11 @@ def step(name: str, fn) -> bool:
 
 def main() -> int:
     sys.path.insert(0, ".")
+    from genprobe.judge import JUDGES, download_hint
     from genprobe.utils.hf import repo_cache_dir, require_cached
+    name = sys.argv[sys.argv.index("--judge") + 1] if "--judge" in sys.argv else "qwen3vl8b"
+    cfg = JUDGES[name]
+    REPO = cfg["repo"]
 
     for p in ("vllm", "torch", "transformers", "triton", "flashinfer-python", "xgrammar", "outlines-core",
               "huggingface-hub"):
@@ -65,8 +68,7 @@ def main() -> int:
             print(f"{p}=={md.version(p)}")
         except md.PackageNotFoundError:
             print(f"{p}: not installed")
-    sha = require_cached(REPO, ("config.json", "model.safetensors.index.json"),
-                         'ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh judge"')
+    sha = require_cached(REPO, cfg["files"], download_hint(name))
     path = str(repo_cache_dir(REPO) / "snapshots" / sha)
     print(f"{REPO}@{sha[:7]} -> snapshot dir found")
 
@@ -75,11 +77,28 @@ def main() -> int:
 
     def load():
         st["llm"] = LLM(model=path, tokenizer=path, dtype="bfloat16", max_model_len=8192,
-                        gpu_memory_utilization=0.85, limit_mm_per_prompt={"image": 2}, seed=0)
+                        gpu_memory_utilization=cfg["gpu_memory_utilization"], limit_mm_per_prompt={"image": 2},
+                        seed=0, **cfg["llm"])
 
-    if not step("load model (offline, bf16, max_model_len 8192)", load):
-        return 1
-    llm = st["llm"]
+    def load_plain():
+        print(f"   retrying without {cfg['llm']} (the judge config needs changing if this works)")
+        st["llm"] = LLM(model=path, tokenizer=path, dtype="bfloat16", max_model_len=8192,
+                        gpu_memory_utilization=cfg["gpu_memory_utilization"], limit_mm_per_prompt={"image": 2},
+                        seed=0)
+
+    if not step(f"load {name} (offline, bf16, max_model_len 8192, {cfg['llm'] or 'defaults'})", load):
+        if not cfg["llm"] or not step("load with vLLM defaults", load_plain):
+            return 1
+    raw_llm = st["llm"]
+
+    class _Chat:                       # the judge's chat options (e.g. thinking off) on every call
+        def chat(self, *a, **k):
+            try:
+                return raw_llm.chat(*a, **{**cfg["chat"], **k})
+            except TypeError:
+                print(f"   chat() refused {cfg['chat']}; calling without them")
+                return raw_llm.chat(*a, **k)
+    llm = _Chat()
     greedy = SamplingParams(temperature=0.0, max_tokens=64)
 
     def one_image():

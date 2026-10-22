@@ -74,6 +74,13 @@ class TestPieces(unittest.TestCase):
         self.assertAlmostEqual(sum(int(k) * v for k, v in d.items()), (3 * 0.6 + 4 * 0.3) / 0.9)
         self.assertIsNone(judge.score_digit_distribution(['{"', 'issues', '": []}'], [{}, {}, {}]))
 
+    def test_judge_registry(self):
+        self.assertEqual(judge.JUDGES[judge.DEFAULT_JUDGE]["repo"], "Qwen/Qwen3-VL-8B-Instruct")
+        g = judge.JUDGES["gemma4_31b"]
+        self.assertEqual(g["repo"], "google/gemma-4-31B-it")
+        self.assertIn("download_models.sh gemma4_31b", judge.download_hint("gemma4_31b"))
+        self.assertIn("chat_template.jinja", g["files"])
+
     def test_rubric_is_frozen(self):
         # changing a prompt, schema or image size after the dev rounds changes this hash; the test
         # round then refuses to run (D-028 revision 3)

@@ -494,3 +494,17 @@ labelling page, so there are no answer times. SHA-1 of the file:
 `642425a9faab39071534e25e006805b7077575eb`. The labels are not changed after the analysis.
 (4) Points 2 and 3 go into the report's limitations.
 
+## Module C (generation-debugging agent)
+
+**D-030 (2026-10-22) — Final judge = Gemma 4 31B-it; base model for the agent = SDXL.** Project
+author's choices. The agent optimizes VQAScore (Qwen2.5-VL) and the detector / OCR checks, so the
+judge that grades it must come from another model family (guide §10.4, D-027). Gemma 4 31B-it
+(Google, Apache-2.0, ~62.6 GB in bf16, fits one H100 NVL) is the strongest non-Qwen option that
+vLLM runs offline. It is run with the frozen rubric of D-028 (absolute r3, pairwise r1) **without
+any tuning of its own**, with 560 vision tokens per image (its default is 280) and thinking off.
+Before it grades anything it goes through the same checks as the Qwen judge: a probe job, one dev
+round (pipeline and blind test only; nothing is tuned on it), then one test round on GenAI-Bench
+for agreement with people and the bias checks. SDXL is the agent's base model because it has the
+most room to improve among the four (§2: VQAScore 0.505, detector 0.438, OCR 0.664) and its cfg
+and step count can be changed; FLUX.1 schnell is already strong and has no cfg.
+

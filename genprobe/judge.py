@@ -49,8 +49,25 @@ from .utils.env import fingerprint, now_iso
 from .utils.io import atomic_write_text
 from .utils.manifest import latest_by_id, read_many
 
-REPO = "Qwen/Qwen3-VL-8B-Instruct"
-DOWNLOAD_HINT = 'ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh judge"'
+# Judge models (D-027, D-030). Both run the same frozen rubric; the Gemma judge is not tuned at all.
+JUDGES: dict[str, dict[str, Any]] = {
+    "qwen3vl8b": {"repo": "Qwen/Qwen3-VL-8B-Instruct", "short": "qwen3-vl-8b", "download": "judge",
+                  "files": ("config.json", "model.safetensors.index.json"),
+                  "gpu_memory_utilization": 0.85, "llm": {}, "chat": {}},
+    # Gemma 4 31B (Google, Apache-2.0): a different model family from VQAScore's Qwen2.5-VL, so it
+    # can grade an agent that optimizes VQAScore (guide §10.4). 560 vision tokens per image (its
+    # default is 280); thinking off, as for the Qwen judge.
+    "gemma4_31b": {"repo": "google/gemma-4-31B-it", "short": "gemma-4-31b", "download": "gemma4_31b",
+                   "files": ("config.json", "model.safetensors.index.json", "chat_template.jinja"),
+                   "gpu_memory_utilization": 0.92, "llm": {"mm_processor_kwargs": {"max_soft_tokens": 560}},
+                   "chat": {"chat_template_kwargs": {"enable_thinking": False}}, "tag": "vis560"},
+}
+DEFAULT_JUDGE = "qwen3vl8b"
+REPO = JUDGES[DEFAULT_JUDGE]["repo"]
+
+
+def download_hint(name: str) -> str:
+    return f'ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh {JUDGES[name]["download"]}"'
 MAX_SIDE = 1024          # images are shrunk (never enlarged) to fit 1024 x 1024 before the judge sees them
 N_H3_PAIRS = 1000        # pre-registered (docs/decisions.md, H3)
 N_TEST_BLIND = 500
@@ -334,19 +351,23 @@ def image_url(path: str, max_side: int = MAX_SIDE) -> str:
 
 
 class VLLMJudge:
-    def __init__(self, max_model_len: int = 8192, gpu_memory_utilization: float = 0.85, chunk: int = 256,
+    def __init__(self, judge: str = DEFAULT_JUDGE, max_model_len: int = 8192, chunk: int = 256,
                  workers: int = 8) -> None:
         import importlib.metadata as md
 
         from vllm import LLM
 
         from .utils.hf import repo_cache_dir, require_cached
-        sha = require_cached(REPO, ("config.json", "model.safetensors.index.json"), DOWNLOAD_HINT)
-        path = str(repo_cache_dir(REPO) / "snapshots" / sha)
+        cfg = JUDGES[judge]
+        sha = require_cached(cfg["repo"], cfg["files"], download_hint(judge))
+        path = str(repo_cache_dir(cfg["repo"]) / "snapshots" / sha)
         self.llm = LLM(model=path, tokenizer=path, dtype="bfloat16", max_model_len=max_model_len,
-                       gpu_memory_utilization=gpu_memory_utilization, limit_mm_per_prompt={"image": 2}, seed=0)
-        self.version = (f"vllm=={md.version('vllm')}/qwen3-vl-8b@{sha[:7]}/bf16/img{MAX_SIDE}/"
+                       gpu_memory_utilization=cfg["gpu_memory_utilization"], limit_mm_per_prompt={"image": 2},
+                       seed=0, **cfg["llm"])
+        extra = f"/{cfg['tag']}" if cfg.get("tag") else ""
+        self.version = (f"vllm=={md.version('vllm')}/{cfg['short']}@{sha[:7]}/bf16{extra}/img{MAX_SIDE}/"
                         f"tmpl-{template_id()}")
+        self.chat_kwargs = cfg["chat"]
         self.chunk, self.workers = chunk, workers
 
     def params(self, kind: str, mode: str):
@@ -374,9 +395,9 @@ class VLLMJudge:
                     convs = [[{"role": "user", "content": [{"type": "image_url", "image_url": {"url": u}} for u in us]
                                + [{"type": "text", "text": r.text()}]}] for r, us in zip(part, urls)]
                     try:
-                        results = self.llm.chat(convs, params, use_tqdm=False)
+                        results = self.llm.chat(convs, params, use_tqdm=False, **self.chat_kwargs)
                     except TypeError:            # a vLLM without the use_tqdm keyword
-                        results = self.llm.chat(convs, params)
+                        results = self.llm.chat(convs, params, **self.chat_kwargs)
                     for r, res in zip(part, results):
                         out[r.key] = [self._raw(o) for o in res.outputs]
                 log(f"[judge] {kind}/{mode}: {len(group)} requests in {time.perf_counter() - t0:.0f} s")
@@ -395,7 +416,7 @@ class VLLMJudge:
 
 
 def run(rnd: str, tag: str, out_dir: str = "data/judge", engine=None, bench: Bench | None = None,
-        log=print) -> dict[str, Any]:
+        log=print, judge: str = DEFAULT_JUDGE) -> dict[str, Any]:
     bench = bench or load_bench()
     reqs = plan(bench, rnd)
     counts = defaultdict(int)
@@ -403,7 +424,7 @@ def run(rnd: str, tag: str, out_dir: str = "data/judge", engine=None, bench: Ben
         counts[f"{r.kind}/{r.mode}/{r.meta.get('variant', 'pair')}"] += 1
     log(f"[judge] round {rnd}: {len(reqs)} requests " + json.dumps(dict(sorted(counts.items()))))
     t0 = time.perf_counter()
-    engine = engine or VLLMJudge()
+    engine = engine or VLLMJudge(judge)
     load_s = time.perf_counter() - t0
     t1 = time.perf_counter()
     outs = engine.generate(reqs, log=log)
@@ -412,7 +433,7 @@ def run(rnd: str, tag: str, out_dir: str = "data/judge", engine=None, bench: Ben
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     atomic_write_text(out / f"{tag}.jsonl", "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in recs))
-    meta = {"tag": tag, "round": rnd, "judge_version": engine.version, "template_id": template_id(),
+    meta = {"tag": tag, "round": rnd, "judge": judge, "judge_version": engine.version, "template_id": template_id(),
             "requests": dict(sorted(counts.items())), "records": len(recs), "load_seconds": round(load_s, 1),
             "generate_seconds": round(gen_s, 1), "created_at": now_iso(), "env": fingerprint()}
     atomic_write_text(out / f"{tag}.meta.json", json.dumps(meta, indent=2, default=str))
@@ -427,6 +448,7 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--round", choices=["dev", "test"], required=True)
     r.add_argument("--tag", required=True)
     r.add_argument("--out", default="data/judge")
+    r.add_argument("--judge", choices=sorted(JUDGES), default=DEFAULT_JUDGE)
     args = ap.parse_args(argv)
     if args.round == "test" and template_id() != FROZEN_TEMPLATE:
         print(f"template {template_id()} is not the frozen rubric {FROZEN_TEMPLATE} (D-028); the test round "
@@ -436,7 +458,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"{args.out}/{args.tag}.jsonl exists; the test round runs once (pick a new tag only if it failed)",
               file=sys.stderr)
         return 1
-    run(args.round, args.tag, args.out)
+    run(args.round, args.tag, args.out, judge=args.judge)
     return 0
 
 

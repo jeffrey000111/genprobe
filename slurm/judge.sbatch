@@ -5,6 +5,8 @@
 #
 #   cd ~/genprobe && sbatch slurm/judge.sbatch dev dev_r1
 #   cd ~/genprobe && sbatch --time=01:00:00 slurm/judge.sbatch test test_r1
+#   cd ~/genprobe && sbatch slurm/judge.sbatch dev dev_gemma --judge gemma4_31b     (D-030)
+#   extra arguments go to `genprobe.judge run`
 #
 # Output: data/judge/<tag>.jsonl (+ .meta.json), results/judge/<tag>/, logs/judge_<jobid>.out
 #SBATCH --job-name=judge
@@ -16,11 +18,11 @@
 #SBATCH --output=logs/%x_%j.out
 
 set -euo pipefail
-ROUND=${1:?round: dev or test}; TAG=${2:?tag, e.g. dev_r1}
+ROUND=${1:?round: dev or test}; TAG=${2:?tag, e.g. dev_r1}; shift 2
 source "${SLURM_SUBMIT_DIR:-$PWD}/slurm/common.sh"
 export GENPROBE_GPU_REGEX=H100
 require_gpu
 activate_env judge
 cd "$GENPROBE_ROOT"
-python -m genprobe.judge run --round "$ROUND" --tag "$TAG"
+python -m genprobe.judge run --round "$ROUND" --tag "$TAG" "$@"
 python -m genprobe.judge_eval --tag "$TAG" --round "$ROUND"

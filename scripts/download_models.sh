@@ -12,6 +12,7 @@
 #                                                                          (easyocr needs the aux env)
 #   ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh m2"         pickscore hpsv2 sd_safety nsfw_vit
 #   ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh judge"      qwen3vl8b (VLM judge)
+#   ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh gemma4_31b" final judge for module C (D-030)
 #
 # SD3.5 Medium and FLUX.1-schnell are gated: accept their terms on huggingface.co first.
 # Re-running is safe: files already in the cache are skipped.
@@ -124,6 +125,13 @@ for m in "$@"; do
         --include "*.json" "*.txt" "*.safetensors" \
         --expect config.json preprocessor_config.json tokenizer_config.json chat_template.json model.safetensors.index.json
       ;;
+    gemma4_31b)
+      # Final judge for module C (genprobe/judge.py, D-030), ~62.6 GB, Apache-2.0. Another model
+      # family from VQAScore's Qwen2.5-VL. Its chat template is a .jinja file.
+      download gemma4_31b google/gemma-4-31B-it \
+        --include "*.json" "*.jinja" "*.safetensors" \
+        --expect config.json processor_config.json tokenizer_config.json chat_template.jinja model.safetensors.index.json
+      ;;
     easyocr)
       # OCR checker (genprobe/metrics/ocr.py): CRAFT detector + english_g2 recognizer, ~100 MB,
       # into $EASYOCR_MODULE_PATH/model. URLs and md5 sums come from the installed EasyOCR's
@@ -140,7 +148,7 @@ for m in "$@"; do
       ;;
     *) echo "unknown model '$m' (expected login, sd15, sdxl, sd35m, flux_schnell, all, clip_l14, qwen25vl7b," \
             "scorers, grounding_dino_tiny, easyocr, checkers, pickscore, hpsv2, sd_safety, nsfw_vit, m2," \
-            "qwen3vl8b or judge)" >&2; exit 2 ;;
+            "qwen3vl8b, judge or gemma4_31b)" >&2; exit 2 ;;
   esac
 done
 
