@@ -615,6 +615,13 @@ person's differences are reported next to the judge's whatever they show; with 5
 are wide, so this checks direction, not a new test. Labels are committed before the key is copied
 and not changed after the analysis. Size chosen to take about 30–40 minutes of labelling.
 
+*D-033 note (2026-10-23, after the analysis; nothing was changed).* Labels committed at `b334a6e`
+before the key was opened (`data/labels/judge_check_labels.csv`, SHA-1
+`b769e52045296811fb3b2b0159c20329dd147566`, exported from the labelling page with answer times; the
+exported file name had a stray space, which was removed). Attention checks 10 of 10; κ between judge
+and person 0.532, above the 0.4 floor, so module C's pass rates are reported as they are, with the
+judge's strictness in the report (§4).
+
 ## Module D (re-ranking, video)
 
 **D-034 (2026-10-23) — Re-ranking curve (guide §11.1), fixed before any new image exists.**
@@ -640,3 +647,43 @@ expectation, written down now: the pass rate rises with N in shrinking steps, an
 rises faster than the judge's pass rate. *Order:* a smoke run on 20 test prompts (the first 5 of
 each category; its grades and results are kept apart in `results/rerank_smoke/` and are a pipeline
 check only), then the full run (about 5–6 GPU-hours) after the project author approves it.
+
+**D-035 (2026-10-23) — Video meta-evaluation on GenAI-Bench-Video, pre-registered before any video
+is scored.** Project author's choice of scope (with D-036). *Data:* `zhiqiulin/GenAI-Bench-800`
+(MIT; the revision is pinned in `data/external/genai_bench_video/SOURCE` at download): 800 prompts,
+each rendered by four text-to-video models (Floor33, Gen-2, Pika v1, ModelScope) and each video rated
+1–5 by three people for how well it matches the prompt. All 800 prompts are used; nothing is tuned on
+them. *Scores per video, all fixed now:* **VQAScore on the whole video**: Qwen2.5-VL-7B-Instruct
+(the same weights as the image VQAScore), the video given as a video at 8 fps with at most 360 × 420
+pixels per frame, read with decord, question "Does this figure show "{prompt}"? Please answer Yes or
+No.", P("Yes") — t2v_metrics' settings for this model (`genprobe/metrics/vqascore_video.py`).
+**VQAScore on the middle frame** (frame 4 of 9 taken at round(linspace(0, n − 1, 9))). **CLIPScore,
+PickScore and HPSv2.1** each averaged over the same 9 frames. *Method:* §3's (D-026): within-prompt
+pairs of videos whose mean ratings differ, equal metric scores count 1/2, 2,000 bootstrap resamples
+of prompts (seed 0), the leave-one-rater-out ceiling and Krippendorff's α (`genprobe/video_meta_eval.py`).
+**H4:** VQAScore on the whole video agrees with people more often than CLIPScore averaged over 9
+frames, over all prompts. **H5:** VQAScore on the whole video agrees with people more often than
+VQAScore on the middle frame, over all prompts (the guide's claim that scoring the video beats scoring
+frames). Each is supported when the 97.5 % CI of the paired difference lies above 0 (two tests),
+contradicted when below, inconclusive otherwise. Everything else (preference metrics, per skill,
+Kendall's τ, per-model means) is exploratory. The analysis refuses to run until every video has every
+score, so the results are computed once; the smoke run (20 prompts) checks only the pipeline (counts,
+errors, value ranges, seconds), never agreement with the ratings.
+
+**D-036 (2026-10-23) — Video generation with Wan2.2 TI2V-5B and its evaluation (guide §11.2–11.3),
+fixed before any video is generated.** *Model:* `Wan-AI/Wan2.2-TI2V-5B-Diffusers` (Apache-2.0;
+revision pinned at download), text-to-video at the model card's settings: 1280 × 704, 50 steps, cfg
+5.0, pipeline in bf16 with the VAE in fp32, 24 fps; own env `video` with the gen env's diffusers
+0.41.0. *Prompts:* 160 of GenAI-Bench-Video's 800, drawn at random (seed 0) within its basic and
+advanced tiers in proportion, one video each (seed 0), so Wan2.2 can be set beside the four older
+models on the same prompts. *Length:* the card's 121 frames (5 s) unless the smoke run (3 prompts at
+121 and at 81 frames on an H100 NVL) shows more than 90 GPU-seconds per video; then the longest of
+121, 81 or 49 frames that stays within 90 s (about 4 GPU-hours for 160 videos); the frame count used
+goes in the report. *Evaluation:* VQAScore on the whole video (D-035) for Wan2.2 and for the four
+older models' videos of the same 160 prompts; VBench (source pinned at `fd18b3d`, own env `vbench`,
+weights from `scripts/download_vbench.sh`) on the same 800 videos in custom-input mode, six
+dimensions: subject consistency, background consistency, motion smoothness, dynamic degree,
+aesthetic quality and imaging quality. Means per model with 95 % CIs over prompts; Wan2.2 − each older
+model, paired on prompts. Exploratory throughout. How far VQAScore on video can be trusted comes from
+D-035; VBench's dimensions measure quality and motion, not prompt following, and are not checked
+against people here.

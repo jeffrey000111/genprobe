@@ -5,4 +5,4 @@ Plugins that need heavy packages (torch, t2v_metrics, open_clip, ...) import the
 """
 
 from .base import REGISTRY, Metric, register, validate_record  # noqa: F401
-from . import clipscore, detect, hpsv2, ocr, pickscore, safety, vqascore  # noqa: F401,E402  (registers each metric)
+from . import clipscore, detect, hpsv2, ocr, pickscore, safety, vqascore, vqascore_video  # noqa: F401,E402  (registers each metric)

@@ -136,7 +136,7 @@ class TestMetricInterface(unittest.TestCase):
                 self.assertTrue(isinstance(metric.version, str) and metric.version)
                 self.assertIn(metric.env, ("eval", "aux"))
                 self.assertGreater(metric.default_batch_size, 0)
-                self.assertTrue(metric.needs <= {"image", "prompt", "spec"}, metric.needs)
+                self.assertTrue(metric.needs <= {"image", "video", "prompt", "spec"}, metric.needs)
 
     @unittest.skipUnless(os.environ.get("GENPROBE_TEST_REAL_METRICS") == "1",
                          "loads real models; set GENPROBE_TEST_REAL_METRICS=1 inside a GPU job")

@@ -370,7 +370,7 @@ def render(res: dict, rows: list[dict], order: list[str], metrics: list[str]) ->
     return "\n".join(L) + "\n"
 
 
-def heatmap(rows: list[dict], order: list[str], metrics: list[str], out: Path) -> None:
+def heatmap(rows: list[dict], order: list[str], metrics: list[str], out: Path, what: str = "image") -> None:
     from matplotlib.colors import LinearSegmentedColormap
 
     from .figures import INK, INK2, SEQ_RAMP, SURFACE, _fig, _footnote
@@ -413,9 +413,10 @@ def heatmap(rows: list[dict], order: list[str], metrics: list[str], out: Path) -
     j = order.index("all") if "all" in order else 0
     overall = {m: by.get((m, order[j]), math.nan) for m in metrics}
     best = max(overall, key=lambda m: -1 if math.isnan(overall[m]) else overall[m])
-    ax.set_title(f"Agreement with people on GenAI-Bench pairs: {best} highest overall ({overall[best]:.2f}), "
+    bench = "GenAI-Bench" if what == "image" else "GenAI-Bench-Video"
+    ax.set_title(f"Agreement with people on {bench} pairs: {best} highest overall ({overall[best]:.2f}), "
                  f"human ceiling {grid[0, j]:.2f}", fontsize=10, color=INK, loc="left", pad=10)
-    _footnote(fig, "Share of within-prompt image pairs a metric orders like the mean of three human ratings "
+    _footnote(fig, f"Share of within-prompt {what} pairs a metric orders like the mean of three human ratings "
                    "(pairs with equal means excluded; equal metric scores count 1/2). Human ceiling: each rating "
                    "against the mean of the other two. Prompts carry several tags, so columns overlap. "
                    "CIs in hypotheses.md."

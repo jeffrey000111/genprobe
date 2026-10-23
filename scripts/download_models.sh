@@ -13,6 +13,7 @@
 #   ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh m2"         pickscore hpsv2 sd_safety nsfw_vit
 #   ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh judge"      qwen3vl8b (VLM judge)
 #   ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh gemma4_31b" final judge for module C (D-030)
+#   ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh wan22_ti2v5b" video generator (module D, D-036)
 #
 # SD3.5 Medium and FLUX.1-schnell are gated: accept their terms on huggingface.co first.
 # Re-running is safe: files already in the cache are skipped.
@@ -132,6 +133,14 @@ for m in "$@"; do
         --include "*.json" "*.jinja" "*.safetensors" \
         --expect config.json processor_config.json tokenizer_config.json chat_template.jinja model.safetensors.index.json
       ;;
+    wan22_ti2v5b)
+      # Video generator for module D (genprobe/video_gen.py, D-036): Wan2.2 TI2V-5B in diffusers format,
+      # Apache-2.0. Text encoder (UMT5-XXL), transformer, VAE, tokenizer and scheduler configs.
+      download wan22_ti2v5b Wan-AI/Wan2.2-TI2V-5B-Diffusers \
+        --include "*.json" "*.txt" "*.model" "*/*.safetensors" \
+        --expect model_index.json transformer/config.json vae/config.json text_encoder/config.json \
+          scheduler/scheduler_config.json
+      ;;
     easyocr)
       # OCR checker (genprobe/metrics/ocr.py): CRAFT detector + english_g2 recognizer, ~100 MB,
       # into $EASYOCR_MODULE_PATH/model. URLs and md5 sums come from the installed EasyOCR's
@@ -148,7 +157,7 @@ for m in "$@"; do
       ;;
     *) echo "unknown model '$m' (expected login, sd15, sdxl, sd35m, flux_schnell, all, clip_l14, qwen25vl7b," \
             "scorers, grounding_dino_tiny, easyocr, checkers, pickscore, hpsv2, sd_safety, nsfw_vit, m2," \
-            "qwen3vl8b, judge or gemma4_31b)" >&2; exit 2 ;;
+            "qwen3vl8b, judge, gemma4_31b or wan22_ti2v5b)" >&2; exit 2 ;;
   esac
 done
 

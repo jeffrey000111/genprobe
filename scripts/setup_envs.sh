@@ -6,6 +6,8 @@
 #   ssh sjsu "cd ~/genprobe && bash scripts/setup_envs.sh eval"
 #   ssh sjsu "cd ~/genprobe && bash scripts/setup_envs.sh aux"    EasyOCR for the OCR checker
 #   ssh sjsu "cd ~/genprobe && bash scripts/setup_envs.sh judge"  vLLM for the VLM judge
+#   ssh sjsu "cd ~/genprobe && bash scripts/setup_envs.sh video"  Wan2.2 video generation (module D)
+#   ssh sjsu "cd ~/genprobe && bash scripts/setup_envs.sh vbench" VBench video quality dimensions (module D)
 #
 # coe-hpc1 runs CentOS 7 (glibc 2.17) and HPC3 runs glibc 2.34, so packages are selected for
 # HPC3's platform with uv's --python-platform, not for the machine doing the install. uv and
@@ -13,7 +15,7 @@
 # Afterwards, test the env on a GPU node: sbatch slurm/probe_gpu.sbatch (on HPC3).
 set -euo pipefail
 cd "$(dirname "$0")/.."
-ENV=${1:?usage: setup_envs.sh gen|eval|aux|judge}
+ENV=${1:?usage: setup_envs.sh gen|eval|aux|judge|video|vbench}
 # shellcheck disable=SC1091
 source scripts/paths.sh
 TARGET_PLATFORM=${TARGET_PLATFORM:-x86_64-manylinux_2_34}   # HPC3's glibc
@@ -79,9 +81,29 @@ case "$ENV" in
     # torch and transformers, so it gets an env of its own; uv picks the newest vLLM wheel.
     install vllm
     ;;
-  *) echo "unknown env '$ENV' (expected gen, eval, aux or judge)" >&2; exit 2 ;;
+  video)
+    # Wan2.2 TI2V-5B (guide §11.2, D-036). Its own env, so the image generators' gen env is never
+    # re-resolved mid-project; the same diffusers release as gen. imageio-ffmpeg writes the mp4s
+    # (it ships a static ffmpeg); ftfy is what Wan's prompt cleaning uses when present.
+    install torch torchvision "diffusers==0.41.0" transformers accelerate sentencepiece protobuf safetensors \
+      ftfy imageio imageio-ffmpeg av
+    ;;
+  vbench)
+    # VBench (guide §11.3, D-036), six dimensions for custom videos. Its README asks for torch built
+    # with CUDA <= 12.1 and transformers 4.33.2; torch 2.4.1's PyPI wheels are built with CUDA 12.1.
+    # VBench itself is not pip-installed (its setup.py demands a visible GPU at install time): the
+    # pinned source checkout from scripts/download_vbench.sh goes on the path through a .pth file.
+    install "torch==2.4.1" "torchvision==0.19.1" "numpy<2" "timm>=0.9,<=1.0.12" "transformers==4.33.2" \
+      openai-clip decord pyiqa easydict omegaconf opencv-python-headless scipy scikit-image tqdm av
+    ;;
+  *) echo "unknown env '$ENV' (expected gen, eval, aux, judge, video or vbench)" >&2; exit 2 ;;
 esac
 install -e ".[analysis]"
+if [[ "$ENV" == vbench ]]; then
+  SITE=$(ls -d "$VENV"/lib/python*/site-packages | head -1)
+  echo "$GENPROBE_ENVS/vbench-src" > "$SITE/vbench_src.pth"
+  echo "VBench source path: $GENPROBE_ENVS/vbench-src (scripts/download_vbench.sh clones it)"
+fi
 
 if [[ "$ENV" == eval ]]; then
   # t2v_metrics refuses to import unless an `ffmpeg` program is on PATH (it only uses it for

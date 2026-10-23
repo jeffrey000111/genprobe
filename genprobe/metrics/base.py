@@ -23,7 +23,7 @@ class Metric(ABC):
     # that changes scores belongs in it. Plugins may set it per instance in __init__ (cheap
     # lookups only: no torch import).
     version: str
-    needs: ClassVar[frozenset[str]] = frozenset({"image", "prompt"})  # add "spec" for template prompts
+    needs: ClassVar[frozenset[str]] = frozenset({"image", "prompt"})  # "spec" for template prompts; "video" for video files
     env: ClassVar[str] = "eval"             # virtualenv it runs in: "eval" or "aux"
     higher_is_better: ClassVar[bool] = True
     default_batch_size: ClassVar[int] = 16
