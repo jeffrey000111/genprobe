@@ -1,0 +1,555 @@
+{
+  "runs": [
+    "devrule2",
+    "devsdxl2"
+  ],
+  "grades": [
+    "grade_devrule2_gemma4_31b",
+    "grade_devsdxl2_gemma4_31b"
+  ],
+  "judge_version": "vllm==0.32.0/gemma-4-31b@842da37/bf16/vis560/img1024/tmpl-b9e98ed8",
+  "created_at": "2026-10-23T00:54:39.373+00:00",
+  "git_commit": "f2718a2",
+  "pass_rule": "judge score == 5",
+  "groups": [
+    "single",
+    "best_of_4",
+    "routed_best_of_k",
+    "agent_rule@devrule2",
+    "agent_rule_sdxl@devsdxl2"
+  ],
+  "pass_rate": {
+    "single": {
+      "all": {
+        "value": 0.24166666666666667,
+        "ci": [
+          0.16666666666666666,
+          0.31666666666666665
+        ],
+        "n": 120
+      },
+      "counting": {
+        "value": 0.2857142857142857,
+        "ci": [
+          0.07142857142857142,
+          0.5714285714285714
+        ],
+        "n": 14
+      },
+      "genai": {
+        "value": 0.25,
+        "ci": [
+          0.1625,
+          0.35
+        ],
+        "n": 80
+      },
+      "spatial": {
+        "value": 0.2857142857142857,
+        "ci": [
+          0.07142857142857142,
+          0.5
+        ],
+        "n": 14
+      },
+      "text": {
+        "value": 0.08333333333333333,
+        "ci": [
+          0.0,
+          0.25
+        ],
+        "n": 12
+      }
+    },
+    "best_of_4": {
+      "all": {
+        "value": 0.4166666666666667,
+        "ci": [
+          0.3333333333333333,
+          0.5
+        ],
+        "n": 120
+      },
+      "counting": {
+        "value": 0.6428571428571429,
+        "ci": [
+          0.35714285714285715,
+          0.8571428571428571
+        ],
+        "n": 14
+      },
+      "genai": {
+        "value": 0.4,
+        "ci": [
+          0.2875,
+          0.5
+        ],
+        "n": 80
+      },
+      "spatial": {
+        "value": 0.5,
+        "ci": [
+          0.21428571428571427,
+          0.7857142857142857
+        ],
+        "n": 14
+      },
+      "text": {
+        "value": 0.16666666666666666,
+        "ci": [
+          0.0,
+          0.4166666666666667
+        ],
+        "n": 12
+      }
+    },
+    "routed_best_of_k": {
+      "all": {
+        "value": 0.6,
+        "ci": [
+          0.5166666666666667,
+          0.6833333333333333
+        ],
+        "n": 120
+      },
+      "counting": {
+        "value": 0.7857142857142857,
+        "ci": [
+          0.5714285714285714,
+          1.0
+        ],
+        "n": 14
+      },
+      "genai": {
+        "value": 0.5125,
+        "ci": [
+          0.4,
+          0.625
+        ],
+        "n": 80
+      },
+      "spatial": {
+        "value": 0.6428571428571429,
+        "ci": [
+          0.35714285714285715,
+          0.8571428571428571
+        ],
+        "n": 14
+      },
+      "text": {
+        "value": 0.9166666666666666,
+        "ci": [
+          0.75,
+          1.0
+        ],
+        "n": 12
+      }
+    },
+    "agent_rule@devrule2": {
+      "all": {
+        "value": 0.5333333333333333,
+        "ci": [
+          0.45,
+          0.625
+        ],
+        "n": 120
+      },
+      "counting": {
+        "value": 0.7857142857142857,
+        "ci": [
+          0.5714285714285714,
+          1.0
+        ],
+        "n": 14
+      },
+      "genai": {
+        "value": 0.425,
+        "ci": [
+          0.3125,
+          0.5375
+        ],
+        "n": 80
+      },
+      "spatial": {
+        "value": 0.7857142857142857,
+        "ci": [
+          0.5714285714285714,
+          1.0
+        ],
+        "n": 14
+      },
+      "text": {
+        "value": 0.6666666666666666,
+        "ci": [
+          0.4166666666666667,
+          0.9166666666666666
+        ],
+        "n": 12
+      }
+    },
+    "agent_rule_sdxl@devsdxl2": {
+      "all": {
+        "value": 0.375,
+        "ci": [
+          0.2916666666666667,
+          0.4583333333333333
+        ],
+        "n": 120
+      },
+      "counting": {
+        "value": 0.5714285714285714,
+        "ci": [
+          0.2857142857142857,
+          0.7857142857142857
+        ],
+        "n": 14
+      },
+      "genai": {
+        "value": 0.35,
+        "ci": [
+          0.25,
+          0.45
+        ],
+        "n": 80
+      },
+      "spatial": {
+        "value": 0.5714285714285714,
+        "ci": [
+          0.2857142857142857,
+          0.7857142857142857
+        ],
+        "n": 14
+      },
+      "text": {
+        "value": 0.08333333333333333,
+        "ci": [
+          0.0,
+          0.25
+        ],
+        "n": 12
+      }
+    }
+  },
+  "paired_difference": {
+    "agent_rule@devrule2 - single|all": {
+      "value": 0.2916666666666667,
+      "ci": [
+        0.21666666666666667,
+        0.375
+      ],
+      "n": 120
+    },
+    "agent_rule@devrule2 - single|counting": {
+      "value": 0.5,
+      "ci": [
+        0.21428571428571427,
+        0.7857142857142857
+      ],
+      "n": 14
+    },
+    "agent_rule@devrule2 - single|genai": {
+      "value": 0.175,
+      "ci": [
+        0.1,
+        0.2625
+      ],
+      "n": 80
+    },
+    "agent_rule@devrule2 - single|spatial": {
+      "value": 0.5,
+      "ci": [
+        0.21428571428571427,
+        0.7857142857142857
+      ],
+      "n": 14
+    },
+    "agent_rule@devrule2 - single|text": {
+      "value": 0.5833333333333334,
+      "ci": [
+        0.3333333333333333,
+        0.8333333333333334
+      ],
+      "n": 12
+    },
+    "agent_rule@devrule2 - best_of_4|all": {
+      "value": 0.11666666666666667,
+      "ci": [
+        0.025,
+        0.20833333333333334
+      ],
+      "n": 120
+    },
+    "agent_rule@devrule2 - best_of_4|counting": {
+      "value": 0.14285714285714285,
+      "ci": [
+        -0.21428571428571427,
+        0.5
+      ],
+      "n": 14
+    },
+    "agent_rule@devrule2 - best_of_4|genai": {
+      "value": 0.025,
+      "ci": [
+        -0.075,
+        0.125
+      ],
+      "n": 80
+    },
+    "agent_rule@devrule2 - best_of_4|spatial": {
+      "value": 0.2857142857142857,
+      "ci": [
+        -0.07142857142857142,
+        0.5714285714285714
+      ],
+      "n": 14
+    },
+    "agent_rule@devrule2 - best_of_4|text": {
+      "value": 0.5,
+      "ci": [
+        0.25,
+        0.75
+      ],
+      "n": 12
+    },
+    "agent_rule@devrule2 - routed_best_of_k|all": {
+      "value": -0.06666666666666667,
+      "ci": [
+        -0.15833333333333333,
+        0.025
+      ],
+      "n": 120
+    },
+    "agent_rule@devrule2 - routed_best_of_k|counting": {
+      "value": 0.0,
+      "ci": [
+        -0.35714285714285715,
+        0.35714285714285715
+      ],
+      "n": 14
+    },
+    "agent_rule@devrule2 - routed_best_of_k|genai": {
+      "value": -0.0875,
+      "ci": [
+        -0.2,
+        0.025
+      ],
+      "n": 80
+    },
+    "agent_rule@devrule2 - routed_best_of_k|spatial": {
+      "value": 0.14285714285714285,
+      "ci": [
+        -0.14285714285714285,
+        0.42857142857142855
+      ],
+      "n": 14
+    },
+    "agent_rule@devrule2 - routed_best_of_k|text": {
+      "value": -0.25,
+      "ci": [
+        -0.5,
+        -0.08333333333333333
+      ],
+      "n": 12
+    },
+    "agent_rule_sdxl@devsdxl2 - single|all": {
+      "value": 0.13333333333333333,
+      "ci": [
+        0.075,
+        0.2
+      ],
+      "n": 120
+    },
+    "agent_rule_sdxl@devsdxl2 - single|counting": {
+      "value": 0.2857142857142857,
+      "ci": [
+        0.07142857142857142,
+        0.5
+      ],
+      "n": 14
+    },
+    "agent_rule_sdxl@devsdxl2 - single|genai": {
+      "value": 0.1,
+      "ci": [
+        0.0375,
+        0.175
+      ],
+      "n": 80
+    },
+    "agent_rule_sdxl@devsdxl2 - single|spatial": {
+      "value": 0.2857142857142857,
+      "ci": [
+        0.07142857142857142,
+        0.5017857142857045
+      ],
+      "n": 14
+    },
+    "agent_rule_sdxl@devsdxl2 - single|text": {
+      "value": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "n": 12
+    },
+    "agent_rule_sdxl@devsdxl2 - best_of_4|all": {
+      "value": -0.041666666666666664,
+      "ci": [
+        -0.11666666666666667,
+        0.03333333333333333
+      ],
+      "n": 120
+    },
+    "agent_rule_sdxl@devsdxl2 - best_of_4|counting": {
+      "value": -0.07142857142857142,
+      "ci": [
+        -0.2857142857142857,
+        0.14285714285714285
+      ],
+      "n": 14
+    },
+    "agent_rule_sdxl@devsdxl2 - best_of_4|genai": {
+      "value": -0.05,
+      "ci": [
+        -0.1375,
+        0.0375
+      ],
+      "n": 80
+    },
+    "agent_rule_sdxl@devsdxl2 - best_of_4|spatial": {
+      "value": 0.07142857142857142,
+      "ci": [
+        -0.2857142857142857,
+        0.35714285714285715
+      ],
+      "n": 14
+    },
+    "agent_rule_sdxl@devsdxl2 - best_of_4|text": {
+      "value": -0.08333333333333333,
+      "ci": [
+        -0.25,
+        0.0
+      ],
+      "n": 12
+    },
+    "agent_rule_sdxl@devsdxl2 - routed_best_of_k|all": {
+      "value": -0.225,
+      "ci": [
+        -0.3333333333333333,
+        -0.11666666666666667
+      ],
+      "n": 120
+    },
+    "agent_rule_sdxl@devsdxl2 - routed_best_of_k|counting": {
+      "value": -0.21428571428571427,
+      "ci": [
+        -0.5,
+        0.07142857142857142
+      ],
+      "n": 14
+    },
+    "agent_rule_sdxl@devsdxl2 - routed_best_of_k|genai": {
+      "value": -0.1625,
+      "ci": [
+        -0.2875,
+        -0.025
+      ],
+      "n": 80
+    },
+    "agent_rule_sdxl@devsdxl2 - routed_best_of_k|spatial": {
+      "value": -0.07142857142857142,
+      "ci": [
+        -0.35714285714285715,
+        0.21428571428571427
+      ],
+      "n": 14
+    },
+    "agent_rule_sdxl@devsdxl2 - routed_best_of_k|text": {
+      "value": -0.8333333333333334,
+      "ci": [
+        -1.0,
+        -0.5833333333333334
+      ],
+      "n": 12
+    },
+    "agent_rule@devrule2 - agent_rule_sdxl@devsdxl2|all": {
+      "value": 0.15833333333333333,
+      "ci": [
+        0.075,
+        0.24166666666666667
+      ],
+      "n": 120
+    },
+    "agent_rule@devrule2 - agent_rule_sdxl@devsdxl2|counting": {
+      "value": 0.21428571428571427,
+      "ci": [
+        -0.07142857142857142,
+        0.5
+      ],
+      "n": 14
+    },
+    "agent_rule@devrule2 - agent_rule_sdxl@devsdxl2|genai": {
+      "value": 0.075,
+      "ci": [
+        -0.0125,
+        0.1625
+      ],
+      "n": 80
+    },
+    "agent_rule@devrule2 - agent_rule_sdxl@devsdxl2|spatial": {
+      "value": 0.21428571428571427,
+      "ci": [
+        0.0,
+        0.42857142857142855
+      ],
+      "n": 14
+    },
+    "agent_rule@devrule2 - agent_rule_sdxl@devsdxl2|text": {
+      "value": 0.5833333333333334,
+      "ci": [
+        0.3333333333333333,
+        0.8333333333333334
+      ],
+      "n": 12
+    }
+  },
+  "spend": {
+    "single": {
+      "mean_gpu_seconds": 5.290025,
+      "gpu_seconds_per_success": 21.88975862068965
+    },
+    "best_of_4": {
+      "mean_gpu_seconds": 20.7159,
+      "gpu_seconds_per_success": 49.718159999999955
+    },
+    "routed_best_of_k": {
+      "mean_gpu_seconds": 13.955733333333333,
+      "gpu_seconds_per_success": 23.259555555555554
+    },
+    "agent_rule@devrule2": {
+      "mean_gpu_seconds": 11.668233333333335,
+      "gpu_seconds_per_success": 21.877937499999994
+    },
+    "agent_rule_sdxl@devsdxl2": {
+      "mean_gpu_seconds": 13.7839,
+      "gpu_seconds_per_success": 36.75706666666666
+    }
+  },
+  "ungraded": {},
+  "agent_unfixed_by_first_diagnosis": {
+    "agent_rule@devrule2": {
+      "passed own checks": 8,
+      "low_alignment": 42,
+      "wrong_count": 2,
+      "wrong_relation": 1,
+      "misspelled_text": 3
+    },
+    "agent_rule_sdxl@devsdxl2": {
+      "passed own checks": 8,
+      "low_alignment": 48,
+      "wrong_count": 6,
+      "wrong_relation": 3,
+      "misspelled_text": 10
+    }
+  },
+  "prompts": 120
+}

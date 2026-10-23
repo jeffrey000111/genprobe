@@ -1,6 +1,6 @@
 # VLM judge, round `test` (`test_gemma`)
 
-Made 2026-10-22T23:53:04.556+00:00 at commit `69cc57d` by `python -m genprobe.judge_eval`. Judge `vllm==0.32.0/gemma-4-31b@842da37/bf16/vis560/img1024/tmpl-b9e98ed8`; 16620 answers; generation took 5214.4 s.
+Made 2026-10-23T00:00:39.364+00:00 at commit `f2718a2` by `python -m genprobe.judge_eval`. Judge `vllm==0.32.0/gemma-4-31b@842da37/bf16/vis560/img1024/tmpl-b9e98ed8`; 16620 answers; generation took 5214.4 s.
 
 ## Parsing
 
@@ -25,7 +25,7 @@ Paired on the same 17159 pairs (exploratory): judge expected score 0.729 − VQA
 
 - Agreement with people: 0.697 [0.674, 0.719] over 1000 pairs (a pick counts only if both orders agree; otherwise 1/2). The judge picked an image consistently in 61 % of pairs.
 - Same verdict in both orders: 0.818 [0.794, 0.842].
-- Position bias: 0.490 [0.478, 0.503] of 1449 image-picking verdicts pick the image shown first (0.5 = no bias); **H3 inconclusive** (pre-registered: holds if the 95 % CI excludes 0.5).
+- Position bias: 0.490 [0.478, 0.503] of 1449 image-picking verdicts pick the image shown first (0.5 = no bias); CI includes 0.5 (exploratory: H3 was pre-registered for the Qwen3-VL judge only).
 
 ## Consistency (3 samples at temperature 0.7)
 

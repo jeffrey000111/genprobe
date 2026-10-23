@@ -569,3 +569,16 @@ changes which images best-of-4 and routed best-of-k pick: the same rule applies 
 to separate what diagnosis and repair add from what the stronger models add. Both run on dev
 (`devrule2`, `devsdxl2`) and are graded together; then the rules are frozen for the test run.
 
+*D-031 revision 2 (2026-10-22, after `devrule2` and `devsdxl2` were graded): rules r2 frozen; no
+LLM-planned agent this time.* Dev (120 prompts, judge Gemma 4 31B, pass = score 5;
+`results/agent/devrule2+devsdxl2/judged.md`): single 0.242, SDXL best-of-4 0.417, routed best-of-k
+0.600, agent r2 0.533 (r1 was 0.550, within noise), SDXL-only agent 0.375. Agent − SDXL-only agent
++0.158 [0.07, 0.24]; SDXL-only agent − SDXL best-of-4 −0.042 [−0.12, 0.03]; agent − routed
+best-of-k −0.067 [−0.16, 0.03]. So on dev the gains come from switching to a stronger model, not
+from diagnosis-driven repair, which does no better than spending the same budget on new seeds. As
+planned in revision 1 the rules are not tuned further on dev: r2 is frozen (`FROZEN_RULESET`;
+`genprobe.agent.run init` refuses a test run with other rules), and the test run (480 prompts,
+`testrule`, `testsdxl`) runs once and is graded once. Project author's decision: the LLM-planned
+agent (guide §10.3, optional) is left as future work; dev suggests the bottleneck is the repair
+actions themselves rather than how they are chosen.
+

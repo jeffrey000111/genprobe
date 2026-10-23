@@ -34,6 +34,7 @@ CFG_HIGH = 7.5           # SDXL's default is 5.0
 SEED_OFFSET = 1000       # reseeded attempts use seeds 1000+, never v1's 0-3
 MAX_ATTEMPTS = 12        # hard stop besides the budget (rules r2: the budget is the real limit)
 RULESET = "r2"
+FROZEN_RULESET = "r2"      # D-031 revision 2: the test run only runs with these rules
 # Strongest model per category on the DEV split of prompt set v1 (results/prompts_v1_dev): sd35m
 # for counting (detector 0.589) and spatial (0.732); flux_schnell for text (OCR 0.912, and ~4x
 # cheaper than sd35m's 0.896) and GenAI-Bench (VQAScore 0.802 basic, 0.539 advanced).

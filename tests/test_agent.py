@@ -83,6 +83,9 @@ class TestCore(unittest.TestCase):
         st2.policy = "rule_sdxl"                                            # ablation: never switches
         self.assertEqual(core.next_rule_action(st2, COSTS)[0], "raise_cfg")
 
+    def test_rules_are_frozen(self):
+        self.assertEqual(core.RULESET, core.FROZEN_RULESET)       # changing the rules needs a new decision
+
     def test_budget_is_best_of_four(self):
         self.assertAlmostEqual(core.budget_for("counting", COSTS), 4 * (3.0 + 1.5))
         self.assertAlmostEqual(core.budget_for("genai", COSTS), 4 * (3.0 + 0.5))

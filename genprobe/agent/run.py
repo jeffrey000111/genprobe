@@ -99,6 +99,8 @@ def measure_costs(data: str | Path, ids_by_model: dict[str, set[str]], score_ids
 
 def init(run: str, split: str, policy: str = "rule", prompts_path: str = "data/prompts/prompts_v1.jsonl",
          data: str = "data", root: Path = ROOT, limit: int | None = None) -> dict:
+    if split == "test" and core.RULESET != core.FROZEN_RULESET:
+        raise SystemExit(f"rules {core.RULESET} are not the frozen {core.FROZEN_RULESET} (D-031): no test run")
     prompts = load_prompts(prompts_path, split=split, limit=limit)
     v1 = {pid: {m: {s: make_sample_id(m, p.prompt_id, s) for s in range(4)} for m in GEN_MODELS}
           for p in prompts for pid in [p.prompt_id]}
