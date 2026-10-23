@@ -269,9 +269,10 @@ def plot(res: dict, path: Path) -> str:
         hi = [p[1]["ci"][1] - p[1]["value"] for p in pts]
         ax.errorbar(x, y, yerr=[lo, hi], color=colours[c], linewidth=2, elinewidth=1, capsize=0, marker="o",
                     markersize=7, markeredgecolor=SURFACE, markeredgewidth=1.5, zorder=3, label=LABEL[c])
+        above = c == "routed"                       # N labels above the upper curve, below the lower one
         for n, xv, yv in zip(res["ns"], x, y):
-            ax.annotate(f"N={n}", (xv, yv), xytext=(-6, 8), textcoords="offset points", fontsize=7.5, color=INK2,
-                        ha="right")
+            ax.annotate(f"N={n}", (xv, yv), xytext=(-6, 8) if above else (6, -13), textcoords="offset points",
+                        fontsize=7.5, color=INK2, ha="right" if above else "left")
         xs += x
     markers = {"single": "v", "best_of_4": "s", "routed_best_of_k": "D", "agent_rule": "*", "agent_rule_sdxl": "P"}
     for m in MODULE_C:
@@ -279,8 +280,8 @@ def plot(res: dict, path: Path) -> str:
             continue
         v = r[m]["all"]
         ax.errorbar(gpu[m], v["value"], yerr=[[v["value"] - v["ci"][0]], [v["ci"][1] - v["value"]]], fmt="none",
-                    ecolor=INK2, elinewidth=1, capsize=0, zorder=2)
-        ax.scatter(gpu[m], v["value"], s=110 if m == "agent_rule" else 60, marker=markers[m], color=INK,
+                    ecolor=INK2, elinewidth=1, capsize=0, alpha=0.55, zorder=2)
+        ax.scatter(gpu[m], v["value"], s=180 if m == "agent_rule" else 60, marker=markers[m], color=INK,
                    edgecolor=SURFACE, linewidth=1.5, zorder=4)
         ax.annotate(LABEL[m], (gpu[m], v["value"]), xytext=(8, -3), textcoords="offset points", fontsize=8,
                     color=INK)

@@ -1,0 +1,1459 @@
+{
+  "created_at": "2026-10-23T08:28:30.548+00:00",
+  "git_commit": "311f970",
+  "picks": "data/rerank/picks_smoke.jsonl",
+  "grades": "grade_rerank_smoke_gemma4_31b",
+  "judge_version": "vllm==0.32.0/gemma-4-31b@842da37/bf16/vis560/img1024/tmpl-b9e98ed8",
+  "pass_rule": "judge score == 5",
+  "prompts": 20,
+  "ns": [
+    1,
+    2,
+    4,
+    9
+  ],
+  "costs": {
+    "gen": {
+      "sdxl": 3.0504,
+      "sd35m": 4.6027,
+      "flux_schnell": 1.128
+    },
+    "score": {
+      "vqascore": 0.8518,
+      "detect": 5.5647,
+      "ocr": 2.3489
+    }
+  },
+  "groups": [
+    "sdxl@1",
+    "sdxl@2",
+    "sdxl@4",
+    "sdxl@9",
+    "routed@1",
+    "routed@2",
+    "routed@4",
+    "routed@9",
+    "single",
+    "best_of_4",
+    "routed_best_of_k",
+    "agent_rule",
+    "agent_rule_sdxl"
+  ],
+  "pass_rate": {
+    "sdxl@1": {
+      "all": {
+        "value": 0.45,
+        "ci": [
+          0.25,
+          0.65
+        ],
+        "n": 20
+      },
+      "counting": {
+        "value": 0.4,
+        "ci": [
+          0.0,
+          0.8
+        ],
+        "n": 5
+      },
+      "spatial": {
+        "value": 0.2,
+        "ci": [
+          0.0,
+          0.6
+        ],
+        "n": 5
+      },
+      "text": {
+        "value": 0.6,
+        "ci": [
+          0.2,
+          1.0
+        ],
+        "n": 5
+      },
+      "genai": {
+        "value": 0.6,
+        "ci": [
+          0.2,
+          1.0
+        ],
+        "n": 5
+      }
+    },
+    "sdxl@2": {
+      "all": {
+        "value": 0.6,
+        "ci": [
+          0.4,
+          0.8
+        ],
+        "n": 20
+      },
+      "counting": {
+        "value": 0.6,
+        "ci": [
+          0.2,
+          1.0
+        ],
+        "n": 5
+      },
+      "spatial": {
+        "value": 0.4,
+        "ci": [
+          0.0,
+          0.8
+        ],
+        "n": 5
+      },
+      "text": {
+        "value": 0.8,
+        "ci": [
+          0.4,
+          1.0
+        ],
+        "n": 5
+      },
+      "genai": {
+        "value": 0.6,
+        "ci": [
+          0.2,
+          1.0
+        ],
+        "n": 5
+      }
+    },
+    "sdxl@4": {
+      "all": {
+        "value": 0.75,
+        "ci": [
+          0.55,
+          0.9
+        ],
+        "n": 20
+      },
+      "counting": {
+        "value": 0.8,
+        "ci": [
+          0.4,
+          1.0
+        ],
+        "n": 5
+      },
+      "spatial": {
+        "value": 0.4,
+        "ci": [
+          0.0,
+          0.8
+        ],
+        "n": 5
+      },
+      "text": {
+        "value": 1.0,
+        "ci": [
+          1.0,
+          1.0
+        ],
+        "n": 5
+      },
+      "genai": {
+        "value": 0.8,
+        "ci": [
+          0.4,
+          1.0
+        ],
+        "n": 5
+      }
+    },
+    "sdxl@9": {
+      "all": {
+        "value": 0.8,
+        "ci": [
+          0.6,
+          0.95
+        ],
+        "n": 20
+      },
+      "counting": {
+        "value": 0.8,
+        "ci": [
+          0.4,
+          1.0
+        ],
+        "n": 5
+      },
+      "spatial": {
+        "value": 0.6,
+        "ci": [
+          0.2,
+          1.0
+        ],
+        "n": 5
+      },
+      "text": {
+        "value": 1.0,
+        "ci": [
+          1.0,
+          1.0
+        ],
+        "n": 5
+      },
+      "genai": {
+        "value": 0.8,
+        "ci": [
+          0.4,
+          1.0
+        ],
+        "n": 5
+      }
+    },
+    "routed@1": {
+      "all": {
+        "value": 0.7,
+        "ci": [
+          0.5,
+          0.9
+        ],
+        "n": 20
+      },
+      "counting": {
+        "value": 0.4,
+        "ci": [
+          0.0,
+          0.8
+        ],
+        "n": 5
+      },
+      "spatial": {
+        "value": 0.6,
+        "ci": [
+          0.2,
+          1.0
+        ],
+        "n": 5
+      },
+      "text": {
+        "value": 0.8,
+        "ci": [
+          0.4,
+          1.0
+        ],
+        "n": 5
+      },
+      "genai": {
+        "value": 1.0,
+        "ci": [
+          1.0,
+          1.0
+        ],
+        "n": 5
+      }
+    },
+    "routed@2": {
+      "all": {
+        "value": 0.75,
+        "ci": [
+          0.55,
+          0.95
+        ],
+        "n": 20
+      },
+      "counting": {
+        "value": 0.6,
+        "ci": [
+          0.2,
+          1.0
+        ],
+        "n": 5
+      },
+      "spatial": {
+        "value": 0.6,
+        "ci": [
+          0.2,
+          1.0
+        ],
+        "n": 5
+      },
+      "text": {
+        "value": 0.8,
+        "ci": [
+          0.4,
+          1.0
+        ],
+        "n": 5
+      },
+      "genai": {
+        "value": 1.0,
+        "ci": [
+          1.0,
+          1.0
+        ],
+        "n": 5
+      }
+    },
+    "routed@4": {
+      "all": {
+        "value": 0.85,
+        "ci": [
+          0.7,
+          1.0
+        ],
+        "n": 20
+      },
+      "counting": {
+        "value": 0.8,
+        "ci": [
+          0.4,
+          1.0
+        ],
+        "n": 5
+      },
+      "spatial": {
+        "value": 0.8,
+        "ci": [
+          0.4,
+          1.0
+        ],
+        "n": 5
+      },
+      "text": {
+        "value": 0.8,
+        "ci": [
+          0.4,
+          1.0
+        ],
+        "n": 5
+      },
+      "genai": {
+        "value": 1.0,
+        "ci": [
+          1.0,
+          1.0
+        ],
+        "n": 5
+      }
+    },
+    "routed@9": {
+      "all": {
+        "value": 1.0,
+        "ci": [
+          1.0,
+          1.0
+        ],
+        "n": 20
+      },
+      "counting": {
+        "value": 1.0,
+        "ci": [
+          1.0,
+          1.0
+        ],
+        "n": 5
+      },
+      "spatial": {
+        "value": 1.0,
+        "ci": [
+          1.0,
+          1.0
+        ],
+        "n": 5
+      },
+      "text": {
+        "value": 1.0,
+        "ci": [
+          1.0,
+          1.0
+        ],
+        "n": 5
+      },
+      "genai": {
+        "value": 1.0,
+        "ci": [
+          1.0,
+          1.0
+        ],
+        "n": 5
+      }
+    },
+    "single": {
+      "all": {
+        "value": 0.45,
+        "ci": [
+          0.25,
+          0.65
+        ],
+        "n": 20
+      },
+      "counting": {
+        "value": 0.4,
+        "ci": [
+          0.0,
+          0.8
+        ],
+        "n": 5
+      },
+      "spatial": {
+        "value": 0.2,
+        "ci": [
+          0.0,
+          0.6
+        ],
+        "n": 5
+      },
+      "text": {
+        "value": 0.6,
+        "ci": [
+          0.2,
+          1.0
+        ],
+        "n": 5
+      },
+      "genai": {
+        "value": 0.6,
+        "ci": [
+          0.2,
+          1.0
+        ],
+        "n": 5
+      }
+    },
+    "best_of_4": {
+      "all": {
+        "value": 0.6,
+        "ci": [
+          0.4,
+          0.8
+        ],
+        "n": 20
+      },
+      "counting": {
+        "value": 0.8,
+        "ci": [
+          0.4,
+          1.0
+        ],
+        "n": 5
+      },
+      "spatial": {
+        "value": 0.4,
+        "ci": [
+          0.0,
+          0.8
+        ],
+        "n": 5
+      },
+      "text": {
+        "value": 0.6,
+        "ci": [
+          0.2,
+          1.0
+        ],
+        "n": 5
+      },
+      "genai": {
+        "value": 0.6,
+        "ci": [
+          0.2,
+          1.0
+        ],
+        "n": 5
+      }
+    },
+    "routed_best_of_k": {
+      "all": {
+        "value": 0.9,
+        "ci": [
+          0.75,
+          1.0
+        ],
+        "n": 20
+      },
+      "counting": {
+        "value": 0.8,
+        "ci": [
+          0.4,
+          1.0
+        ],
+        "n": 5
+      },
+      "spatial": {
+        "value": 0.8,
+        "ci": [
+          0.4,
+          1.0
+        ],
+        "n": 5
+      },
+      "text": {
+        "value": 1.0,
+        "ci": [
+          1.0,
+          1.0
+        ],
+        "n": 5
+      },
+      "genai": {
+        "value": 1.0,
+        "ci": [
+          1.0,
+          1.0
+        ],
+        "n": 5
+      }
+    },
+    "agent_rule": {
+      "all": {
+        "value": 0.8,
+        "ci": [
+          0.6,
+          0.95
+        ],
+        "n": 20
+      },
+      "counting": {
+        "value": 0.8,
+        "ci": [
+          0.4,
+          1.0
+        ],
+        "n": 5
+      },
+      "spatial": {
+        "value": 0.8,
+        "ci": [
+          0.4,
+          1.0
+        ],
+        "n": 5
+      },
+      "text": {
+        "value": 0.8,
+        "ci": [
+          0.4,
+          1.0
+        ],
+        "n": 5
+      },
+      "genai": {
+        "value": 0.8,
+        "ci": [
+          0.4,
+          1.0
+        ],
+        "n": 5
+      }
+    },
+    "agent_rule_sdxl": {
+      "all": {
+        "value": 0.7,
+        "ci": [
+          0.5,
+          0.9
+        ],
+        "n": 20
+      },
+      "counting": {
+        "value": 0.8,
+        "ci": [
+          0.4,
+          1.0
+        ],
+        "n": 5
+      },
+      "spatial": {
+        "value": 1.0,
+        "ci": [
+          1.0,
+          1.0
+        ],
+        "n": 5
+      },
+      "text": {
+        "value": 0.4,
+        "ci": [
+          0.0,
+          0.8
+        ],
+        "n": 5
+      },
+      "genai": {
+        "value": 0.6,
+        "ci": [
+          0.2,
+          1.0
+        ],
+        "n": 5
+      }
+    }
+  },
+  "gpu_seconds": {
+    "sdxl@1": 3.050399999999999,
+    "sdxl@2": 7.804399999999997,
+    "sdxl@4": 15.608799999999993,
+    "sdxl@9": 35.119799999999984,
+    "routed@1": 2.8653500000000003,
+    "routed@2": 7.434299999999999,
+    "routed@4": 14.868599999999997,
+    "routed@9": 33.45435,
+    "single": 6.5489999999999995,
+    "best_of_4": 29.087250000000004,
+    "routed_best_of_k": 22.8375,
+    "agent_rule": 14.930449999999999,
+    "agent_rule_sdxl": 15.599349999999998
+  },
+  "gpu_seconds_per_success": {
+    "sdxl@1": 6.778666666666663,
+    "sdxl@2": 13.00733333333333,
+    "sdxl@4": 20.81173333333333,
+    "sdxl@9": 43.89974999999998,
+    "routed@1": 4.093357142857142,
+    "routed@2": 9.912399999999995,
+    "routed@4": 17.492470588235285,
+    "routed@9": 33.45435000000002,
+    "single": 14.553333333333333,
+    "best_of_4": 48.47875,
+    "routed_best_of_k": 25.374999999999996,
+    "agent_rule": 18.6630625,
+    "agent_rule_sdxl": 22.28478571428571
+  },
+  "own_scores": {
+    "sdxl@1": {
+      "mean_vqascore": 0.6590549988897692,
+      "vqascore_ge_0.9": 0.45
+    },
+    "sdxl@2": {
+      "mean_vqascore": 0.7714544998249039,
+      "vqascore_ge_0.9": 0.65
+    },
+    "sdxl@4": {
+      "mean_vqascore": 0.8169688761001452,
+      "vqascore_ge_0.9": 0.65
+    },
+    "sdxl@9": {
+      "mean_vqascore": 0.8983392599970103,
+      "vqascore_ge_0.9": 0.85
+    },
+    "routed@1": {
+      "mean_vqascore": 0.8152515958994627,
+      "vqascore_ge_0.9": 0.75
+    },
+    "routed@2": {
+      "mean_vqascore": 0.8973750504665077,
+      "vqascore_ge_0.9": 0.85
+    },
+    "routed@4": {
+      "mean_vqascore": 0.9924223154783249,
+      "vqascore_ge_0.9": 0.95
+    },
+    "routed@9": {
+      "mean_vqascore": 0.998930475115776,
+      "vqascore_ge_0.9": 1.0
+    }
+  },
+  "paired_difference": {
+    "sdxl@2 - sdxl@1|all": {
+      "value": 0.15,
+      "ci": [
+        -0.05,
+        0.35
+      ],
+      "n": 20
+    },
+    "sdxl@2 - sdxl@1|counting": {
+      "value": 0.2,
+      "ci": [
+        0.0,
+        0.6
+      ],
+      "n": 5
+    },
+    "sdxl@2 - sdxl@1|spatial": {
+      "value": 0.2,
+      "ci": [
+        0.0,
+        0.6
+      ],
+      "n": 5
+    },
+    "sdxl@2 - sdxl@1|text": {
+      "value": 0.2,
+      "ci": [
+        -0.4,
+        0.8
+      ],
+      "n": 5
+    },
+    "sdxl@2 - sdxl@1|genai": {
+      "value": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "n": 5
+    },
+    "sdxl@4 - sdxl@2|all": {
+      "value": 0.15,
+      "ci": [
+        0.0,
+        0.3
+      ],
+      "n": 20
+    },
+    "sdxl@4 - sdxl@2|counting": {
+      "value": 0.2,
+      "ci": [
+        0.0,
+        0.6
+      ],
+      "n": 5
+    },
+    "sdxl@4 - sdxl@2|spatial": {
+      "value": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "n": 5
+    },
+    "sdxl@4 - sdxl@2|text": {
+      "value": 0.2,
+      "ci": [
+        0.0,
+        0.6
+      ],
+      "n": 5
+    },
+    "sdxl@4 - sdxl@2|genai": {
+      "value": 0.2,
+      "ci": [
+        0.0,
+        0.6
+      ],
+      "n": 5
+    },
+    "sdxl@9 - sdxl@4|all": {
+      "value": 0.05,
+      "ci": [
+        0.0,
+        0.15
+      ],
+      "n": 20
+    },
+    "sdxl@9 - sdxl@4|counting": {
+      "value": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "n": 5
+    },
+    "sdxl@9 - sdxl@4|spatial": {
+      "value": 0.2,
+      "ci": [
+        0.0,
+        0.6
+      ],
+      "n": 5
+    },
+    "sdxl@9 - sdxl@4|text": {
+      "value": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "n": 5
+    },
+    "sdxl@9 - sdxl@4|genai": {
+      "value": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "n": 5
+    },
+    "sdxl@9 - sdxl@1|all": {
+      "value": 0.35,
+      "ci": [
+        0.15,
+        0.55
+      ],
+      "n": 20
+    },
+    "sdxl@9 - sdxl@1|counting": {
+      "value": 0.4,
+      "ci": [
+        0.0,
+        0.8
+      ],
+      "n": 5
+    },
+    "sdxl@9 - sdxl@1|spatial": {
+      "value": 0.4,
+      "ci": [
+        0.0,
+        0.8
+      ],
+      "n": 5
+    },
+    "sdxl@9 - sdxl@1|text": {
+      "value": 0.4,
+      "ci": [
+        0.0,
+        0.8
+      ],
+      "n": 5
+    },
+    "sdxl@9 - sdxl@1|genai": {
+      "value": 0.2,
+      "ci": [
+        0.0,
+        0.6
+      ],
+      "n": 5
+    },
+    "routed@2 - routed@1|all": {
+      "value": 0.05,
+      "ci": [
+        0.0,
+        0.15
+      ],
+      "n": 20
+    },
+    "routed@2 - routed@1|counting": {
+      "value": 0.2,
+      "ci": [
+        0.0,
+        0.6
+      ],
+      "n": 5
+    },
+    "routed@2 - routed@1|spatial": {
+      "value": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "n": 5
+    },
+    "routed@2 - routed@1|text": {
+      "value": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "n": 5
+    },
+    "routed@2 - routed@1|genai": {
+      "value": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "n": 5
+    },
+    "routed@4 - routed@2|all": {
+      "value": 0.1,
+      "ci": [
+        0.0,
+        0.25
+      ],
+      "n": 20
+    },
+    "routed@4 - routed@2|counting": {
+      "value": 0.2,
+      "ci": [
+        0.0,
+        0.6
+      ],
+      "n": 5
+    },
+    "routed@4 - routed@2|spatial": {
+      "value": 0.2,
+      "ci": [
+        0.0,
+        0.6
+      ],
+      "n": 5
+    },
+    "routed@4 - routed@2|text": {
+      "value": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "n": 5
+    },
+    "routed@4 - routed@2|genai": {
+      "value": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "n": 5
+    },
+    "routed@9 - routed@4|all": {
+      "value": 0.15,
+      "ci": [
+        0.0,
+        0.3
+      ],
+      "n": 20
+    },
+    "routed@9 - routed@4|counting": {
+      "value": 0.2,
+      "ci": [
+        0.0,
+        0.6
+      ],
+      "n": 5
+    },
+    "routed@9 - routed@4|spatial": {
+      "value": 0.2,
+      "ci": [
+        0.0,
+        0.6
+      ],
+      "n": 5
+    },
+    "routed@9 - routed@4|text": {
+      "value": 0.2,
+      "ci": [
+        0.0,
+        0.6
+      ],
+      "n": 5
+    },
+    "routed@9 - routed@4|genai": {
+      "value": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "n": 5
+    },
+    "routed@9 - routed@1|all": {
+      "value": 0.3,
+      "ci": [
+        0.1,
+        0.5
+      ],
+      "n": 20
+    },
+    "routed@9 - routed@1|counting": {
+      "value": 0.6,
+      "ci": [
+        0.2,
+        1.0
+      ],
+      "n": 5
+    },
+    "routed@9 - routed@1|spatial": {
+      "value": 0.4,
+      "ci": [
+        0.0,
+        0.8
+      ],
+      "n": 5
+    },
+    "routed@9 - routed@1|text": {
+      "value": 0.2,
+      "ci": [
+        0.0,
+        0.6
+      ],
+      "n": 5
+    },
+    "routed@9 - routed@1|genai": {
+      "value": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "n": 5
+    },
+    "routed@1 - sdxl@1|all": {
+      "value": 0.25,
+      "ci": [
+        0.05,
+        0.5
+      ],
+      "n": 20
+    },
+    "routed@1 - sdxl@1|counting": {
+      "value": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "n": 5
+    },
+    "routed@1 - sdxl@1|spatial": {
+      "value": 0.4,
+      "ci": [
+        0.0,
+        0.8
+      ],
+      "n": 5
+    },
+    "routed@1 - sdxl@1|text": {
+      "value": 0.2,
+      "ci": [
+        -0.4,
+        0.8
+      ],
+      "n": 5
+    },
+    "routed@1 - sdxl@1|genai": {
+      "value": 0.4,
+      "ci": [
+        0.0,
+        0.8
+      ],
+      "n": 5
+    },
+    "routed@2 - sdxl@2|all": {
+      "value": 0.15,
+      "ci": [
+        -0.05,
+        0.35
+      ],
+      "n": 20
+    },
+    "routed@2 - sdxl@2|counting": {
+      "value": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "n": 5
+    },
+    "routed@2 - sdxl@2|spatial": {
+      "value": 0.2,
+      "ci": [
+        -0.4,
+        0.8
+      ],
+      "n": 5
+    },
+    "routed@2 - sdxl@2|text": {
+      "value": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "n": 5
+    },
+    "routed@2 - sdxl@2|genai": {
+      "value": 0.4,
+      "ci": [
+        0.0,
+        0.8
+      ],
+      "n": 5
+    },
+    "routed@4 - sdxl@4|all": {
+      "value": 0.1,
+      "ci": [
+        -0.15,
+        0.35
+      ],
+      "n": 20
+    },
+    "routed@4 - sdxl@4|counting": {
+      "value": 0.0,
+      "ci": [
+        -0.6,
+        0.6
+      ],
+      "n": 5
+    },
+    "routed@4 - sdxl@4|spatial": {
+      "value": 0.4,
+      "ci": [
+        -0.4,
+        1.0
+      ],
+      "n": 5
+    },
+    "routed@4 - sdxl@4|text": {
+      "value": -0.2,
+      "ci": [
+        -0.6,
+        0.0
+      ],
+      "n": 5
+    },
+    "routed@4 - sdxl@4|genai": {
+      "value": 0.2,
+      "ci": [
+        0.0,
+        0.6
+      ],
+      "n": 5
+    },
+    "routed@9 - sdxl@9|all": {
+      "value": 0.2,
+      "ci": [
+        0.05,
+        0.4
+      ],
+      "n": 20
+    },
+    "routed@9 - sdxl@9|counting": {
+      "value": 0.2,
+      "ci": [
+        0.0,
+        0.6
+      ],
+      "n": 5
+    },
+    "routed@9 - sdxl@9|spatial": {
+      "value": 0.4,
+      "ci": [
+        0.0,
+        0.8
+      ],
+      "n": 5
+    },
+    "routed@9 - sdxl@9|text": {
+      "value": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "n": 5
+    },
+    "routed@9 - sdxl@9|genai": {
+      "value": 0.2,
+      "ci": [
+        0.0,
+        0.6
+      ],
+      "n": 5
+    },
+    "best_of_4 - sdxl@4|all": {
+      "value": -0.15,
+      "ci": [
+        -0.3,
+        0.0
+      ],
+      "n": 20
+    },
+    "best_of_4 - sdxl@4|counting": {
+      "value": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "n": 5
+    },
+    "best_of_4 - sdxl@4|spatial": {
+      "value": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "n": 5
+    },
+    "best_of_4 - sdxl@4|text": {
+      "value": -0.4,
+      "ci": [
+        -0.8,
+        0.0
+      ],
+      "n": 5
+    },
+    "best_of_4 - sdxl@4|genai": {
+      "value": -0.2,
+      "ci": [
+        -0.6,
+        0.0
+      ],
+      "n": 5
+    },
+    "routed_best_of_k - routed@4|all": {
+      "value": 0.05,
+      "ci": [
+        0.0,
+        0.15
+      ],
+      "n": 20
+    },
+    "routed_best_of_k - routed@4|counting": {
+      "value": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "n": 5
+    },
+    "routed_best_of_k - routed@4|spatial": {
+      "value": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "n": 5
+    },
+    "routed_best_of_k - routed@4|text": {
+      "value": 0.2,
+      "ci": [
+        0.0,
+        0.6
+      ],
+      "n": 5
+    },
+    "routed_best_of_k - routed@4|genai": {
+      "value": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "n": 5
+    },
+    "agent_rule - sdxl@4|all": {
+      "value": 0.05,
+      "ci": [
+        -0.2,
+        0.3
+      ],
+      "n": 20
+    },
+    "agent_rule - sdxl@4|counting": {
+      "value": 0.0,
+      "ci": [
+        -0.6,
+        0.6
+      ],
+      "n": 5
+    },
+    "agent_rule - sdxl@4|spatial": {
+      "value": 0.4,
+      "ci": [
+        -0.2,
+        1.0
+      ],
+      "n": 5
+    },
+    "agent_rule - sdxl@4|text": {
+      "value": -0.2,
+      "ci": [
+        -0.6,
+        0.0
+      ],
+      "n": 5
+    },
+    "agent_rule - sdxl@4|genai": {
+      "value": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "n": 5
+    },
+    "agent_rule - sdxl@9|all": {
+      "value": 0.0,
+      "ci": [
+        -0.25,
+        0.25
+      ],
+      "n": 20
+    },
+    "agent_rule - sdxl@9|counting": {
+      "value": 0.0,
+      "ci": [
+        -0.6,
+        0.6
+      ],
+      "n": 5
+    },
+    "agent_rule - sdxl@9|spatial": {
+      "value": 0.2,
+      "ci": [
+        -0.4,
+        0.8
+      ],
+      "n": 5
+    },
+    "agent_rule - sdxl@9|text": {
+      "value": -0.2,
+      "ci": [
+        -0.6,
+        0.0
+      ],
+      "n": 5
+    },
+    "agent_rule - sdxl@9|genai": {
+      "value": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "n": 5
+    },
+    "agent_rule - routed@1|all": {
+      "value": 0.1,
+      "ci": [
+        -0.15,
+        0.35
+      ],
+      "n": 20
+    },
+    "agent_rule - routed@1|counting": {
+      "value": 0.4,
+      "ci": [
+        0.0,
+        0.8
+      ],
+      "n": 5
+    },
+    "agent_rule - routed@1|spatial": {
+      "value": 0.2,
+      "ci": [
+        -0.6,
+        0.8
+      ],
+      "n": 5
+    },
+    "agent_rule - routed@1|text": {
+      "value": 0.0,
+      "ci": [
+        -0.6,
+        0.6
+      ],
+      "n": 5
+    },
+    "agent_rule - routed@1|genai": {
+      "value": -0.2,
+      "ci": [
+        -0.6,
+        0.0
+      ],
+      "n": 5
+    },
+    "agent_rule - routed@2|all": {
+      "value": 0.05,
+      "ci": [
+        -0.2,
+        0.3
+      ],
+      "n": 20
+    },
+    "agent_rule - routed@2|counting": {
+      "value": 0.2,
+      "ci": [
+        0.0,
+        0.6
+      ],
+      "n": 5
+    },
+    "agent_rule - routed@2|spatial": {
+      "value": 0.2,
+      "ci": [
+        -0.6,
+        0.8
+      ],
+      "n": 5
+    },
+    "agent_rule - routed@2|text": {
+      "value": 0.0,
+      "ci": [
+        -0.6,
+        0.6
+      ],
+      "n": 5
+    },
+    "agent_rule - routed@2|genai": {
+      "value": -0.2,
+      "ci": [
+        -0.6,
+        0.0
+      ],
+      "n": 5
+    },
+    "agent_rule - routed@4|all": {
+      "value": -0.05,
+      "ci": [
+        -0.25,
+        0.15
+      ],
+      "n": 20
+    },
+    "agent_rule - routed@4|counting": {
+      "value": 0.0,
+      "ci": [
+        0.0,
+        0.0
+      ],
+      "n": 5
+    },
+    "agent_rule - routed@4|spatial": {
+      "value": 0.0,
+      "ci": [
+        -0.6,
+        0.6
+      ],
+      "n": 5
+    },
+    "agent_rule - routed@4|text": {
+      "value": 0.0,
+      "ci": [
+        -0.6,
+        0.6
+      ],
+      "n": 5
+    },
+    "agent_rule - routed@4|genai": {
+      "value": -0.2,
+      "ci": [
+        -0.6,
+        0.0
+      ],
+      "n": 5
+    },
+    "agent_rule - routed@9|all": {
+      "value": -0.2,
+      "ci": [
+        -0.4,
+        -0.05
+      ],
+      "n": 20
+    },
+    "agent_rule - routed@9|counting": {
+      "value": -0.2,
+      "ci": [
+        -0.6,
+        0.0
+      ],
+      "n": 5
+    },
+    "agent_rule - routed@9|spatial": {
+      "value": -0.2,
+      "ci": [
+        -0.6,
+        0.0
+      ],
+      "n": 5
+    },
+    "agent_rule - routed@9|text": {
+      "value": -0.2,
+      "ci": [
+        -0.6,
+        0.0
+      ],
+      "n": 5
+    },
+    "agent_rule - routed@9|genai": {
+      "value": -0.2,
+      "ci": [
+        -0.6,
+        0.0
+      ],
+      "n": 5
+    }
+  },
+  "ungraded": 0,
+  "distinct_images": 99,
+  "figure_title": "Judge pass rate of best-of-N by VQAScore: SDXL N=9 0.80, routed N=9 1.00, agent 0.80"
+}
