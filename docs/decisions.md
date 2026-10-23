@@ -590,3 +590,27 @@ fix in advance, recorded here: (1) The SDXL-only agent went over its budget on 4
 the full agent stayed within budget everywhere. Left as is and reported. (2) The small blind human
 check of the judge's pass / fail calls on test images (D-032) has not been run; until it is, the
 report says so in its limitations.
+
+**D-033 (2026-10-23) — Blind human check of the judge's pass / fail calls in module C (the check
+D-032 promised), fixed before any item is drawn.** *Who:* one annotator, the project author, who
+knows module C's aggregate results but sees no group, model, score or judge answer (project
+author's decision, as in D-029). *Items* (`genprobe/judge_check.py`, seed 0): 50 test prompts drawn
+at random within categories in proportion to the test split (33 GenAI-Bench, 6 counting, 6 spatial,
+5 text); for each, the final images of best_of_4, routed_best_of_k and the agent from run
+`testrule`, an image shared by two groups shown once (at most 150 images). Plus 10 attention checks
+(a test image shown with the prompt of another category; the right answer is no; pass mark 9 of
+10), 15 hidden repeats placed at least ~30 items after their first showing, and 10 practice images
+from dev run `devrule2` (not analysed). Original prompts, 768 px JPEGs, random order.
+*Question:* "Does the image meet every requirement of the text?" yes / no / unsure, with the rules
+of D-029's protocol (`docs/judge_check_protocol.md`). *Analysis:* (1) judge pass (score 5) vs the
+person's yes, on images answered yes or no: same-call share, Cohen's κ, the share of judge passes
+the person also passes, of judge fails the person also fails, and of the person's passes the judge
+also passes; (2) pass rates of the three groups on the 50 prompts by the person (yes = pass; no and
+unsure = not) and by the judge on the same images, with the paired differences agent − routed
+best-of-k, agent − best-of-4 and routed − best-of-4 by each; (3) per group, the share of judge
+passes the person does not pass. 95 % CIs from 2,000 bootstrap resamples of prompts (seed 0);
+per-category results are exploratory. *Fixed now:* if the attention check fails, the labels are
+not used. If κ < 0.4, the report says module C's pass rates can't be taken at face value. The
+person's differences are reported next to the judge's whatever they show; with 50 prompts their CIs
+are wide, so this checks direction, not a new test. Labels are committed before the key is copied
+and not changed after the analysis. Size chosen to take about 30–40 minutes of labelling.
