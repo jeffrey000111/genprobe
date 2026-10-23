@@ -2,8 +2,8 @@
   "run": "devrule1",
   "split": "dev",
   "policy": "rule",
-  "created_at": "2026-10-22T22:13:37.148+00:00",
-  "git_commit": "e2359f5",
+  "created_at": "2026-10-22T23:42:10.997+00:00",
+  "git_commit": "69cc57d",
   "costs": {
     "gen": {
       "sdxl": 3.0505,
@@ -102,6 +102,26 @@
       "n": 12,
       "pass_rate": 0.5
     },
+    "routed_best_of_k|all": {
+      "n": 120,
+      "pass_rate": 0.725
+    },
+    "routed_best_of_k|counting": {
+      "n": 14,
+      "pass_rate": 0.7857142857142857
+    },
+    "routed_best_of_k|genai": {
+      "n": 80,
+      "pass_rate": 0.6375
+    },
+    "routed_best_of_k|spatial": {
+      "n": 14,
+      "pass_rate": 0.9285714285714286
+    },
+    "routed_best_of_k|text": {
+      "n": 12,
+      "pass_rate": 1.0
+    },
     "single|all": {
       "n": 120,
       "pass_rate": 0.325
@@ -143,6 +163,12 @@
       "reseed": 19,
       "raise_cfg": 7,
       "rewrite": 1
+    },
+    "routed_k": {
+      "genai:4": 80,
+      "counting:3": 14,
+      "spatial:3": 14,
+      "text:4": 12
     }
   },
   "prompts": 120

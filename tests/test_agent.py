@@ -22,16 +22,18 @@ def state(category, checks, spec=None, prompt="p", budget=None):
 
 class TestCore(unittest.TestCase):
     def test_pass_and_better(self):
-        cnt = lambda pred: {"detect": float(pred == 3), "detect_extra": {"count_pred": pred, "count_target": 3},  # noqa: E731
-                            "vqascore": 0.5}
+        cnt = lambda pred, v=0.95: {"detect": float(pred == 3),  # noqa: E731
+                                    "detect_extra": {"count_pred": pred, "count_target": 3}, "vqascore": v}
         self.assertTrue(core.passed("counting", cnt(3)))
+        self.assertFalse(core.passed("counting", cnt(3, v=0.5)))            # r2: checker AND VQAScore >= 0.9
         self.assertTrue(core.better(cnt(3), cnt(4), "counting"))
         self.assertTrue(core.better(cnt(4), cnt(6), "counting"))            # nearer miss
         self.assertFalse(core.better(cnt(6), cnt(4), "counting"))
         self.assertFalse(core.better({"vqascore": 0.51}, {"vqascore": 0.50}, "genai"))   # within delta: noise
         self.assertTrue(core.better({"vqascore": 0.95}, {"vqascore": 0.50}, "genai"))
-        self.assertTrue(core.passed("text", {"ocr": 0.86}))
-        self.assertFalse(core.passed("text", {"ocr": 0.84}))
+        self.assertTrue(core.passed("text", {"ocr": 0.86, "vqascore": 0.95}))
+        self.assertFalse(core.passed("text", {"ocr": 0.84, "vqascore": 0.95}))
+        self.assertEqual(core.diagnose("text", {"ocr": 0.9, "vqascore": 0.3}), "low_alignment")
 
     def test_diagnose(self):
         self.assertEqual(core.diagnose("counting", {"detect_extra": {"count_pred": 0, "count_target": 2}}), "missing_object")
@@ -52,28 +54,34 @@ class TestCore(unittest.TestCase):
         self.assertIsNone(core.rewrite_rule("genai", "two cats", None))
 
     def test_rule_order_and_budget(self):
-        st = state("counting", {"detect": 0.0, "detect_extra": {"count_pred": 4, "count_target": 3}, "vqascore": 0.4},
-                   spec={"objects": [{"name": "cup", "count": 3}]})
+        miss = {"detect": 0.0, "detect_extra": {"count_pred": 4, "count_target": 3}, "vqascore": 0.4}
+        st = state("counting", miss, spec={"objects": [{"name": "cup", "count": 3}]})
         action, params, reason = core.next_rule_action(st, COSTS)
+        self.assertEqual((action, params["model"]), ("switch_model", "sd35m"))   # r2: routed model first
+        self.assertTrue(reason.startswith("wrong_count"))
+        action, params, _ = core.next_rule_action(st, COSTS)
         self.assertEqual(action, "rewrite")
         self.assertIn("exactly three cups", params["gen_prompt"])
-        self.assertTrue(reason.startswith("wrong_count"))
-        # 5.5 GPU-seconds left: reseed (3.0 + 1.5) fits; after it, switching to sd35m (4.6 + 1.5) doesn't
+        # 5.5 GPU-seconds left: the rule list's reseed (3.0 + 1.5) fits
         st.attempts[0].gen_seconds = st.budget - 1.5 - 5.5
-        action, params, _ = core.next_rule_action(st, COSTS)
+        self.assertEqual(core.next_rule_action(st, COSTS)[0], "reseed")
+        # list used up but budget left: more new seeds until the budget runs out
+        st.attempts[0].gen_seconds = st.budget - 1.5 - 5.0
+        action, params, reason = core.next_rule_action(st, COSTS)
         self.assertEqual(action, "reseed")
-        self.assertEqual(params["seed"], core.SEED_OFFSET + 1)
+        self.assertIn("rule list used up", reason)
         st.attempts.append(Attempt(k=1, model="sdxl", gen_prompt="p", cfg=None, seed=1001, sample_id="s1",
-                                   action="reseed", reason="", status="ok", checks=st.attempts[0].checks,
-                                   gen_seconds=3.0, score_seconds=1.5))
-        self.assertIsNone(core.next_rule_action(st, COSTS))                 # 1.0 left: nothing fits
+                                   action="reseed", reason="", status="ok", checks=miss, gen_seconds=3.0,
+                                   score_seconds=1.5))
+        self.assertIsNone(core.next_rule_action(st, COSTS))                 # 0.5 left: nothing fits
 
     def test_genai_actions(self):
         st = state("genai", {"vqascore": 0.3})
-        self.assertEqual(core.next_rule_action(st, COSTS)[0], "raise_cfg")
-        st.attempts[0].model = "flux_schnell"                               # cfg only for SDXL; already routed
-        st.used = {}
-        self.assertEqual(core.next_rule_action(st, COSTS)[0], "reseed")
+        self.assertEqual(core.next_rule_action(st, COSTS)[:2][0], "switch_model")
+        self.assertEqual(core.next_rule_action(st, COSTS)[0], "raise_cfg")   # best is still the SDXL image
+        st2 = state("genai", {"vqascore": 0.3})
+        st2.policy = "rule_sdxl"                                            # ablation: never switches
+        self.assertEqual(core.next_rule_action(st2, COSTS)[0], "raise_cfg")
 
     def test_budget_is_best_of_four(self):
         self.assertAlmostEqual(core.budget_for("counting", COSTS), 4 * (3.0 + 1.5))
@@ -164,14 +172,15 @@ class TestRun(unittest.TestCase):
             run.ingest("t1", k, data=str(d), root=root)
         states = {s.prompt_id: s for s in run.load_states("t1", root)}
         tc = states["tc0001"]
-        self.assertEqual([a.action for a in tc.attempts], ["base", "rewrite"])      # rewrite fixed the count
-        self.assertEqual((tc.best, tc.stop_reason), (1, "passed"))
+        self.assertEqual([a.action for a in tc.attempts], ["base", "switch_model", "rewrite"])  # rewrite fixed it
+        self.assertEqual((tc.best, tc.stop_reason), (2, "passed"))
         tt = states["tt0001"]
         self.assertEqual(tt.attempts[1].action, "switch_model")
         self.assertEqual((tt.attempts[1].model, tt.stop_reason), ("flux_schnell", "passed"))
         ts = states["ts0001"]                                                       # never fixed: runs out
         self.assertEqual(ts.stop_reason, "no affordable action left")
         self.assertLessEqual(ts.spent(), ts.budget + 1e-6)
+        self.assertLess(ts.budget - ts.spent(), 4.0)                                # the budget was used up
         self.assertEqual(ts.best, 0)                                                # nothing clearly better
         res = run.report("t1", data=str(d), root=root, results=d / "results")
         final = [json.loads(x) for x in (root / "t1" / "final.jsonl").read_text().splitlines()]
@@ -215,8 +224,30 @@ class TestRun(unittest.TestCase):
         self.assertAlmostEqual(rate("single"), 1 / 5)
         self.assertAlmostEqual(cmp_["paired_difference"]["agent_rule - single|all"]["value"], 2 / 5)
         self.assertIn("agent_rule - routed_best_of_k|all", cmp_["paired_difference"])
-        self.assertEqual(cmp_["agent_unfixed_by_first_diagnosis"], {"wrong_relation": 1, "low_alignment": 1})
+        self.assertEqual(cmp_["agent_unfixed_by_first_diagnosis"]["agent_rule"],
+                         {"wrong_relation": 1, "low_alignment": 1})
         self.assertTrue((d / "results" / "t1" / "judged.md").is_file())
+
+        # ablation run that never switches model, compared together with the full agent
+        run.init("t2", "dev", policy="rule_sdxl", prompts_path=str(d / "prompts.jsonl"), data=str(d), root=root)
+        for k in range(1, 13):
+            if run.plan("t2", k, root=root) == 0:
+                break
+            gen.generate_round("t2", k, "fake", root=root, log=lambda *a: None)
+            for line in (root / "t2" / "manifests").glob(f"gen_r{k}_*.jsonl"):
+                for r in map(json.loads, line.read_text().splitlines()):
+                    self.assertEqual(r["model"], "sdxl")                           # never switched
+                    self.add_checks(r["sample_id"], r["prompt_id"], r["seed"], gen_prompt=r["gen_prompt"],
+                                    model=r["model"])
+            self.flush()
+            run.ingest("t2", k, data=str(d), root=root)
+        run.report("t2", data=str(d), root=root, results=d / "results")
+        judge.grade(str(root / "t2" / "final.jsonl"), "g2", str(d / "judge"), engine=FakeJudge(), log=lambda *a: None)
+        both = compare.compare(["t1", "t2"], ["g1", "g2"], data=str(d), root=root, results=d / "results", n_boot=200)
+        self.assertEqual(both["groups"], ["single", "best_of_4", "routed_best_of_k", "agent_rule@t1",
+                                          "agent_rule_sdxl@t2"])
+        self.assertIn("agent_rule@t1 - agent_rule_sdxl@t2|all", both["paired_difference"])
+        self.assertTrue((d / "results" / "t1+t2" / "judged.md").is_file())
 
 
 if __name__ == "__main__":

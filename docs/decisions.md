@@ -553,3 +553,19 @@ success; what the agent leaves unfixed, by the first image's diagnosis. Each ima
 change recorded); the test run is graded once. A small blind human check of the judge's pass /
 fail calls on test images follows.
 
+*D-031 revision 1 (2026-10-22, after dev run `devrule1` was graded by the judge): agent rules r2.*
+On the 120 dev prompts (judge: Gemma 4 31B, pass = score 5) the agent passed 0.550, SDXL
+best-of-4 0.425 (agent − best-of-4 +0.125 [0.03, 0.22]) and routed best-of-k 0.600 (agent −
+routed −0.050 [−0.14, 0.05]; text −0.25 [−0.50, −0.08]), spending 11.2 GPU-s per prompt against a
+budget of 20.7. Three general changes, each answering one observation (`results/agent/devrule1/`):
+(1) template prompts now count as passed only when their checker passes **and** VQAScore ≥ 0.9,
+since 12 final images had passed the checker alone but not the judge; a checker pass with low
+VQAScore is diagnosed as low alignment. (2) Once the rule list is used up, any remaining budget
+goes to new seeds with the best settings so far (the budget, not the list, ends the run; at most
+12 attempts). (3) Switching to the category's routed model is the first action for every
+diagnosis; it produced most of the improvements. Because the comparison picks images, (1) also
+changes which images best-of-4 and routed best-of-k pick: the same rule applies to every group.
+**Ablation** (project author's choice): `rule_sdxl`, the same agent that never switches model,
+to separate what diagnosis and repair add from what the stronger models add. Both run on dev
+(`devrule2`, `devsdxl2`) and are graded together; then the rules are frozen for the test run.
+

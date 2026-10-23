@@ -456,8 +456,10 @@ def grade_requests(images: list[dict]) -> list[Request]:
 
 
 def grade(images_path: str, tag: str, out_dir: str = "data/judge", judge: str = "gemma4_31b", engine=None,
-          log=print) -> dict[str, Any]:
+          log=print, group_prefix: str | None = None) -> dict[str, Any]:
     images = [json.loads(line) for line in Path(images_path).read_text().splitlines() if line.strip()]
+    if group_prefix:                     # e.g. only the agent's images when the baselines are graded already
+        images = [im for im in images if str(im.get("group", "")).startswith(group_prefix)]
     reqs = grade_requests(images)
     log(f"[judge] grading {len(reqs)} images from {images_path} with {judge}")
     t0 = time.perf_counter()
@@ -468,7 +470,8 @@ def grade(images_path: str, tag: str, out_dir: str = "data/judge", judge: str = 
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     atomic_write_text(out / f"{tag}.jsonl", "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in recs))
-    meta = {"tag": tag, "kind": "grade", "images": images_path, "judge": judge, "judge_version": engine.version,
+    meta = {"tag": tag, "kind": "grade", "images": images_path, "group_prefix": group_prefix, "judge": judge,
+            "judge_version": engine.version,
             "template_id": template_id(), "records": len(recs), "load_seconds": round(load_s, 1),
             "generate_seconds": round(time.perf_counter() - t1, 1), "created_at": now_iso(), "env": fingerprint()}
     atomic_write_text(out / f"{tag}.meta.json", json.dumps(meta, indent=2, default=str))
@@ -488,6 +491,7 @@ def main(argv: list[str] | None = None) -> int:
     g.add_argument("--tag", required=True)
     g.add_argument("--out", default="data/judge")
     g.add_argument("--judge", choices=sorted(JUDGES), default="gemma4_31b")
+    g.add_argument("--only-group-prefix", default=None, help="grade only images whose group starts with this")
     args = ap.parse_args(argv)
     if args.cmd == "grade":
         if template_id() != FROZEN_TEMPLATE:
@@ -496,7 +500,7 @@ def main(argv: list[str] | None = None) -> int:
         if Path(args.out, f"{args.tag}.jsonl").exists():
             print(f"{args.out}/{args.tag}.jsonl exists; grades are written once", file=sys.stderr)
             return 1
-        grade(args.images, args.tag, args.out, args.judge)
+        grade(args.images, args.tag, args.out, args.judge, group_prefix=args.only_group_prefix)
         return 0
     if args.round == "test" and template_id() != FROZEN_TEMPLATE:
         print(f"template {template_id()} is not the frozen rubric {FROZEN_TEMPLATE} (D-028); the test round "

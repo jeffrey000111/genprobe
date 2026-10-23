@@ -312,7 +312,10 @@ def render(res: dict) -> str:
           f"- Same verdict in both orders: {_f(oa['value'])} [{_f(oa['ci'][0])}, {_f(oa['ci'][1])}].",
           f"- Position bias: {_f(pb['value'])} [{_f(pb['ci'][0])}, {_f(pb['ci'][1])}] of {pb['n']} image-picking "
           f"verdicts pick the image shown first (0.5 = no bias)"
-          + (f"; **H3 {pb['verdict']}** (pre-registered: holds if the 95 % CI excludes 0.5)." if res["round"] == "test"
+          + ((f"; **H3 {pb['verdict']}** (pre-registered: holds if the 95 % CI excludes 0.5)."
+              if "qwen3-vl-8b" in (res.get("judge_version") or "") else
+              f"; CI {'excludes' if pb['verdict'] == 'supported' else 'includes'} 0.5 (exploratory: H3 was "
+              "pre-registered for the Qwen3-VL judge only).") if res["round"] == "test"
              else " (dev round: descriptive only; H3 is tested on the test round)."), "",
           "## Consistency (3 samples at temperature 0.7)", ""]
     for kind, c in res["consistency"].items():

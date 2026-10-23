@@ -128,8 +128,10 @@ def init(run: str, split: str, policy: str = "rule", prompts_path: str = "data/p
         states.append(st)
         lines.append(core.audit(st, a0, "start" + (" (passed)" if st.done else "")))
     meta = {"run": run, "split": split, "policy": policy, "created_at": now_iso(), "git_commit": git_commit(),
-            "costs": costs, "settings": {"tau_genai": core.TAU_GENAI, "delta": core.DELTA, "cfg_high": core.CFG_HIGH,
-                                         "route": core.ROUTE, "rules": core.RULES, "max_attempts": core.MAX_ATTEMPTS}}
+            "costs": costs, "settings": {"ruleset": core.RULESET, "tau_genai": core.TAU_GENAI,
+                                         "tau_template_vqa": core.TAU_TEMPLATE_VQA, "delta": core.DELTA,
+                                         "cfg_high": core.CFG_HIGH, "route": core.ROUTE, "rules": core.RULES,
+                                         "max_attempts": core.MAX_ATTEMPTS}}
     d = run_dir(run, root)
     d.mkdir(parents=True, exist_ok=True)
     (d / "audit.jsonl").write_text("")
@@ -318,7 +320,7 @@ def main(argv: list[str] | None = None) -> int:
     i = sub.add_parser("init")
     i.add_argument("--run", required=True)
     i.add_argument("--split", choices=["dev", "test"], required=True)
-    i.add_argument("--policy", choices=["rule", "llm"], default="rule")
+    i.add_argument("--policy", choices=list(core.POLICIES), default="rule")
     i.add_argument("--limit", type=int, default=None)
     for name in ("plan", "ingest"):
         p = sub.add_parser(name)

@@ -44,21 +44,34 @@ def mean_ci(per_prompt: dict[str, float], n_boot: int = N_BOOT, seed: int = 0) -
     return {"value": float(x.mean()), "ci": [float(lo), float(hi)], "n": len(x)}
 
 
-def compare(run: str, grades: str, data: str = "data", root: Path = ROOT, results: Path = Path("results/agent"),
-            n_boot: int = N_BOOT) -> dict[str, Any]:
-    d = run_dir(run, root)
-    final = [json.loads(line) for line in (d / "final.jsonl").read_text().splitlines() if line.strip()]
-    recs = latest_by_id(read_many([Path(data) / "judge" / f"{grades}.jsonl"]))
-    meta_path = Path(data) / "judge" / f"{grades}.meta.json"
-    jmeta = json.loads(meta_path.read_text()) if meta_path.exists() else {}
-    states = {s["prompt_id"]: PromptState.from_dict(s)
-              for s in json.loads((d / "state.json").read_text())["states"]}
-    groups = sorted({f["group"] for f in final}, key=lambda g: (g.startswith("agent"), BASELINES.index(g)
-                                                                 if g in BASELINES else 0, g))
-    passed = defaultdict(dict)            # group -> prompt -> 0/1
-    cost = defaultdict(dict)
-    cat = {}
-    missing = Counter()
+def compare(runs: list[str] | str, grades: list[str] | str, data: str = "data", root: Path = ROOT,
+            results: Path = Path("results/agent"), n_boot: int = N_BOOT, name: str | None = None) -> dict[str, Any]:
+    """One or more agent runs on the same split, each with its grades tag. The baselines come from
+    the first run (they are the same images in every run); each run adds its agent group."""
+    runs = [runs] if isinstance(runs, str) else list(runs)
+    grades = [grades] if isinstance(grades, str) else list(grades)
+    if len(runs) != len(grades):
+        raise ValueError("one grades tag per run")
+    final, recs, states, versions = [], {}, {}, []
+    for i, (run, tag) in enumerate(zip(runs, grades)):
+        d = run_dir(run, root)
+        rows = [json.loads(line) for line in (d / "final.jsonl").read_text().splitlines() if line.strip()]
+        meta_path = Path(data) / "judge" / f"{tag}.meta.json"
+        versions.append(json.loads(meta_path.read_text()).get("judge_version") if meta_path.exists() else None)
+        for f in rows:
+            if not f["group"].startswith("agent") and i > 0:
+                continue
+            if f["group"].startswith("agent") and len(runs) > 1:
+                f = {**f, "group": f"{f['group']}@{run}"}
+            final.append(f)
+        recs.update(latest_by_id(read_many([Path(data) / "judge" / f"{tag}.jsonl"])))
+        for st in json.loads((d / "state.json").read_text())["states"]:
+            states[(run, st["prompt_id"])] = PromptState.from_dict(st)
+    if len(set(versions)) > 1:
+        raise ValueError(f"runs were graded by different judges: {versions}")
+    groups = sorted({f["group"] for f in final},
+                    key=lambda g: (g.startswith("agent"), BASELINES.index(g) if g in BASELINES else 0, g))
+    passed, cost, cat, missing = defaultdict(dict), defaultdict(dict), {}, Counter()
     for f in final:
         r = recs.get(f["sample_id"])
         if r is None or r.get("score") is None:
@@ -69,30 +82,32 @@ def compare(run: str, grades: str, data: str = "data", root: Path = ROOT, result
     cats = ["all"] + sorted(set(cat.values()))
     rates = {g: {c: mean_ci({p: v for p, v in passed[g].items() if c == "all" or cat[p] == c}, n_boot) for c in cats}
              for g in groups}
+    agents = [g for g in groups if g.startswith("agent")]
+    pairs = [(a, b) for a in agents for b in groups if not b.startswith("agent")]
+    pairs += [(a, b) for i, a in enumerate(agents) for b in agents[i + 1:]]
     diffs = {}
-    for a in (g for g in groups if g.startswith("agent")):
-        for b in (g for g in groups if not g.startswith("agent")):
-            for c in cats:
-                common = [p for p in passed[a] if p in passed[b] and (c == "all" or cat[p] == c)]
-                diffs[f"{a} - {b}|{c}"] = mean_ci({p: passed[a][p] - passed[b][p] for p in common}, n_boot)
+    for a, b in pairs:
+        for c in cats:
+            common = [p for p in passed[a] if p in passed[b] and (c == "all" or cat[p] == c)]
+            diffs[f"{a} - {b}|{c}"] = mean_ci({p: passed[a][p] - passed[b][p] for p in common}, n_boot)
     spend = {g: {"mean_gpu_seconds": float(np.mean(list(cost[g].values()))),
                  "gpu_seconds_per_success": (float(sum(cost[g].values()) / sum(passed[g].values()))
                                              if sum(passed[g].values()) else math.nan)} for g in groups}
-    agent = next((g for g in groups if g.startswith("agent")), None)
-    unfixed = Counter()
-    if agent:
-        for p, ok in passed[agent].items():
-            st = states[p]
+    unfixed = {}
+    for g in agents:
+        run = g.split("@")[1] if "@" in g else runs[0]
+        c = Counter()
+        for p, ok in passed[g].items():
+            st = states[(run, p)]
             if not ok:
-                unfixed[core.diagnose(st.category, st.attempts[0].checks) if not core.passed(st.category, st.attempts[0].checks)
-                        else "passed own checks"] += 1
-        attempts = float(np.mean([len(s.attempts) for s in states.values()]))
-    res = {"run": run, "grades": grades, "judge_version": jmeta.get("judge_version"), "created_at": now_iso(),
+                a0 = st.attempts[0].checks
+                c[core.diagnose(st.category, a0) if not core.passed(st.category, a0) else "passed own checks"] += 1
+        unfixed[g] = dict(c)
+    res = {"runs": runs, "grades": grades, "judge_version": versions[0], "created_at": now_iso(),
            "git_commit": git_commit(), "pass_rule": f"judge score == {PASS_SCORE}", "groups": groups,
            "pass_rate": rates, "paired_difference": diffs, "spend": spend, "ungraded": dict(missing),
-           "agent_unfixed_by_first_diagnosis": dict(unfixed), "agent_attempts_mean": attempts if agent else None,
-           "prompts": len(cat)}
-    out = results / run
+           "agent_unfixed_by_first_diagnosis": unfixed, "prompts": len(cat)}
+    out = results / (name or "+".join(runs))
     out.mkdir(parents=True, exist_ok=True)
     atomic_write_text(out / "judged.json", json.dumps(res, indent=2))
     atomic_write_text(out / "judged.md", render(res))
@@ -105,9 +120,10 @@ def _f(x, nd=3) -> str:
 
 def render(res: dict) -> str:
     cats = list(next(iter(res["pass_rate"].values())).keys())
-    L = [f"# Agent run `{res['run']}` graded by the independent judge", "",
+    L = [f"# Agent run(s) {', '.join('`' + r + '`' for r in res['runs'])} graded by the independent judge", "",
          f"Made {res['created_at']} at commit `{res['git_commit']}` by `python -m genprobe.agent.compare`. Judge "
-         f"`{res['judge_version']}` (grades `{res['grades']}`), original prompts, pass = {res['pass_rule']}. "
+         f"`{res['judge_version']}` (grades {', '.join('`' + g + '`' for g in res['grades'])}), original prompts, "
+         f"pass = {res['pass_rule']}. "
          f"{res['prompts']} prompts; 95 % CIs from resampling prompts." +
          (f" Ungraded images (counted as fails): {res['ungraded']}." if res["ungraded"] else ""), "",
          "## Pass rate", "", "| Group | " + " | ".join(cats) + " | GPU-s / prompt | GPU-s / success |",
@@ -127,18 +143,21 @@ def render(res: dict) -> str:
             dd = res["paired_difference"][f"{pr}|{c}"]
             cells.append(f"{_f(dd['value'], 3)} [{_f(dd['ci'][0], 2)}, {_f(dd['ci'][1], 2)}]")
         L.append(f"| {pr} | " + " | ".join(cells) + " |")
-    if res["agent_unfixed_by_first_diagnosis"]:
-        L += ["", "Prompts the agent's final image still fails, by the diagnosis of the first image: " +
-              ", ".join(f"{k} {v}" for k, v in sorted(res["agent_unfixed_by_first_diagnosis"].items())) + "."]
+    for g, c in res["agent_unfixed_by_first_diagnosis"].items():
+        if c:
+            L += ["", f"{g}: prompts whose final image still fails, by the diagnosis of the first image: " +
+                  ", ".join(f"{k} {v}" for k, v in sorted(c.items())) + "."]
     return "\n".join(L) + "\n"
 
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--run", required=True)
-    ap.add_argument("--grades", required=True, help="tag of data/judge/<tag>.jsonl from `genprobe.judge grade`")
+    ap.add_argument("--run", action="append", required=True, help="repeat for several runs on the same split")
+    ap.add_argument("--grades", action="append", required=True,
+                    help="tag of data/judge/<tag>.jsonl from `genprobe.judge grade`, one per --run")
+    ap.add_argument("--name", default=None, help="output folder under results/agent (default: the run names)")
     args = ap.parse_args(argv)
-    print(render(compare(args.run, args.grades)))
+    print(render(compare(args.run, args.grades, name=args.name)))
     return 0
 
 

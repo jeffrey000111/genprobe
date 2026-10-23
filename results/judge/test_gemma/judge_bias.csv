@@ -1,0 +1,20 @@
+check,statistic,value,ci95_lo,ci95_hi,n
+position bias,share of image-picking verdicts that pick the first image,0.49,0.4775,0.5027,1449
+position bias,share of pairs with the same verdict in both orders,0.818,0.794,0.8418,1000
+consistency,abs: share of items whose 3 samples (T=0.7) agree,0.836,,,500
+consistency,abs: share where the sample majority equals the greedy answer,0.938,,,500
+consistency,pair: share of items whose 3 samples (T=0.7) agree,0.838,,,1000
+consistency,pair: share where the sample majority equals the greedy answer,0.927,,,1000
+blind test,"mean score, real image (vs grey)",3.566,,,500
+blind test,"mean score, grey image",1.002,,,500
+blind test,share real image scored higher than grey (ties 1/2),0.961,,,500
+blind test,"mean score, real image (vs mismatch)",3.566,,,500
+blind test,"mean score, mismatch image",1.018,,,500
+blind test,share real image scored higher than mismatch (ties 1/2),0.96,,,500
+score distribution,share of real images scored 1,0.0703,,,641
+score distribution,share of real images scored 2,0.1759,,,1604
+score distribution,share of real images scored 3,0.1855,,,1692
+score distribution,share of real images scored 4,0.2373,,,2164
+score distribution,share of real images scored 5,0.331,,,3019
+parsing,abs: share of answers that are valid JSON,1.0,,,11620
+parsing,pair: share of answers that are valid JSON,0.9998,,,5000

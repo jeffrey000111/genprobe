@@ -28,10 +28,12 @@ def run_dir(run: str, root: Path = ROOT) -> Path:
 BASE_MODEL = "sdxl"
 BASE_SEED = 0
 TAU_GENAI = 0.9          # VQAScore needed to count as passed on GenAI-Bench prompts (dev may change it)
+TAU_TEMPLATE_VQA = 0.9   # rules r2: template prompts also need this VQAScore besides their checker
 DELTA = 0.02             # a VQAScore gain smaller than this is noise (guide §10.6; dev may change it)
 CFG_HIGH = 7.5           # SDXL's default is 5.0
 SEED_OFFSET = 1000       # reseeded attempts use seeds 1000+, never v1's 0-3
-MAX_ATTEMPTS = 8         # hard stop besides the budget
+MAX_ATTEMPTS = 12        # hard stop besides the budget (rules r2: the budget is the real limit)
+RULESET = "r2"
 # Strongest model per category on the DEV split of prompt set v1 (results/prompts_v1_dev): sd35m
 # for counting (detector 0.589) and spatial (0.732); flux_schnell for text (OCR 0.912, and ~4x
 # cheaper than sd35m's 0.896) and GenAI-Bench (VQAScore 0.802 basic, 0.539 advanced).
@@ -41,15 +43,19 @@ CHECK_METRICS = {"counting": ("detect", "vqascore"), "spatial": ("detect", "vqas
 OCR_PASS = 0.85          # D-017 revision
 
 # Rule policy: ordered actions per diagnosis; an action is skipped when it no longer changes
-# anything (e.g. the model is already the routed one) or does not fit the budget.
+# anything (e.g. the model is already the routed one) or does not fit the budget. When the list is
+# used up and budget is left, the best settings so far get new seeds until the budget runs out.
+# Rules r2 (D-031 revision 1, after dev run devrule1): switching to the category's routed model
+# comes first; it was the action behind most improvements in devrule1.
 RULES = {
-    "wrong_count": ["rewrite", "reseed", "switch_model", "reseed"],
-    "missing_object": ["rewrite", "switch_model", "reseed"],
-    "wrong_relation": ["rewrite", "switch_model", "reseed"],
+    "wrong_count": ["switch_model", "rewrite", "reseed"],
+    "missing_object": ["switch_model", "rewrite", "reseed"],
+    "wrong_relation": ["switch_model", "rewrite", "reseed"],
     "misspelled_text": ["switch_model", "reseed", "rewrite"],
     "missing_text": ["switch_model", "rewrite", "reseed"],
-    "low_alignment": ["raise_cfg", "switch_model", "reseed"],
+    "low_alignment": ["switch_model", "raise_cfg", "reseed"],
 }
+POLICIES = ("rule", "rule_sdxl", "llm")   # rule_sdxl: the ablation that never switches model
 ACTIONS = ("reseed", "rewrite", "raise_cfg", "switch_model")
 
 
@@ -62,12 +68,21 @@ def category_of(tags: list[str]) -> str:
 
 # ---------- checks ----------
 
-def passed(category: str, checks: dict[str, Any], tau_genai: float = TAU_GENAI) -> bool:
+def checker_ok(category: str, checks: dict[str, Any]) -> bool:
     if category in ("counting", "spatial"):
         return checks.get("detect") == 1.0
     if category == "text":
         return (checks.get("ocr") or 0.0) >= OCR_PASS
-    return (checks.get("vqascore") or 0.0) >= tau_genai
+    return True
+
+
+def passed(category: str, checks: dict[str, Any], tau_genai: float = TAU_GENAI) -> bool:
+    """Rules r2: template prompts need their checker AND VQAScore >= 0.9 (in devrule1, 12 final
+    images passed the checker alone but not the judge); GenAI-Bench prompts need VQAScore >= 0.9."""
+    v = checks.get("vqascore") or 0.0
+    if category == "genai":
+        return v >= tau_genai
+    return checker_ok(category, checks) and v >= TAU_TEMPLATE_VQA
 
 
 def closeness(category: str, checks: dict[str, Any]) -> float:
@@ -101,6 +116,8 @@ def better(new: dict, cur: dict, category: str, delta: float = DELTA, tau_genai:
 
 def diagnose(category: str, checks: dict[str, Any]) -> str:
     x = checks.get("detect_extra") or {}
+    if category != "genai" and checker_ok(category, checks):
+        return "low_alignment"            # the checker is satisfied, VQAScore is not
     if category == "counting":
         return "missing_object" if x.get("count_pred", 0) == 0 else "wrong_count"
     if category == "spatial":
@@ -252,7 +269,7 @@ def propose(state: PromptState, action: str, costs: dict) -> tuple[dict, str] | 
         return nxt, f"follow the prompt more closely (cfg {CFG_HIGH})"
     if action == "switch_model":
         target = ROUTE[state.category]
-        if b.model == target:
+        if b.model == target or state.policy == "rule_sdxl":
             return None
         nxt.update(model=target, cfg=None)
         return nxt, f"{target} is the strongest model for {state.category} prompts on dev"
@@ -277,6 +294,9 @@ def next_rule_action(state: PromptState, costs: dict) -> tuple[str, dict, str] |
         state.used[diag] = i
         return action, params, f"{diag}: {reason}"
     state.used[diag] = i
+    p = propose(state, "reseed", costs)                  # rest of the budget: new seeds, best settings
+    if p and expected_cost(p[0]["model"], costs) + score_cost(state.category, costs) <= left + 1e-9:
+        return "reseed", p[0], f"{diag}: rule list used up; a new seed with the best settings so far"
     return None
 
 
