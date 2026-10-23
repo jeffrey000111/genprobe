@@ -263,6 +263,28 @@ Paired differences on the same prompts:
   on 4 prompts, by at most 0.043 GPU-s, because it plans with median costs and is charged measured
   ones (`results/agent/testsdxl/audit.jsonl`).
 
+**A person's check of the judge** (D-033; `results/judge_check/summary.md`; protocol in
+`docs/judge_check_protocol.md`). The author labelled, blind to group, model and grade, the final
+images of best-of-4, routed best-of-k and the agent for 50 random test prompts (138 distinct images):
+does the image meet every requirement of the prompt (yes / no / unsure)? He got all 10 attention
+checks right and gave the same answer to 12 of 15 hidden repeats (κ 0.60).
+
+- On the 122 images answered yes or no, the judge and the person made the same call on 0.762
+  [0.67, 0.85] (Cohen's κ 0.532 [0.36, 0.71]; D-033 fixed 0.4 as the floor below which the pass
+  rates could not be taken at face value).
+- The judge is the stricter of the two. The person also passed 0.893 [0.81, 0.96] of the judge's 56
+  passes, but the judge passed only 0.685 [0.55, 0.82] of the person's 73 (23 images the person
+  passed and the judge failed, 6 the other way). The absolute pass rates above are therefore low by
+  this annotator's standard.
+- The comparisons point the same way. On these 50 prompts the person passes the agent's image for
+  0.56, routed best-of-k's for 0.58 and best-of-4's for 0.44 (unsure counts as not passed). Agent −
+  routed best-of-k: −0.02 [−0.14, 0.10] by the person, −0.14 [−0.28, 0.00] by the judge; agent −
+  best-of-4: +0.12 by both. Like the judge, the person sees no gain from the agent over routing.
+  With 50 prompts the person's CIs are wide.
+- Exploratory: of the judge's passes, the person did not pass 1 of 16 for best-of-4 (SDXL) but 7 of
+  29 for routed best-of-k and 5 of 22 for the agent, so the judge may be a little more lenient with
+  SD3.5 Medium and FLUX images. The numbers are small.
+
 **What it means.** Here the useful part of "debugging" is knowing which model is good at which
 kind of prompt, which §2-style per-category results on dev already tell. A fixed routing table
 reaches the same pass rate (if anything slightly higher); the agent's only gain over it is cost,
@@ -295,8 +317,9 @@ bottleneck.
   model family, so module C is graded by Gemma 4 31B instead (D-030). The rubric both judges use
   was tuned by the author on 80 dev prompts, with Qwen3-VL-8B.
 - Module C's result rests on one judge. Gemma 4 31B was checked against people on GenAI-Bench
-  images from other models; its pass / fail calls on the agent's own images have not been checked
-  by a person. D-032 planned a small blind check of them; it has not been run.
+  images from other models, and on the agent's own images against one annotator, the author, who
+  knew module C's aggregate results (138 images, κ 0.53, §4). By his standard the judge is strict,
+  so the absolute pass rates are low; the comparisons between groups point the same way for both.
 - Pass means a judge score of 5, the strictest reading (project author's choice, fixed before any
   grade, D-032); other thresholds were not looked at.
 - The agent's rules and routing table were chosen on the 120 dev prompts, and the rules were changed

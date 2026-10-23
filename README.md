@@ -40,7 +40,10 @@ the GPU time of SDXL best-of-4 passes 55 % of prompts, against 37 % for best-of-
 kind of prompt, passes 58 %, and the agent does not beat it (−3.5 points [−8, +1]). Without
 switching model, the agent does no better than best-of-4. So the gain comes from knowing which
 model to use, not from diagnosing and repairing; the agent's one advantage is cost (21 vs 25
-GPU-seconds per success). See `results/agent/testrule+testsdxl/judged.md`.
+GPU-seconds per success). See `results/agent/testrule+testsdxl/judged.md`. A blind check by the
+author on 138 of the graded images matched the judge's pass / fail call on 76 % (κ 0.53); the judge
+is the stricter of the two, and the person also sees no gain from the agent over routing
+(`results/judge_check/summary.md`).
 
 ## Quick start (no GPU needed)
 
