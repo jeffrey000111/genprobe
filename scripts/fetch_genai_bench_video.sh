@@ -38,9 +38,10 @@ for m in "${MODELS[@]}"; do
   unzip -q -n "$OUT/$m.zip" -d "$OUT"
   echo "unzipped $m: $(find "$OUT/$m" -name '*.mp4' | wc -l) videos"
 done
+# coe-hpc1's python3 is 3.6 with an ASCII locale: open the JSON as UTF-8 explicitly.
 python3 - "$OUT" <<'PY'
-import json, sys
-d = json.load(open(f"{sys.argv[1]}/genai_video.json"))
+import io, json, sys
+d = json.load(io.open(sys.argv[1] + "/genai_video.json", encoding="utf-8"))
 k = sorted(d)[:2]
 print("prompts:", len(d), "first keys:", k, "fields:", sorted(d[k[0]]), "models:", sorted(d[k[0]]["models"]))
 PY

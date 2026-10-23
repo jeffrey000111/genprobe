@@ -15,12 +15,12 @@ has_internet || { echo "No internet on $(hostname); run on coe-hpc1: ssh sjsu \"
 VBENCH_COMMIT=fd18b3d055cb0fc6f066ca90fe2c3c8cbb698490          # main, 2026-08-21
 SRC="$GENPROBE_ENVS/vbench-src"
 C="$HF_HOME/vbench"
+# coe-hpc1's git (CentOS 7) predates `git -C`, so every git call runs in a subshell that cd's first.
 if [[ ! -d "$SRC/.git" ]]; then
   git clone -q https://github.com/Vchitect/VBench.git "$SRC"
 fi
-git -C "$SRC" fetch -q --depth 1 origin "$VBENCH_COMMIT" 2>/dev/null || true
-git -C "$SRC" checkout -q "$VBENCH_COMMIT"
-echo "VBench source: $SRC @ $(git -C "$SRC" rev-parse --short HEAD)"
+(cd "$SRC" && { git cat-file -e "$VBENCH_COMMIT^{commit}" 2>/dev/null || git fetch -q origin; } && git checkout -q "$VBENCH_COMMIT")
+echo "VBench source: $SRC @ $(cd "$SRC" && git rev-parse --short HEAD)"
 
 get() {   # url dest
   if [[ -s "$2" ]]; then echo "have $2"; return 0; fi
@@ -41,7 +41,7 @@ fi
 if [[ ! -d "$C/dino_model/facebookresearch_dino_main/.git" ]]; then
   git clone -q https://github.com/facebookresearch/dino "$C/dino_model/facebookresearch_dino_main"
 fi
-echo "dino repo @ $(git -C "$C/dino_model/facebookresearch_dino_main" rev-parse --short HEAD)"
+echo "dino repo @ $(cd "$C/dino_model/facebookresearch_dino_main" && git rev-parse --short HEAD)"
 (cd "$C" && find . -type f \( -name '*.pt' -o -name '*.pth' \) -exec sha256sum {} + | sort -k2 > SHA256SUMS)
 echo "weights in $C (sha256 in $C/SHA256SUMS):"
 du -sh "$C"

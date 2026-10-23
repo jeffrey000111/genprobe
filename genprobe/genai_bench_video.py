@@ -118,41 +118,76 @@ def prepare(folder: str | Path = FOLDER, prompts_out: str = PROMPTS, smoke_out: 
 
 
 def extract(path: Path, out: list[Path]) -> dict:
-    """Write N_FRAMES frames of a video as PNGs; returns the video's frame count, fps and size."""
+    """Write N_FRAMES frames of a video as PNGs (lossless, fast compression); returns the video's
+    frame count, fps and size. Every frame is decoded (counts in container headers can be off),
+    but only the chosen ones are converted to RGB."""
     import av
-    from PIL import Image
 
     with av.open(str(path)) as c:
         st = c.streams.video[0]
-        frames = [f.to_ndarray(format="rgb24") for f in c.decode(st)]
+        frames = list(c.decode(st))
         fps = float(st.average_rate) if st.average_rate else None
     idx = frame_indices(len(frames))
     for k, i in enumerate(idx):
         out[k].parent.mkdir(parents=True, exist_ok=True)
-        Image.fromarray(frames[i]).save(out[k])
-    h, w = frames[0].shape[:2] if frames else (None, None)
+        tmp = out[k].with_suffix(".tmp.png")
+        frames[i].to_image().save(tmp, compress_level=1)
+        tmp.replace(out[k])
+    w, h = (frames[0].width, frames[0].height) if frames else (None, None)
     return {"n_frames": len(frames), "fps": fps, "width": w, "height": h, "frame_indices": idx}
 
 
+def _complete(paths: list[Path]) -> bool:
+    """All frames there. Frames are written in order, so a run cut off mid-write can only have
+    left the last existing one truncated: check that the last frame decodes."""
+    if not all(p.is_file() and p.stat().st_size > 0 for p in paths):
+        return False
+    from PIL import Image
+    try:
+        with Image.open(paths[-1]) as im:
+            im.load()
+        return True
+    except Exception:  # noqa: BLE001
+        return False
+
+
+def _extract_one(job: tuple[str, str, list[str]]) -> dict:
+    sid, path, outs = job
+    paths = [Path(o) for o in outs]
+    if _complete(paths):
+        return {"sample_id": sid, "skipped": True}
+    try:
+        return {"sample_id": sid, **extract(Path(path), paths)}
+    except Exception as e:  # noqa: BLE001
+        return {"sample_id": sid, "error": f"{type(e).__name__}: {e}"[:500]}
+
+
 def frames(folder: str | Path = FOLDER, manifest: str = MANIFEST, frames_out: str = FRAMES_MANIFEST,
-           mid_out: str = MID_MANIFEST) -> dict:
+           mid_out: str = MID_MANIFEST, workers: int = 1, only_prompts: str | None = None) -> dict:
+    """Extract the frames (in parallel; videos whose 9 frames exist are skipped, so a cut-off run
+    resumes) and write the frame manifests for every video that has all its frames."""
     folder = Path(folder)
     videos = [json.loads(line) for line in Path(manifest).read_text().splitlines() if line.strip()]
     key_of = {json.loads(line)["prompt_id"]: json.loads(line)["key"]
               for line in Path(PROMPTS).read_text().splitlines() if line.strip()}
-    fr, mid, errors, info = [], [], 0, []
+    videos = [v for v in videos if v["status"] == "ok"]
+    if only_prompts:
+        keep = {json.loads(line)["prompt_id"] for line in Path(only_prompts).read_text().splitlines() if line.strip()}
+        videos = [v for v in videos if v["prompt_id"] in keep]
+    outs = {v["sample_id"]: [frame_path(folder, v["model"], key_of[v["prompt_id"]], k) for k in range(N_FRAMES)]
+            for v in videos}
+    jobs = [(v["sample_id"], v["path"], [str(p) for p in outs[v["sample_id"]]]) for v in videos]
+    if workers > 1:
+        from multiprocessing import Pool
+        with Pool(workers) as pool:
+            info = list(pool.imap_unordered(_extract_one, jobs, chunksize=4))
+    else:
+        info = [_extract_one(j) for j in jobs]
+    failed = {i["sample_id"] for i in info if "error" in i}
+    fr, mid, errors = [], [], len(failed)
     for v in videos:
-        if v["status"] != "ok":
-            continue
-        key = key_of[v["prompt_id"]]
-        outs = [frame_path(folder, v["model"], key, k) for k in range(N_FRAMES)]
-        try:
-            meta = extract(Path(v["path"]), outs) if not all(p.is_file() for p in outs) else {}
-            status = "ok"
-        except Exception as e:  # noqa: BLE001
-            meta, status, errors = {"error": f"{type(e).__name__}: {e}"[:500]}, "error", errors + 1
-        info.append({"sample_id": v["sample_id"], **meta})
-        for k, p in enumerate(outs):
+        status = "error" if v["sample_id"] in failed else "ok"
+        for k, p in enumerate(outs[v["sample_id"]]):
             rec = {"sample_id": make_sample_id(v["model"], v["prompt_id"], FRAME_SEED + k), "model": v["model"],
                    "prompt_id": v["prompt_id"], "prompt": v["prompt"], "seed": FRAME_SEED + k, "path": str(p),
                    "status": status if p.is_file() else "error", "kind": "frame", "video": v["sample_id"],
@@ -162,17 +197,25 @@ def frames(folder: str | Path = FOLDER, manifest: str = MANIFEST, frames_out: st
                 mid.append(rec)
     atomic_write_text(Path(frames_out), "".join(json.dumps(x) + "\n" for x in fr))
     atomic_write_text(Path(mid_out), "".join(json.dumps(x) + "\n" for x in mid))
-    atomic_write_text(folder / "frames" / "video_info.jsonl", "".join(json.dumps(x) + "\n" for x in info))
-    return {"videos": len(videos), "frames": len(fr), "errors": errors}
+    info_path = folder / "frames" / "video_info.jsonl"
+    old_info = {json.loads(x)["sample_id"]: json.loads(x) for x in info_path.read_text().splitlines()
+                if x.strip()} if info_path.exists() else {}
+    old_info.update({i["sample_id"]: i for i in info if not i.get("skipped")})
+    atomic_write_text(info_path, "".join(json.dumps(x) + "\n" for x in old_info.values()))
+    return {"videos": len(videos), "frames": len(fr), "errors": errors,
+            "extracted_now": sum(1 for i in info if not i.get("skipped") and "error" not in i),
+            "error_examples": [i["error"] for i in info if "error" in i][:3]}
 
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("prepare")
-    sub.add_parser("frames")
+    fr = sub.add_parser("frames")
+    fr.add_argument("--workers", type=int, default=1)
+    fr.add_argument("--only-prompts", default=None, help="a prompts file: extract only these prompts' videos")
     args = ap.parse_args(argv)
-    res = prepare() if args.cmd == "prepare" else frames()
+    res = prepare() if args.cmd == "prepare" else frames(workers=args.workers, only_prompts=args.only_prompts)
     print(json.dumps(res, indent=2))
     return 0 if not res.get("missing") and not res.get("errors") else 1
 
