@@ -166,24 +166,28 @@ def judge_version(tag: str, data: str = "data") -> str | None:
     return json.loads(p.read_text()).get("judge_version") if p.exists() else None
 
 
-def load_module_c(data: str = "data", root: Path = core.ROOT) -> tuple[dict, dict, dict, set]:
-    """Per-prompt judge pass and GPU-seconds of module C's groups on the test split (the same
-    grades as results/agent/testrule+testsdxl/judged.md)."""
+def load_module_c(data: str = "data", root: Path = core.ROOT) -> tuple[dict, dict, dict, set, dict]:
+    """Per-prompt judge pass and GPU-seconds of module C's groups on the test split, exactly as
+    genprobe.agent.compare computes them for results/agent/testrule+testsdxl/judged.md: the grades
+    of both runs are merged, a later run's grade replacing an earlier one's for an image graded
+    twice (the base image, when both agents kept it). Also returns the merged grades."""
     passed, spend, cats, versions = defaultdict(dict), defaultdict(dict), {}, set()
+    recs: dict[str, dict] = {}
+    rows = []
     for i, (run, tag) in enumerate(AGENT_RUNS.items()):
-        grades = latest_by_id(read_many([Path(data, "judge", f"{tag}.jsonl")]))
+        recs.update(latest_by_id(read_many([Path(data, "judge", f"{tag}.jsonl")])))
         versions.add(judge_version(tag, data))
         for line in (Path(root) / run / "final.jsonl").read_text().splitlines():
-            if not line.strip():
-                continue
-            f = json.loads(line)
-            if i > 0 and not f["group"].startswith("agent"):
-                continue
-            g = grades.get(f["sample_id"])
-            passed[f["group"]][f["prompt_id"]] = float(bool(g) and g.get("score") == PASS_SCORE)
-            spend[f["group"]][f["prompt_id"]] = float(f["gpu_seconds"])
-            cats[f["prompt_id"]] = f["category"]
-    return passed, spend, cats, versions
+            if line.strip():
+                f = json.loads(line)
+                if i == 0 or f["group"].startswith("agent"):
+                    rows.append(f)
+    for f in rows:
+        g = recs.get(f["sample_id"])
+        passed[f["group"]][f["prompt_id"]] = float(bool(g) and g.get("score") == PASS_SCORE)
+        spend[f["group"]][f["prompt_id"]] = float(f["gpu_seconds"])
+        cats[f["prompt_id"]] = f["category"]
+    return passed, spend, cats, versions, recs
 
 
 def analyze(picks_path: str, grades: str, data: str = "data", out: str = "results/rerank", costs_run: str = "testrule",
@@ -201,7 +205,14 @@ def analyze(picks_path: str, grades: str, data: str = "data", out: str = "result
         spend[r["group"]][r["prompt_id"]] = cost(r["n"], r["model"], costs)
         vqa[r["group"]][r["prompt_id"]] = float(r["vqascore"])
         cats[r["prompt_id"]] = r["category"]
-    mc_passed, mc_spend, mc_cats, versions = load_module_c(data, root)
+    mc_passed, mc_spend, mc_cats, versions, mc_recs = load_module_c(data, root)
+    # images graded both here and in module C (e.g. SDXL seed 0 = sdxl@1 = single): how often the
+    # judge, run again in another job, gives the same score and the same pass / fail
+    both = [s for s in g if s in mc_recs and g[s].get("score") is not None and mc_recs[s].get("score") is not None]
+    regrade = {"images": len(both),
+               "same_score": float(np.mean([g[s]["score"] == mc_recs[s]["score"] for s in both])) if both else math.nan,
+               "same_pass": float(np.mean([(g[s]["score"] == PASS_SCORE) == (mc_recs[s]["score"] == PASS_SCORE)
+                                           for s in both])) if both else math.nan}
     version = judge_version(grades, data)
     versions.discard(None)
     if versions and versions != {version}:
@@ -236,7 +247,7 @@ def analyze(picks_path: str, grades: str, data: str = "data", out: str = "result
            "judge_version": version, "pass_rule": f"judge score == {PASS_SCORE}", "prompts": len(prompts),
            "ns": list(NS), "costs": costs, "groups": groups, "pass_rate": rate, "gpu_seconds": gpu,
            "gpu_seconds_per_success": per_success, "own_scores": own, "paired_difference": diffs,
-           "ungraded": ungraded, "distinct_images": len({r["sample_id"] for r in rows})}
+           "ungraded": ungraded, "distinct_images": len({r["sample_id"] for r in rows}), "regrade": regrade}
     o = Path(out)
     o.mkdir(parents=True, exist_ok=True)
     atomic_write_text(o / "summary.json", json.dumps(res, indent=2))
@@ -341,6 +352,11 @@ def render(res: dict) -> str:
             d = res["paired_difference"].get(f"{pr}|{c}")
             cells.append("–" if d is None else f"{_f(d['value'])} [{_f(d['ci'][0], 2)}, {_f(d['ci'][1], 2)}]")
         L.append(f"| {pr} | " + " | ".join(cells) + " |")
+    rg = res.get("regrade", {})
+    if rg.get("images"):
+        L += ["", f"Grading again: {rg['images']} images were graded both here and in module C (separate jobs). "
+              f"Same score for {_f(rg['same_score'])}, same pass / fail for {_f(rg['same_pass'])}. Module C's rows "
+              "use module C's grades, as in `results/agent/testrule+testsdxl/judged.md`."]
     c = res["costs"]
     L += ["", f"Costs (median seconds per image, from module C's run): generation "
           f"{', '.join(f'{m} {v:.2f}' for m, v in c['gen'].items())}; VQAScore {c['score']['vqascore']:.2f}. "
