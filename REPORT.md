@@ -1,8 +1,8 @@
 # GenProbe report
 
-_Status: M2 (benchmark on prompt set v1) and M3 (metric meta-evaluation: H1–H3, the VLM judge
-and a human check on our own images) done; module C (the generation-debugging agent) next. Every number
-here is copied from a file in `results/`, named next to it; nothing is reported before it
+_Status: M2 (benchmark on prompt set v1), M3 (metric meta-evaluation: H1–H3, the VLM judge
+and a human check on our own images) and module C (the generation-debugging agent, §4) done. Every
+number here is copied from a file in `results/`, named next to it; nothing is reported before it
 exists there. Choices behind the numbers are in `docs/decisions.md` (D-xxx)._
 
 ## 1. Setup
@@ -172,7 +172,108 @@ That order was written down as the expectation before labelling; this comparison
 not a test. With 129 pairs, VQAScore's CI overlaps the preference models'. CLIPScore is at
 chance on counting: 0.455 [0.303, 0.606] over 33 pairs. Each stratum rests on 18–43 pairs.
 
-## 4. Limitations
+## 4. Generation-debugging agent (module C)
+
+**Question.** With the GPU time that SDXL best-of-4 costs, does an agent that checks each image with
+the metrics trusted in §1–3, diagnoses what is wrong and changes one thing at a time get more
+prompts right than spending that time on more samples?
+
+**Agent** (D-030, D-031 with revisions 1–2; `genprobe/agent/`). It starts from the SDXL seed-0 image
+of prompt set v1. Its own checks: the detector for counting and spatial prompts, OCR ≥ 0.85 for
+text, and VQAScore ≥ 0.9; a template prompt passes only when its checker passes and VQAScore ≥ 0.9,
+a GenAI-Bench prompt on VQAScore alone. From the failed check it diagnoses wrong count, missing
+object, wrong relation, misspelt or missing text, or low alignment, and tries that diagnosis's
+actions in order: switch to the category's best model on dev (SD3.5 Medium for counting and
+spatial, FLUX.1 schnell for text and GenAI-Bench), then a rule-based rewrite that states the
+failing requirement, cfg 7.5 instead of SDXL's 5.0, or a new seed. When the list is used up, the
+rest of the budget goes to new seeds. Each attempt changes one thing of the best image so far and
+replaces it only if clearly better (pass, then the nearer miss, then VQAScore +0.02). It stops when
+its own checks pass or nothing affordable is left. Every step is logged with its reason
+(`results/agent/testrule/audit.jsonl`).
+
+**Budget and baselines** (D-032). Per prompt, 4 × (median SDXL generation + median checks for the
+category): 21.7 GPU-seconds on average over the test prompts. The agent is charged the measured
+seconds of each attempt; model loading is not charged. Every group gives one image per prompt,
+picked with the agent's own comparison:
+
+- *single*: the SDXL seed-0 image;
+- *best_of_4*: SDXL seeds 0–3;
+- *routed_best_of_k*: the category's dev-best model (the agent's routing table) with as many of its
+  seeds as the budget pays for (3 for counting and spatial, 4 for text and GenAI-Bench);
+- *agent*: rules r2;
+- *agent, SDXL only*: the same agent without the switch to another model (ablation).
+
+**Grading.** The agent optimizes VQAScore (Qwen2.5-VL) and the checkers, so the grade comes from a
+judge of another family: Gemma 4 31B-it, run with §3's frozen rubric without any tuning, always
+given the original prompt. A prompt passes only on a score of 5 ("every requirement is met"). Before
+it graded anything, it went through §3's checks on the 1,520 GenAI-Bench test prompts
+(`results/judge/test_gemma/summary.md`):
+
+- agreement with people by expected score 0.729 [0.719, 0.740], VQAScore 0.732 on the same 17,159
+  pairs (paired −0.003 [−0.014, 0.008]); 0.709 [0.701, 0.718] by the integer score that decides a
+  pass;
+- no position bias: 0.490 [0.478, 0.503] of pairwise picks go to the image shown first;
+- blind test: mean score 3.57 with the real image, 1.00 with a grey one, 1.02 with another prompt's;
+- 3 samples at temperature 0.7 agree on 84 % of images.
+
+**Protocol.** The rules were changed once on the 120 dev prompts (r1 → r2, after the judge graded
+the first dev run) and then frozen. The 480 test prompts were run once (`testrule`, `testsdxl`) and
+graded once.
+
+**Results** (test, 480 prompts; `results/agent/testrule+testsdxl/judged.md`). Share of prompts the
+judge passes; 95 % CIs over prompts are in the file for every cell:
+
+| Group | All [95 % CI] | Counting (56) | Spatial (56) | Text (48) | GenAI-Bench (320) | GPU-s / prompt | GPU-s / success |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| single | 0.246 [0.21, 0.28] | 0.286 | 0.250 | 0.146 | 0.253 | 5.3 | 21.6 |
+| best_of_4 | 0.367 [0.33, 0.41] | 0.589 | 0.554 | 0.188 | 0.322 | 21.7 | 59.3 |
+| routed_best_of_k | **0.581** [0.54, 0.62] | 0.786 | 0.732 | 0.729 | 0.497 | 14.7 | 25.3 |
+| agent | 0.546 [0.50, 0.59] | 0.732 | 0.732 | 0.604 | 0.472 | 11.5 | **21.1** |
+| agent, SDXL only | 0.342 [0.30, 0.38] | 0.554 | 0.571 | 0.125 | 0.297 | 14.8 | 43.4 |
+
+Paired differences on the same prompts:
+
+| Comparison | All | Counting | Spatial | Text | GenAI-Bench |
+| --- | --- | --- | --- | --- | --- |
+| agent − best_of_4 | **+0.179** [0.14, 0.22] | +0.143 [−0.02, 0.29] | +0.179 [0.04, 0.32] | +0.417 [0.25, 0.58] | +0.150 [0.10, 0.20] |
+| agent − routed_best_of_k | −0.035 [−0.08, 0.01] | −0.054 [−0.18, 0.07] | 0.000 [−0.12, 0.12] | −0.125 [−0.29, 0.04] | −0.025 [−0.07, 0.02] |
+| agent − agent, SDXL only | **+0.204** [0.16, 0.25] | +0.179 [0.04, 0.34] | +0.161 [0.04, 0.29] | +0.479 [0.33, 0.63] | +0.175 [0.13, 0.22] |
+| agent, SDXL only − best_of_4 | −0.025 [−0.06, 0.01] | −0.036 [−0.20, 0.12] | +0.018 [−0.12, 0.18] | −0.062 [−0.19, 0.06] | −0.025 [−0.06, 0.01] |
+
+- **The agent beats spending the budget on more SDXL samples**: +0.179 [0.14, 0.22] over best-of-4,
+  at about half its GPU time (11.5 vs 21.7 s per prompt).
+- **It does not beat plain routing.** Best-of-k with the category's dev-best model passes 0.581, the
+  agent 0.546 (−0.035 [−0.08, 0.01]); the gap is largest on text (0.604 vs 0.729). The agent is
+  cheaper because it stops as soon as its own checks pass: 11.5 vs 14.7 GPU-s per prompt, 21.1 vs
+  25.3 per success.
+- **Diagnosis-driven repair adds nothing measurable.** Without the model switch, the same agent does
+  no better than SDXL best-of-4 (−0.025 [−0.06, 0.01]), although its final image came from a rewrite
+  in 26 prompts and from the higher cfg in 56 (from a new seed in 176; `results/agent/testsdxl/summary.md`).
+  For the full agent, the final image came from the model switch in 166 prompts, a new seed in 102,
+  a rewrite in 21 and the higher cfg in 14 (`results/agent/testrule/summary.md`).
+- **Passing its own checks is not passing the judge.** By its own checks the agent passes more
+  prompts than routed best-of-k (0.729 vs 0.700, `results/agent/testrule/summary.md`); by the judge,
+  fewer. Of the 218 prompts whose final image the judge fails, the first image was diagnosed as low
+  alignment in 140, had already passed the agent's checks in 44 (so the agent never tried), and had
+  misspelt text in 14, a wrong count in 11, a wrong relation in 6, missing text in 2 and a missing
+  object in 1.
+- **Dev told the same story** (D-031 revisions 1–2; 120 prompts): agent r1 0.550 and r2 0.533 vs
+  routed best-of-k 0.600; the SDXL-only agent 0.375 vs best-of-4 0.417.
+- **Budget.** The full agent stayed within its budget on every prompt. The SDXL-only agent went over
+  on 4 prompts, by at most 0.043 GPU-s, because it plans with median costs and is charged measured
+  ones (`results/agent/testsdxl/audit.jsonl`).
+
+**What it means.** Here the useful part of "debugging" is knowing which model is good at which
+kind of prompt, which §2-style per-category results on dev already tell. A fixed routing table
+reaches the same pass rate (if anything slightly higher); the agent's only gain over it is cost,
+from stopping early. The repairs open to SDXL (a rule-based rewrite, a higher cfg, a new seed) are
+no better than more samples. Why the agent trails routing on text was not analysed. One untested
+possibility: the agent keeps the first FLUX image that passes its checks, while best-of-k sees all
+four and keeps the one with the highest OCR match. An LLM-planned agent (guide §10.3) was not built
+(D-031 revision 2): dev suggested that the actions themselves, not how they are chosen, are the
+bottleneck.
+
+## 5. Limitations
 - Detector and OCR checks have their own error rates (§1), measured on 50 dev images each by one
   annotator; the OCR threshold was chosen on the same images.
 - The OCR check ignores extra text, so a phrase written with repeats still passes: SD 1.5's
@@ -190,9 +291,20 @@ chance on counting: 0.455 [0.303, 0.606] over 33 pairs. Each stratum rests on 18
   arXiv:2404.01291). Our VQAScore uses a different backbone (Qwen2.5-VL-7B) and was not tuned on
   GenAI-Bench, but the benchmark's prompts and rating instructions may still suit that kind of
   metric.
-- The VLM judge (Qwen3-VL-8B) and VQAScore's backbone (Qwen2.5-VL-7B) come from the same model
-  family; before the judge grades anything in module C, a judge from another family is added
-  (D-027). Its rubric was tuned by the author on 80 dev prompts.
+- The VLM judge of §3 (Qwen3-VL-8B) and VQAScore's backbone (Qwen2.5-VL-7B) come from the same
+  model family, so module C is graded by Gemma 4 31B instead (D-030). The rubric both judges use
+  was tuned by the author on 80 dev prompts, with Qwen3-VL-8B.
+- Module C's result rests on one judge. Gemma 4 31B was checked against people on GenAI-Bench
+  images from other models; its pass / fail calls on the agent's own images have not been checked
+  by a person. D-032 planned a small blind check of them; it has not been run.
+- Pass means a judge score of 5, the strictest reading (project author's choice, fixed before any
+  grade, D-032); other thresholds were not looked at.
+- The agent's rules and routing table were chosen on the 120 dev prompts, and the rules were changed
+  once after the judge graded a dev run, so only the test numbers are clean.
+- Costs are GPU-seconds of generation and checking only: the agent is charged measured seconds per
+  attempt, the baselines median seconds per image, and model loading is charged to no one. Routed
+  best-of-k uses at most the 4 seeds prompt set v1 already has, although the budget would pay for
+  more FLUX.1 schnell images, so that baseline is if anything a little weak.
 - Greedy decoding with vLLM does not repeat exactly across jobs: rerunning the same pairwise
   prompt on dev gave 0.657 instead of 0.660 agreement (D-028 revision 3).
 - The human ceiling in §3 is a rough reference rather than a strict bound: it compares one

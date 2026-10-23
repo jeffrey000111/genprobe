@@ -1,0 +1,176 @@
+{
+  "run": "testrule",
+  "split": "test",
+  "policy": "rule",
+  "created_at": "2026-10-23T03:36:28.331+00:00",
+  "git_commit": "01855d0",
+  "costs": {
+    "gen": {
+      "sdxl": 3.0504,
+      "sd35m": 4.6027,
+      "flux_schnell": 1.128
+    },
+    "score": {
+      "vqascore": 0.8518,
+      "detect": 5.5647,
+      "ocr": 2.3489
+    }
+  },
+  "settings": {
+    "ruleset": "r2",
+    "tau_genai": 0.9,
+    "tau_template_vqa": 0.9,
+    "delta": 0.02,
+    "cfg_high": 7.5,
+    "route": {
+      "counting": "sd35m",
+      "spatial": "sd35m",
+      "text": "flux_schnell",
+      "genai": "flux_schnell"
+    },
+    "rules": {
+      "wrong_count": [
+        "switch_model",
+        "rewrite",
+        "reseed"
+      ],
+      "missing_object": [
+        "switch_model",
+        "rewrite",
+        "reseed"
+      ],
+      "wrong_relation": [
+        "switch_model",
+        "rewrite",
+        "reseed"
+      ],
+      "misspelled_text": [
+        "switch_model",
+        "reseed",
+        "rewrite"
+      ],
+      "missing_text": [
+        "switch_model",
+        "rewrite",
+        "reseed"
+      ],
+      "low_alignment": [
+        "switch_model",
+        "raise_cfg",
+        "reseed"
+      ]
+    },
+    "max_attempts": 12
+  },
+  "internal_pass_rate": {
+    "agent_rule|all": {
+      "n": 480,
+      "pass_rate": 0.7291666666666666
+    },
+    "agent_rule|counting": {
+      "n": 56,
+      "pass_rate": 0.6964285714285714
+    },
+    "agent_rule|genai": {
+      "n": 320,
+      "pass_rate": 0.696875
+    },
+    "agent_rule|spatial": {
+      "n": 56,
+      "pass_rate": 0.8035714285714286
+    },
+    "agent_rule|text": {
+      "n": 48,
+      "pass_rate": 0.8958333333333334
+    },
+    "best_of_4|all": {
+      "n": 480,
+      "pass_rate": 0.47708333333333336
+    },
+    "best_of_4|counting": {
+      "n": 56,
+      "pass_rate": 0.35714285714285715
+    },
+    "best_of_4|genai": {
+      "n": 320,
+      "pass_rate": 0.496875
+    },
+    "best_of_4|spatial": {
+      "n": 56,
+      "pass_rate": 0.5357142857142857
+    },
+    "best_of_4|text": {
+      "n": 48,
+      "pass_rate": 0.4166666666666667
+    },
+    "routed_best_of_k|all": {
+      "n": 480,
+      "pass_rate": 0.7
+    },
+    "routed_best_of_k|counting": {
+      "n": 56,
+      "pass_rate": 0.6607142857142857
+    },
+    "routed_best_of_k|genai": {
+      "n": 320,
+      "pass_rate": 0.65625
+    },
+    "routed_best_of_k|spatial": {
+      "n": 56,
+      "pass_rate": 0.8035714285714286
+    },
+    "routed_best_of_k|text": {
+      "n": 48,
+      "pass_rate": 0.9166666666666666
+    },
+    "single|all": {
+      "n": 480,
+      "pass_rate": 0.26458333333333334
+    },
+    "single|counting": {
+      "n": 56,
+      "pass_rate": 0.14285714285714285
+    },
+    "single|genai": {
+      "n": 320,
+      "pass_rate": 0.321875
+    },
+    "single|spatial": {
+      "n": 56,
+      "pass_rate": 0.21428571428571427
+    },
+    "single|text": {
+      "n": 48,
+      "pass_rate": 0.08333333333333333
+    }
+  },
+  "agent": {
+    "attempts_mean": 2.779166666666667,
+    "spent_mean": 11.513589375,
+    "budget_mean": 21.74226666666667,
+    "over_budget": 0,
+    "stop_reasons": {
+      "passed": 350,
+      "no affordable action left": 130
+    },
+    "actions": {
+      "switch_model": 357,
+      "raise_cfg": 75,
+      "reseed": 369,
+      "rewrite": 53
+    },
+    "improved_by": {
+      "switch_model": 166,
+      "reseed": 102,
+      "raise_cfg": 14,
+      "rewrite": 21
+    },
+    "routed_k": {
+      "genai:4": 320,
+      "counting:3": 56,
+      "spatial:3": 56,
+      "text:4": 48
+    }
+  },
+  "prompts": 480
+}

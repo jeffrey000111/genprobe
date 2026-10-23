@@ -1,0 +1,559 @@
+{
+  "runs": [
+    "testrule",
+    "testsdxl"
+  ],
+  "grades": [
+    "grade_testrule_gemma4_31b",
+    "grade_testsdxl_gemma4_31b"
+  ],
+  "judge_version": "vllm==0.32.0/gemma-4-31b@842da37/bf16/vis560/img1024/tmpl-b9e98ed8",
+  "created_at": "2026-10-23T03:56:40.057+00:00",
+  "git_commit": "01855d0",
+  "pass_rule": "judge score == 5",
+  "groups": [
+    "single",
+    "best_of_4",
+    "routed_best_of_k",
+    "agent_rule@testrule",
+    "agent_rule_sdxl@testsdxl"
+  ],
+  "pass_rate": {
+    "single": {
+      "all": {
+        "value": 0.24583333333333332,
+        "ci": [
+          0.20833333333333334,
+          0.2833333333333333
+        ],
+        "n": 480
+      },
+      "counting": {
+        "value": 0.2857142857142857,
+        "ci": [
+          0.17812500000000003,
+          0.4107142857142857
+        ],
+        "n": 56
+      },
+      "genai": {
+        "value": 0.253125,
+        "ci": [
+          0.209375,
+          0.303125
+        ],
+        "n": 320
+      },
+      "spatial": {
+        "value": 0.25,
+        "ci": [
+          0.14285714285714285,
+          0.375
+        ],
+        "n": 56
+      },
+      "text": {
+        "value": 0.14583333333333334,
+        "ci": [
+          0.0625,
+          0.25
+        ],
+        "n": 48
+      }
+    },
+    "best_of_4": {
+      "all": {
+        "value": 0.36666666666666664,
+        "ci": [
+          0.325,
+          0.41041666666666665
+        ],
+        "n": 480
+      },
+      "counting": {
+        "value": 0.5892857142857143,
+        "ci": [
+          0.4642857142857143,
+          0.7142857142857143
+        ],
+        "n": 56
+      },
+      "genai": {
+        "value": 0.321875,
+        "ci": [
+          0.271875,
+          0.375
+        ],
+        "n": 320
+      },
+      "spatial": {
+        "value": 0.5535714285714286,
+        "ci": [
+          0.428125,
+          0.6785714285714286
+        ],
+        "n": 56
+      },
+      "text": {
+        "value": 0.1875,
+        "ci": [
+          0.08333333333333333,
+          0.3125
+        ],
+        "n": 48
+      }
+    },
+    "routed_best_of_k": {
+      "all": {
+        "value": 0.58125,
+        "ci": [
+          0.5375,
+          0.6229166666666667
+        ],
+        "n": 480
+      },
+      "counting": {
+        "value": 0.7857142857142857,
+        "ci": [
+          0.6785714285714286,
+          0.8928571428571429
+        ],
+        "n": 56
+      },
+      "genai": {
+        "value": 0.496875,
+        "ci": [
+          0.44375,
+          0.55
+        ],
+        "n": 320
+      },
+      "spatial": {
+        "value": 0.7321428571428571,
+        "ci": [
+          0.6071428571428571,
+          0.8392857142857143
+        ],
+        "n": 56
+      },
+      "text": {
+        "value": 0.7291666666666666,
+        "ci": [
+          0.6041666666666666,
+          0.8541666666666666
+        ],
+        "n": 48
+      }
+    },
+    "agent_rule@testrule": {
+      "all": {
+        "value": 0.5458333333333333,
+        "ci": [
+          0.5020833333333333,
+          0.5895833333333333
+        ],
+        "n": 480
+      },
+      "counting": {
+        "value": 0.7321428571428571,
+        "ci": [
+          0.6071428571428571,
+          0.8392857142857143
+        ],
+        "n": 56
+      },
+      "genai": {
+        "value": 0.471875,
+        "ci": [
+          0.421875,
+          0.5250781249999996
+        ],
+        "n": 320
+      },
+      "spatial": {
+        "value": 0.7321428571428571,
+        "ci": [
+          0.6071428571428571,
+          0.8392857142857143
+        ],
+        "n": 56
+      },
+      "text": {
+        "value": 0.6041666666666666,
+        "ci": [
+          0.4583333333333333,
+          0.75
+        ],
+        "n": 48
+      }
+    },
+    "agent_rule_sdxl@testsdxl": {
+      "all": {
+        "value": 0.3416666666666667,
+        "ci": [
+          0.3020833333333333,
+          0.38333333333333336
+        ],
+        "n": 480
+      },
+      "counting": {
+        "value": 0.5535714285714286,
+        "ci": [
+          0.42857142857142855,
+          0.6785714285714286
+        ],
+        "n": 56
+      },
+      "genai": {
+        "value": 0.296875,
+        "ci": [
+          0.25,
+          0.346875
+        ],
+        "n": 320
+      },
+      "spatial": {
+        "value": 0.5714285714285714,
+        "ci": [
+          0.44642857142857145,
+          0.6964285714285714
+        ],
+        "n": 56
+      },
+      "text": {
+        "value": 0.125,
+        "ci": [
+          0.041666666666666664,
+          0.22916666666666666
+        ],
+        "n": 48
+      }
+    }
+  },
+  "paired_difference": {
+    "agent_rule@testrule - single|all": {
+      "value": 0.3,
+      "ci": [
+        0.25833333333333336,
+        0.34375
+      ],
+      "n": 480
+    },
+    "agent_rule@testrule - single|counting": {
+      "value": 0.44642857142857145,
+      "ci": [
+        0.30357142857142855,
+        0.5892857142857143
+      ],
+      "n": 56
+    },
+    "agent_rule@testrule - single|genai": {
+      "value": 0.21875,
+      "ci": [
+        0.175,
+        0.2625781249999996
+      ],
+      "n": 320
+    },
+    "agent_rule@testrule - single|spatial": {
+      "value": 0.48214285714285715,
+      "ci": [
+        0.3392857142857143,
+        0.625
+      ],
+      "n": 56
+    },
+    "agent_rule@testrule - single|text": {
+      "value": 0.4583333333333333,
+      "ci": [
+        0.2916666666666667,
+        0.625
+      ],
+      "n": 48
+    },
+    "agent_rule@testrule - best_of_4|all": {
+      "value": 0.17916666666666667,
+      "ci": [
+        0.13541666666666666,
+        0.22291666666666668
+      ],
+      "n": 480
+    },
+    "agent_rule@testrule - best_of_4|counting": {
+      "value": 0.14285714285714285,
+      "ci": [
+        -0.017857142857142856,
+        0.2857142857142857
+      ],
+      "n": 56
+    },
+    "agent_rule@testrule - best_of_4|genai": {
+      "value": 0.15,
+      "ci": [
+        0.103125,
+        0.196875
+      ],
+      "n": 320
+    },
+    "agent_rule@testrule - best_of_4|spatial": {
+      "value": 0.17857142857142858,
+      "ci": [
+        0.03571428571428571,
+        0.32142857142857145
+      ],
+      "n": 56
+    },
+    "agent_rule@testrule - best_of_4|text": {
+      "value": 0.4166666666666667,
+      "ci": [
+        0.25,
+        0.5833333333333334
+      ],
+      "n": 48
+    },
+    "agent_rule@testrule - routed_best_of_k|all": {
+      "value": -0.035416666666666666,
+      "ci": [
+        -0.07708333333333334,
+        0.00625
+      ],
+      "n": 480
+    },
+    "agent_rule@testrule - routed_best_of_k|counting": {
+      "value": -0.05357142857142857,
+      "ci": [
+        -0.17857142857142858,
+        0.07142857142857142
+      ],
+      "n": 56
+    },
+    "agent_rule@testrule - routed_best_of_k|genai": {
+      "value": -0.025,
+      "ci": [
+        -0.071875,
+        0.021875
+      ],
+      "n": 320
+    },
+    "agent_rule@testrule - routed_best_of_k|spatial": {
+      "value": 0.0,
+      "ci": [
+        -0.125,
+        0.125
+      ],
+      "n": 56
+    },
+    "agent_rule@testrule - routed_best_of_k|text": {
+      "value": -0.125,
+      "ci": [
+        -0.2916666666666667,
+        0.041666666666666664
+      ],
+      "n": 48
+    },
+    "agent_rule_sdxl@testsdxl - single|all": {
+      "value": 0.09583333333333334,
+      "ci": [
+        0.06458333333333334,
+        0.12916666666666668
+      ],
+      "n": 480
+    },
+    "agent_rule_sdxl@testsdxl - single|counting": {
+      "value": 0.26785714285714285,
+      "ci": [
+        0.125,
+        0.4107142857142857
+      ],
+      "n": 56
+    },
+    "agent_rule_sdxl@testsdxl - single|genai": {
+      "value": 0.04375,
+      "ci": [
+        0.01875,
+        0.071875
+      ],
+      "n": 320
+    },
+    "agent_rule_sdxl@testsdxl - single|spatial": {
+      "value": 0.32142857142857145,
+      "ci": [
+        0.19642857142857142,
+        0.4642857142857143
+      ],
+      "n": 56
+    },
+    "agent_rule_sdxl@testsdxl - single|text": {
+      "value": -0.020833333333333332,
+      "ci": [
+        -0.125,
+        0.08333333333333333
+      ],
+      "n": 48
+    },
+    "agent_rule_sdxl@testsdxl - best_of_4|all": {
+      "value": -0.025,
+      "ci": [
+        -0.0625,
+        0.010468749999999714
+      ],
+      "n": 480
+    },
+    "agent_rule_sdxl@testsdxl - best_of_4|counting": {
+      "value": -0.03571428571428571,
+      "ci": [
+        -0.19642857142857142,
+        0.125
+      ],
+      "n": 56
+    },
+    "agent_rule_sdxl@testsdxl - best_of_4|genai": {
+      "value": -0.025,
+      "ci": [
+        -0.05625,
+        0.009375
+      ],
+      "n": 320
+    },
+    "agent_rule_sdxl@testsdxl - best_of_4|spatial": {
+      "value": 0.017857142857142856,
+      "ci": [
+        -0.125,
+        0.17857142857142858
+      ],
+      "n": 56
+    },
+    "agent_rule_sdxl@testsdxl - best_of_4|text": {
+      "value": -0.0625,
+      "ci": [
+        -0.1875,
+        0.0625
+      ],
+      "n": 48
+    },
+    "agent_rule_sdxl@testsdxl - routed_best_of_k|all": {
+      "value": -0.23958333333333334,
+      "ci": [
+        -0.28958333333333336,
+        -0.18958333333333333
+      ],
+      "n": 480
+    },
+    "agent_rule_sdxl@testsdxl - routed_best_of_k|counting": {
+      "value": -0.23214285714285715,
+      "ci": [
+        -0.39285714285714285,
+        -0.07142857142857142
+      ],
+      "n": 56
+    },
+    "agent_rule_sdxl@testsdxl - routed_best_of_k|genai": {
+      "value": -0.2,
+      "ci": [
+        -0.259375,
+        -0.14375
+      ],
+      "n": 320
+    },
+    "agent_rule_sdxl@testsdxl - routed_best_of_k|spatial": {
+      "value": -0.16071428571428573,
+      "ci": [
+        -0.30357142857142855,
+        -0.017857142857142856
+      ],
+      "n": 56
+    },
+    "agent_rule_sdxl@testsdxl - routed_best_of_k|text": {
+      "value": -0.6041666666666666,
+      "ci": [
+        -0.75,
+        -0.4583333333333333
+      ],
+      "n": 48
+    },
+    "agent_rule@testrule - agent_rule_sdxl@testsdxl|all": {
+      "value": 0.20416666666666666,
+      "ci": [
+        0.16041666666666668,
+        0.24791666666666667
+      ],
+      "n": 480
+    },
+    "agent_rule@testrule - agent_rule_sdxl@testsdxl|counting": {
+      "value": 0.17857142857142858,
+      "ci": [
+        0.03571428571428571,
+        0.3392857142857143
+      ],
+      "n": 56
+    },
+    "agent_rule@testrule - agent_rule_sdxl@testsdxl|genai": {
+      "value": 0.175,
+      "ci": [
+        0.13125,
+        0.221875
+      ],
+      "n": 320
+    },
+    "agent_rule@testrule - agent_rule_sdxl@testsdxl|spatial": {
+      "value": 0.16071428571428573,
+      "ci": [
+        0.03571428571428571,
+        0.2857142857142857
+      ],
+      "n": 56
+    },
+    "agent_rule@testrule - agent_rule_sdxl@testsdxl|text": {
+      "value": 0.4791666666666667,
+      "ci": [
+        0.3333333333333333,
+        0.6255208333333305
+      ],
+      "n": 48
+    }
+  },
+  "spend": {
+    "single": {
+      "mean_gpu_seconds": 5.317135416666668,
+      "gpu_seconds_per_success": 21.6290254237288
+    },
+    "best_of_4": {
+      "mean_gpu_seconds": 21.74226666666667,
+      "gpu_seconds_per_success": 59.297090909091416
+    },
+    "routed_best_of_k": {
+      "mean_gpu_seconds": 14.724366666666665,
+      "gpu_seconds_per_success": 25.332243727598502
+    },
+    "agent_rule@testrule": {
+      "mean_gpu_seconds": 11.513564583333334,
+      "gpu_seconds_per_success": 21.09355343511448
+    },
+    "agent_rule_sdxl@testsdxl": {
+      "mean_gpu_seconds": 14.834472916666668,
+      "gpu_seconds_per_success": 43.417969512195086
+    }
+  },
+  "ungraded": {},
+  "agent_unfixed_by_first_diagnosis": {
+    "agent_rule@testrule": {
+      "passed own checks": 44,
+      "low_alignment": 140,
+      "wrong_count": 11,
+      "wrong_relation": 6,
+      "missing_object": 1,
+      "missing_text": 2,
+      "misspelled_text": 14
+    },
+    "agent_rule_sdxl@testsdxl": {
+      "passed own checks": 44,
+      "low_alignment": 198,
+      "wrong_count": 20,
+      "wrong_relation": 12,
+      "missing_object": 4,
+      "misspelled_text": 36,
+      "missing_text": 2
+    }
+  },
+  "prompts": 480
+}

@@ -582,3 +582,11 @@ planned in revision 1 the rules are not tuned further on dev: r2 is frozen (`FRO
 agent (guide §10.3, optional) is left as future work; dev suggests the bottleneck is the repair
 actions themselves rather than how they are chosen.
 
+*D-031 / D-032 note (2026-10-23, after the test run was graded; nothing was changed).* `testrule`
+and `testsdxl` (480 test prompts each) ran once with the frozen rules r2 and were graded once by
+Gemma 4 31B (`results/agent/testrule+testsdxl/judged.md`; REPORT §4). Two things the plan did not
+fix in advance, recorded here: (1) The SDXL-only agent went over its budget on 4 prompts by at most
+0.043 GPU-seconds (0.3 %), because actions are chosen with median costs and charged measured ones;
+the full agent stayed within budget everywhere. Left as is and reported. (2) The small blind human
+check of the judge's pass / fail calls on test images (D-032) has not been run; until it is, the
+report says so in its limitations.

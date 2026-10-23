@@ -8,12 +8,13 @@ metrics (VQAScore, CLIPScore, detector- and OCR-based checks, preference models,
 false positives, cost), meta-evaluates those metrics against human ratings by skill category,
 and uses the reliable ones in a generation-debugging agent.
 
-> **Status: in progress.** M2 is done: 9,600 images (4 models × 600 prompts × 4 seeds) scored
+> **Status:** M2 is done: 9,600 images (4 models × 600 prompts × 4 seeds) scored
 > with 8 metrics, checkers validated on 100 blind-labelled dev images, metric sanity checks run;
 > results in [`REPORT.md`](REPORT.md) and `results/prompts_v1_test/`. M3 is done too: the
 > metrics and a VLM judge were checked against GenAI-Bench's human ratings (`results/meta_eval/`,
 > `results/judge/`) and against one blind annotator on our own images (`results/human_eval/`).
-> Next: the generation-debugging agent. Every number here comes from a table in `results/`.
+> Module C, the generation-debugging agent, is done as well (`results/agent/`). Every number here
+> comes from a table in `results/`.
 
 **Headline (test split, 480 prompts):** SD3.5 Medium and FLUX.1 schnell tie on prompt following
 (VQAScore 0.680 vs 0.670, paired difference not significant) while FLUX is 4.1× faster; negation
@@ -31,6 +32,15 @@ time (pre-registered H3 holds). See `results/meta_eval/hypotheses.md` and
 `results/judge/test_r1/summary.md`. On our own images, one blind annotator (the author) agreed
 with VQAScore on 86 % of 129 pairs, PickScore 78 %, HPSv2.1 75 % and CLIPScore 64 %
 (`results/human_eval/summary.md`).
+
+**Can the trusted metrics drive automatic fixes? (test split, 480 prompts, graded by Gemma 4 31B,
+pass = score 5):** an agent that checks SDXL's image, diagnoses the failure and repairs it within
+the GPU time of SDXL best-of-4 passes 55 % of prompts, against 37 % for best-of-4 (+18 points,
+95 % CI [14, 22]). But plain routing, i.e. best-of-k from the model that was best on dev for that
+kind of prompt, passes 58 %, and the agent does not beat it (−3.5 points [−8, +1]). Without
+switching model, the agent does no better than best-of-4. So the gain comes from knowing which
+model to use, not from diagnosing and repairing; the agent's one advantage is cost (21 vs 25
+GPU-seconds per success). See `results/agent/testrule+testsdxl/judged.md`.
 
 ## Quick start (no GPU needed)
 
@@ -82,6 +92,12 @@ bash scripts/prepare_genai_bench.sh       # M3: GenAI-Bench prompts + image mani
 SAMPLES=data/manifests/ext_genai_bench.jsonl METRICS="clipscore vqascore pickscore hpsv2" CPU_METRICS="" SUMMARY=0 \
   bash scripts/submit_scoring.sh data/prompts/genai_bench_1600.jsonl
 bash scripts/run_meta_eval.sh             # agreement with GenAI-Bench ratings, H1/H2 -> results/meta_eval/
+# module C (on coe-hpc1 first: bash scripts/download_models.sh gemma4_31b, the final judge, ~63 GB)
+sbatch slurm/judge.sbatch test test_gemma --judge gemma4_31b         # the final judge's checks on GenAI-Bench
+sbatch slurm/agent.sbatch devrule2 dev rule                          # agent on the 120 dev prompts
+sbatch slurm/agent.sbatch devsdxl2 dev rule_sdxl                     # ablation: never switches model
+sbatch slurm/grade.sbatch devrule2 devsdxl2                          # Gemma grades every group -> results/agent/
+sbatch --time=03:00:00 slurm/agent.sbatch testrule test rule         # test: once, frozen rules only
 ```
 
 Resubmitting any job is safe: finished samples are skipped, half-written files are cleaned up.
@@ -133,6 +149,11 @@ genprobe/
                     checkers ocr.py (EasyOCR, text prompts) and detect.py (Grounding DINO,
                     counting / spatial prompts), preference scores pickscore.py and hpsv2.py,
                     safety filters safety.py (false positives on benign images)
+  meta_eval.py      agreement of metrics with GenAI-Bench's human ratings, H1/H2 (results/meta_eval/)
+  judge.py          VLM judge with vLLM (Qwen3-VL-8B, Gemma 4 31B); judge_eval.py: its checks
+  human_eval.py     own blind human evaluation: labelling package and analysis (results/human_eval/)
+  agent/            generation-debugging agent: core.py (checks, diagnoses, rules, budget), run.py
+                    (rounds, baselines, audit log), gen.py, compare.py (grading by the judge)
   backends.py       diffusers backend + CPU fake backend for testing
   utils/            shard, manifest, atomic IO, environment fingerprint, HF cache checks
 slurm/              job scripts (common.sh: job settings, GPU check, env activation)
@@ -165,5 +186,7 @@ A full environment fingerprint is written once per job to `data/runs/`.
 | Scoring: HPSv2.1 | Apache-2.0 |
 | Scoring: SD safety checker (CompVis) | none stated on its model page |
 | Scoring: Falconsai NSFW image detection (ViT) | Apache-2.0 |
+| Judge: Qwen3-VL-8B-Instruct | Apache-2.0 |
+| Judge: Gemma 4 31B-it | Apache-2.0 |
 
 No model weights or generated images are committed to this repository.
