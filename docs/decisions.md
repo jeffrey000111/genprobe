@@ -614,3 +614,29 @@ not used. If κ < 0.4, the report says module C's pass rates can't be taken at f
 person's differences are reported next to the judge's whatever they show; with 50 prompts their CIs
 are wide, so this checks direction, not a new test. Labels are committed before the key is copied
 and not changed after the analysis. Size chosen to take about 30–40 minutes of labelling.
+
+## Module D (re-ranking, video)
+
+**D-034 (2026-10-23) — Re-ranking curve (guide §11.1), fixed before any new image exists.**
+*Curves:* SDXL (the agent's base model) and the routed model (module C's routing table: SD3.5
+Medium for counting and spatial, FLUX.1 schnell for text and GenAI-Bench), on all 480 test prompts.
+Seeds 0–3 are prompt set v1's images; seeds 4–8 are new, made with the same configs on the same card
+type and written to `data/rerank/`, so nothing of M2 changes. *Pick:* of the first N seeds (N = 1,
+2, 4, 9), the image with the highest VQAScore (the version of prompt set v1; ties go to the lower
+seed). VQAScore alone, as in the guide: this is the plain "re-rank by the trusted metric" baseline,
+not the agent's checks. *Grade:* Gemma 4 31B with the frozen rubric, original prompt, pass = score 5
+(D-032); every distinct picked image graded once; module C's groups keep their existing grades, and
+the analysis refuses grades from a different judge version. *Cost per prompt:* N × the model's median
+generation seconds, plus N × the median VQAScore seconds when N > 1 (there is nothing to pick at
+N = 1), with module C's measured medians; model loading is not counted. *Reported* (`genprobe/rerank.py`):
+pass rate per curve and N, overall and per category, with 95 % CIs from 2,000 bootstrap resamples
+of prompts (seed 0); GPU-seconds per prompt and per success; the picks' mean VQAScore and share ≥ 0.9
+(what the picking metric itself sees); paired differences N = 2 − 1, 4 − 2, 9 − 4 and 9 − 1 per curve,
+routed − SDXL at each N, SDXL best-of-4 by the agent's checks − SDXL best-of-4 by VQAScore (the same
+four images, two pick rules), routed best-of-k − routed N = 4, and the agent − SDXL N = 4 and 9 and
+− routed N = 1, 2, 4 and 9; and a figure of pass rate against GPU-seconds with module C's groups on
+the same axes. Everything here is exploratory (no hypothesis was pre-registered for module D). The
+expectation, written down now: the pass rate rises with N in shrinking steps, and the picks' VQAScore
+rises faster than the judge's pass rate. *Order:* a smoke run on 20 test prompts (the first 5 of
+each category; its grades and results are kept apart in `results/rerank_smoke/` and are a pipeline
+check only), then the full run (about 5–6 GPU-hours) after the project author approves it.
