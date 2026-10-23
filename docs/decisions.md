@@ -687,3 +687,30 @@ aesthetic quality and imaging quality. Means per model with 95 % CIs over prompt
 model, paired on prompts. Exploratory throughout. How far VQAScore on video can be trusted comes from
 D-035; VBench's dimensions measure quality and motion, not prompt following, and are not checked
 against people here.
+
+**D-037 (2026-10-23) — Diffusion-DPO on SD 1.5 with VQAScore preferences (guide §11.4), fixed before
+any candidate image exists.** Project author's choice to do it. *Training prompts:* every
+GenAI-Bench-1600 prompt outside prompt set v1 (1,200), so no dev or test prompt is ever trained on;
+the template prompts (counting, spatial, text) are not trained on either, so the test shows whether
+anything carries over to them. *Candidates and pairs:* SD 1.5 at prompt set v1's settings (D-006),
+seeds 0–3 per training prompt; VQAScore (the version of §2) on each; per prompt the highest- against
+the lowest-scoring image, used only when they differ by at least 0.1 (smaller gaps are mostly noise,
+D-031). *Training:* diffusers' `train_diffusion_dpo.py` at the v0.41.0 tag (sha256 pinned in
+`scripts/setup_envs.sh`), the README's SD 1.5 settings except the step count and the 8-bit optimizer:
+LoRA rank 8, learning rate 1e-5 constant, batch 16 × 2 accumulation, fp16, gradient checkpointing,
+β = 2,500 (the script's default), seed 0, plain AdamW; 2,000 steps with checkpoints every 250 (the
+README's 10,000 steps were for ~850k pairs; we have about 1,000). *Choosing the checkpoint, on dev
+only:* the base model and the checkpoints at 250, 500, 1,000 and 2,000 steps each make seed 0 of
+prompt set v1's 120 dev prompts; Gemma 4 31B grades them (frozen rubric, pass = 5); the checkpoint with
+the highest dev pass rate is used, ties going to fewer steps. *Test, once:* the base model and the
+chosen checkpoint, both generated now in the same env and code path (genprobe.generate's), seeds 0–3 of
+the 480 test prompts. **H6:** DPO raises the judge's pass rate (seed 0, all 480 test prompts):
+supported when the 95 % CI of the paired difference (resampling prompts) lies above 0, contradicted when
+below, inconclusive otherwise. *Reward-hacking checks* (reported whatever they show): the gain in
+VQAScore, the metric trained on, next to the judge's gain (a large VQAScore gain with no judge gain
+would mean the model learned to please its scorer); CLIPScore, PickScore and HPSv2.1 (a CI below 0 on
+the two preference scores is read as a loss of image quality); the detector and OCR checks on the
+template prompts; and a blind check by the author of 60 test pairs (base vs DPO image, same prompt and
+seed): which image matches the text better, and which looks better, the protocol written before the
+pairs are drawn. Smoke run first (20 training prompts, 20 steps, 2 test prompts per category; a
+pipeline check only); the full run (about 6 GPU-hours) after the project author approves it.

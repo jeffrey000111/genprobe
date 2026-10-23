@@ -8,6 +8,7 @@
 #   ssh sjsu "cd ~/genprobe && bash scripts/setup_envs.sh judge"  vLLM for the VLM judge
 #   ssh sjsu "cd ~/genprobe && bash scripts/setup_envs.sh video"  Wan2.2 video generation (module D)
 #   ssh sjsu "cd ~/genprobe && bash scripts/setup_envs.sh vbench" VBench video quality dimensions (module D)
+#   ssh sjsu "cd ~/genprobe && bash scripts/setup_envs.sh train"  Diffusion-DPO training (module D)
 #
 # coe-hpc1 runs CentOS 7 (glibc 2.17) and HPC3 runs glibc 2.34, so packages are selected for
 # HPC3's platform with uv's --python-platform, not for the machine doing the install. uv and
@@ -15,7 +16,7 @@
 # Afterwards, test the env on a GPU node: sbatch slurm/probe_gpu.sbatch (on HPC3).
 set -euo pipefail
 cd "$(dirname "$0")/.."
-ENV=${1:?usage: setup_envs.sh gen|eval|aux|judge|video|vbench}
+ENV=${1:?usage: setup_envs.sh gen|eval|aux|judge|video|vbench|train}
 # shellcheck disable=SC1091
 source scripts/paths.sh
 TARGET_PLATFORM=${TARGET_PLATFORM:-x86_64-manylinux_2_34}   # HPC3's glibc
@@ -96,9 +97,24 @@ case "$ENV" in
     install "torch==2.4.1" "torchvision==0.19.1" "numpy<2" "timm>=0.9,<=1.0.12" "transformers==4.33.2" \
       openai-clip decord pyiqa easydict omegaconf opencv-python-headless scipy scikit-image tqdm av
     ;;
-  *) echo "unknown env '$ENV' (expected gen, eval, aux, judge, video or vbench)" >&2; exit 2 ;;
+  train)
+    # Diffusion-DPO LoRA on SD 1.5 (guide §11.4, D-037): diffusers' research script needs peft,
+    # datasets and (imported unconditionally) wandb; jobs run it with WANDB_MODE=disabled. The same
+    # diffusers release as gen, so the evaluation images come from the same pipeline code.
+    install torch torchvision "diffusers==0.41.0" transformers accelerate peft datasets wandb tensorboard \
+      ftfy Jinja2 sentencepiece protobuf safetensors
+    ;;
+  *) echo "unknown env '$ENV' (expected gen, eval, aux, judge, video, vbench or train)" >&2; exit 2 ;;
 esac
 install -e ".[analysis]"
+if [[ "$ENV" == train ]]; then
+  # diffusers' DPO research script at the tag of the installed diffusers, checked against a pinned hash.
+  DPO_URL=https://raw.githubusercontent.com/huggingface/diffusers/v0.41.0/examples/research_projects/diffusion_dpo/train_diffusion_dpo.py
+  DPO_SHA256=3d84934230dab97a4556b8382c1fcb937ffe38be636b76d35ddf731e82988bc0
+  mkdir -p "$GENPROBE_ENVS/train-src"
+  curl -sSfL --retry 3 -o "$GENPROBE_ENVS/train-src/train_diffusion_dpo.py" "$DPO_URL"
+  echo "$DPO_SHA256  $GENPROBE_ENVS/train-src/train_diffusion_dpo.py" | sha256sum -c -
+fi
 if [[ "$ENV" == vbench ]]; then
   SITE=$(ls -d "$VENV"/lib/python*/site-packages | head -1)
   echo "$GENPROBE_ENVS/vbench-src" > "$SITE/vbench_src.pth"
