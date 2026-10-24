@@ -1,9 +1,10 @@
 # GenProbe report
 
 _Status: M2 (benchmark on prompt set v1), M3 (metric meta-evaluation: H1–H3, the VLM judge
-and a human check on our own images) and module C (the generation-debugging agent, §4) done. Every
-number here is copied from a file in `results/`, named next to it; nothing is reported before it
-exists there. Choices behind the numbers are in `docs/decisions.md` (D-xxx)._
+and a human check on our own images) and module C (the generation-debugging agent, §4) done;
+module D (§5) in progress. Every number here is copied from a file in `results/`, named next to
+it; nothing is reported before it exists there. Choices behind the numbers are in
+`docs/decisions.md` (D-xxx)._
 
 ## 1. Setup
 
@@ -295,7 +296,51 @@ four and keeps the one with the highest OCR match. An LLM-planned agent (guide �
 (D-031 revision 2): dev suggested that the actions themselves, not how they are chosen, are the
 bottleneck.
 
-## 5. Limitations
+## 5. Module D: re-ranking, video and preference tuning
+
+### 5.1 Re-ranking curve
+
+**Setup** (guide §11.1, D-034; `results/rerank/summary.md`, `fig_rerank.png`). For each of the 480
+test prompts, nine seeds from SDXL and nine from the routed model of §4 (SD3.5 Medium for counting and
+spatial, FLUX.1 schnell for text and GenAI-Bench). Seeds 0–3 are prompt set v1's; seeds 4–8 are new
+(4,800 images). Of the first N seeds, the image with the highest VQAScore is picked, and Gemma 4 31B
+grades the picks as in §4 (2,465 distinct images; pass = score 5). Cost per prompt: N generations, plus
+N VQAScore runs when N > 1, at the median seconds of §4.
+
+Share of prompts the judge passes [95 % CI], and GPU-seconds per prompt:
+
+| Pick by VQAScore | N = 1 | N = 2 | N = 4 | N = 9 |
+| --- | --- | --- | --- | --- |
+| SDXL | 0.246 [0.21, 0.28], 3.1 s | 0.310 [0.27, 0.35], 7.8 s | 0.390 [0.35, 0.43], 15.6 s | 0.440 [0.40, 0.48], 35.1 s |
+| routed model | 0.463 [0.42, 0.51], 1.9 s | 0.552 [0.51, 0.60], 5.6 s | 0.592 [0.55, 0.64], 11.2 s | 0.679 [0.64, 0.72], 25.1 s |
+
+For reference, from §4 on the same prompts: the agent 0.546 at 11.5 s, routed best-of-k 0.581 at
+14.7 s, SDXL best-of-4 0.367 at 21.7 s.
+
+- **More samples help, but which model you sample matters more.** For SDXL, going from N = 1 to 9
+  adds +0.194 [0.15, 0.23], each step smaller than the last. Even at N = 9 (0.440, 35 GPU-s), SDXL
+  stays below one routed image (0.463, 1.9 GPU-s).
+- **Re-ranking the routed model is the cheapest way to a given pass rate.**
+  - At N = 2 it matches the agent for half the GPU time: agent − routed N = 2 is −0.006 [−0.05, 0.04]
+    (5.6 vs 11.5 GPU-s).
+  - At N = 4 and about the same cost it is a little ahead: −0.046 [−0.09, 0.00], the CI reaching 0.
+  - At N = 9 it is clearly ahead (−0.133 [−0.18, −0.09]), at about twice the cost.
+  - The agent does beat re-ranked SDXL at every N (agent − SDXL N = 9: +0.106 [0.06, 0.15]).
+- **Picking with the agent's checks adds nothing over VQAScore alone.** On the same four SDXL images,
+  best-of-4 by the agent's checks − by VQAScore is −0.023 [−0.05, 0.00]; routed best-of-k − routed
+  N = 4 is −0.010 [−0.04, 0.02].
+- **Picking inflates the picking metric's own view.** From N = 1 to 9 the share of SDXL picks with
+  VQAScore ≥ 0.9 doubles (0.33 → 0.65), while the judge's pass rate rises by 0.19 (0.25 → 0.44). For
+  the routed model the two go from 0.56 to 0.79 and from 0.46 to 0.68. This is the pattern D-034
+  expected: the metric that does the picking overrates its picks, so another judge has to grade them.
+- **The judge repeats itself.** 1,178 images were graded both here and in §4, in separate jobs: same
+  score for 97.6 %, same pass / fail for 99.3 %.
+
+**What it means.** With these models, a fixed budget is best spent by sending each kind of prompt to
+the model that is best at it and drawing a few more samples, picked by VQAScore. §4's diagnosis-driven
+repairs add nothing to that, and the routing alone does most of the work.
+
+## 6. Limitations
 - Detector and OCR checks have their own error rates (§1), measured on 50 dev images each by one
   annotator; the OCR threshold was chosen on the same images.
 - The OCR check ignores extra text, so a phrase written with repeats still passes: SD 1.5's
@@ -335,3 +380,5 @@ bottleneck.
   metrics are compared with the mean of all three.
 - One seed set (4 seeds) and one card type; generation settings are each model's defaults, not
   tuned.
+- Re-ranking costs (§5.1) are median seconds per image and leave out model loading. In practice the
+  routed model means keeping two generators loaded, which a single-model baseline avoids.
