@@ -77,7 +77,10 @@ def vbench(model: str, prompts_path: str = PROMPTS, out: Path = OUT, limit: int 
     for dim in DIMENSIONS:
         _, videos = res[dim]
         for v in videos:
-            per[Path(v["video_path"]).stem][dim] = float(v["video_results"])
+            # VBench divides imaging quality (MUSIQ, 0-100) by 100 only in its mean; per video it is
+            # left on 0-100. Put it on VBench's reported 0-1 scale here.
+            scale = 100.0 if dim == "imaging_quality" else 1.0
+            per[Path(v["video_path"]).stem][dim] = float(v["video_results"]) / scale
     rows = [{"model": model, "prompt_id": pid, "sample_id": make_sample_id(model, pid, 0), **per[pid]}
             for pid in sorted(per)]
     atomic_write_text(out / "vbench" / f"{model}.jsonl", "".join(json.dumps(r) + "\n" for r in rows))

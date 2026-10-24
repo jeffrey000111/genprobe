@@ -722,3 +722,12 @@ frames were not timed in the smoke run; the full run records the seconds of ever
 gives them. VBench's smoke job failed before scoring anything (openai-clip imports `pkg_resources`,
 which the env's setuptools no longer has); the vbench env gets `setuptools<70` and the VBench smoke run
 is repeated before the full VBench run.
+
+*D-036 / D-037 note (2026-10-23, after the second smoke runs).* Wan2.2 at 49 frames took 65.4 s per
+video on average (64.3–66.4 s, 160 videos, 2.9 GPU-hours), within the 90 s of the rule. The repeated
+VBench smoke run worked offline on 3 Wan and 3 Floor33 videos. VBench leaves per-video imaging quality
+(MUSIQ) on 0–100 and divides only its mean by 100; `genprobe/video_eval.py` puts per-video values on the
+same 0–1 scale. The DPO training stage failed before training (job 94200): under transformers 5.x the
+script's `AutoTokenizer` looks for a `config.json` in SD 1.5's `tokenizer/` folder and, offline, gives
+up; the train env now pins `transformers<5`, the version family the script was written for. Nothing
+about the training settings changes.
