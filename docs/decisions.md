@@ -731,3 +731,10 @@ same 0–1 scale. The DPO training stage failed before training (job 94200): und
 script's `AutoTokenizer` looks for a `config.json` in SD 1.5's `tokenizer/` folder and, offline, gives
 up; the train env now pins `transformers<5`, the version family the script was written for. Nothing
 about the training settings changes.
+
+*Correction to the note above (2026-10-24).* Pinning `transformers<5` did not work: diffusers 0.41
+requires huggingface-hub ≥ 1.32, which no transformers 4.x release accepts, so the resolver fell back to
+transformers 4.12, whose tokenizers no longer builds; the env was left unchanged (transformers 5.20.2).
+Instead the DPO script is given the local snapshot folder of SD 1.5 at the pinned revision in place of
+the repo id, so no file is looked up on the Hub. The weights, the script and every training setting
+stay as fixed in D-037.

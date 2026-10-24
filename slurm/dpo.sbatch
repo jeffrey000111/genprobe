@@ -47,11 +47,15 @@ case "$STAGE" in
     ;;
   train)
     export WANDB_MODE=disabled HF_DATASETS_OFFLINE=1
+    # The local snapshot of SD 1.5 at the pinned revision (configs/gen/sd15.yaml) instead of the repo id:
+    # under transformers 5 the script's AutoTokenizer call goes looking on the Hub for files a local
+    # folder simply doesn't have, and fails offline (dpo job 94200). Same files, no lookups.
+    SD15_DIR="$HF_HOME/hub/models--stable-diffusion-v1-5--stable-diffusion-v1-5/snapshots/451f4fe16113bff5a5d2269ed5ad43b0592e9a14"
+    [[ -f "$SD15_DIR/tokenizer/tokenizer_config.json" ]] || { echo "SD 1.5 snapshot not found at $SD15_DIR" >&2; exit 2; }
     if [[ ! -f "$LORA/checkpoint-$STEPS/pytorch_lora_weights.safetensors" ]]; then
       in_env train accelerate launch --num_processes 1 --num_machines 1 --mixed_precision fp16 --dynamo_backend no \
         "$GENPROBE_ENVS/train-src/train_diffusion_dpo.py" \
-        --pretrained_model_name_or_path stable-diffusion-v1-5/stable-diffusion-v1-5 \
-        --revision 451f4fe16113bff5a5d2269ed5ad43b0592e9a14 --variant fp16 \
+        --pretrained_model_name_or_path "$SD15_DIR" --variant fp16 \
         --output_dir "$LORA" --mixed_precision fp16 --dataset_name "$PAIRS" --resolution 512 \
         --train_batch_size 16 --gradient_accumulation_steps 2 --gradient_checkpointing --rank 8 \
         --learning_rate 1e-5 --lr_scheduler constant --lr_warmup_steps 0 --max_train_steps "$STEPS" \

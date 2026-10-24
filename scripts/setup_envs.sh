@@ -102,9 +102,10 @@ case "$ENV" in
     # Diffusion-DPO LoRA on SD 1.5 (guide §11.4, D-037): diffusers' research script needs peft,
     # datasets and (imported unconditionally) wandb; jobs run it with WANDB_MODE=disabled. The same
     # diffusers release as gen, so the evaluation images come from the same pipeline code.
-    # transformers < 5: under 5.x, AutoTokenizer looks for a config.json in SD 1.5's tokenizer/ folder
-    # and, offline, fails (dpo job 94200); the script was written against 4.x.
-    install torch torchvision "diffusers==0.41.0" "transformers<5" accelerate peft datasets wandb tensorboard \
+    # transformers stays on 5.x: diffusers 0.41 needs huggingface-hub >= 1.32, which no 4.x release
+    # accepts (pinning transformers<5 resolved to 4.12, whose tokenizers no longer builds). The
+    # script's offline tokenizer lookup is avoided by giving it the local snapshot (slurm/dpo.sbatch).
+    install torch torchvision "diffusers==0.41.0" transformers accelerate peft datasets wandb tensorboard \
       ftfy Jinja2 sentencepiece protobuf safetensors
     ;;
   *) echo "unknown env '$ENV' (expected gen, eval, aux, judge, video, vbench or train)" >&2; exit 2 ;;
