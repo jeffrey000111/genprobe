@@ -738,3 +738,11 @@ transformers 4.12, whose tokenizers no longer builds; the env was left unchanged
 Instead the DPO script is given the local snapshot folder of SD 1.5 at the pinned revision in place of
 the repo id, so no file is looked up on the Hub. The weights, the script and every training setting
 stay as fixed in D-037.
+
+*D-036 note (2026-10-24, after the first analysis run).* The first `video_eval analyze` found VQAScore
+for only 145 of the 160 Wan2.2 videos. The VQAScore job on them had been submitted twice by mistake
+(jobs 94206 and 94221); both ran at the same time and appended to the same file on the shared file
+system, which lost the records of 15 videos and left 5 unreadable lines. Those 15 videos are scored
+again with the same metric version into a new file (tag `wan_f49_fix`) and the analysis is run again;
+every other record is kept (both jobs ran the same version, so a score does not depend on which job
+wrote it). Nothing else changes.
