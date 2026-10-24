@@ -340,6 +340,40 @@ For reference, from §4 on the same prompts: the agent 0.546 at 11.5 s, routed b
 the model that is best at it and drawing a few more samples, picked by VQAScore. §4's diagnosis-driven
 repairs add nothing to that, and the routing alone does most of the work.
 
+### 5.2 Which metrics agree with people on video
+
+**Data and method** (D-035; `results/video_meta_eval/hypotheses.md`,
+`fig_video_meta_eval_heatmap.png`). GenAI-Bench-Video: 800 prompts, each rendered by four older
+text-to-video models (Floor33, Gen-2, Pika v1, ModelScope), and each video rated 1–5 by three people
+for how well it matches the prompt. The method is §3's: within each prompt, every two videos whose
+mean ratings differ form a pair. That gives 3,773 pairs from 775 prompts; 1,027 of the 4,800 pairs
+(21.4 %) have equal means and are left out. People among themselves: Krippendorff's α 0.675; each
+rating against the mean of the other two agrees on 0.80 of pairs. Scores compared:
+
+- VQAScore with the whole video as input (Qwen2.5-VL-7B, 8 fps, at most 360 × 420 pixels per frame,
+  t2v_metrics' settings);
+- the image VQAScore on the middle frame;
+- CLIPScore, PickScore and HPSv2.1, each averaged over 9 frames.
+
+All were fixed and the analysis code committed before any video was scored.
+
+| Test (pre-registered) | Agreement with people | Difference [97.5 % CI] | Verdict |
+| --- | --- | --- | --- |
+| H4: VQAScore (video) > CLIPScore (9 frames) | 0.675 vs 0.613 | +0.062 [0.035, 0.090] | supported |
+| H5: VQAScore (video) > VQAScore (middle frame) | 0.675 vs 0.693 | −0.018 [−0.034, −0.002] | **contradicted** |
+
+- **As on images, VQAScore beats CLIPScore (H4).**
+- **Scoring the whole video did not help (H5).** One frame from the middle of the clip agreed with
+  people slightly *more* often than the whole clip, so the expectation in the guide does not hold
+  here. One untested possibility is resolution: given a video, the model sees each frame at no more
+  than 360 × 420 pixels, much smaller than the single frame it gets as an image.
+- **Exploratory: on video the preference models catch up.** PickScore and HPSv2.1 averaged over 9
+  frames agree with people on 0.68 of pairs, level with the VQAScores (0.67–0.69). On images they
+  trailed VQAScore by 6–7 points (§3). Every metric stays well below the people's 0.80.
+- **Exploratory: model-level means can mislead.** ModelScope has the lowest mean human rating of the
+  four (2.68), yet the highest mean whole-video VQAScore (0.436 vs 0.338–0.414). PickScore and HPSv2.1
+  put it last, as people do. The table is in `hypotheses.md`.
+
 ## 6. Limitations
 - Detector and OCR checks have their own error rates (§1), measured on 50 dev images each by one
   annotator; the OCR threshold was chosen on the same images.
@@ -382,3 +416,5 @@ repairs add nothing to that, and the routing alone does most of the work.
   tuned.
 - Re-ranking costs (§5.1) are median seconds per image and leave out model loading. In practice the
   routed model means keeping two generators loaded, which a single-model baseline avoids.
+- The video meta-evaluation (§5.2) uses four 2023 video models; how well the metrics rank today's
+  models (§5.3) is not checked against people.

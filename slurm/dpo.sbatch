@@ -56,7 +56,7 @@ case "$STAGE" in
       in_env train accelerate launch --num_processes 1 --num_machines 1 --mixed_precision fp16 --dynamo_backend no \
         "$GENPROBE_ENVS/train-src/train_diffusion_dpo.py" \
         --pretrained_model_name_or_path "$SD15_DIR" --variant fp16 \
-        --output_dir "$LORA" --mixed_precision fp16 --dataset_name "$PAIRS" --resolution 512 \
+        --output_dir "$LORA" --mixed_precision fp16 --dataset_name "$PAIRS" --dataset_split_name train --resolution 512 \
         --train_batch_size 16 --gradient_accumulation_steps 2 --gradient_checkpointing --rank 8 \
         --learning_rate 1e-5 --lr_scheduler constant --lr_warmup_steps 0 --max_train_steps "$STEPS" \
         --checkpointing_steps "${CKPTS[0]}" --seed 0 --report_to tensorboard --dataloader_num_workers 4
