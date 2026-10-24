@@ -1,0 +1,115 @@
+{
+  "created_at": "2026-10-24T01:55:06.600+00:00",
+  "git_commit": "44329ac",
+  "source": "zhiqiulin/GenAI-Bench-800@22bb97341224f58e0b080111b9c2f775999ffdaa",
+  "prompts": 800,
+  "videos": 3200,
+  "pairs": 3773,
+  "pairs_tied_excluded": 1027,
+  "pairs_total": 4800,
+  "dropped_ratings": [],
+  "krippendorff_alpha_ordinal": 0.6753854981571756,
+  "metric_versions": {
+    "vqascore_video": "vqascore_video-port-of-t2v_metrics-qwen2vl/transformers==4.49.0/qwen2.5-vl-7b@cc59489/sdpa/tmpl-af8bcca9/fps8/maxpix151200/reader-decord/qwen-vl-utils==0.0.14/bs1",
+    "vqascore_mid": "vqascore-port-of-t2v_metrics-qwen2vl/transformers==4.49.0/qwen2.5-vl-7b@cc59489/sdpa/tmpl-af8bcca9/bs8",
+    "clipscore_frames": "open_clip==3.3.0/ViT-L-14:openai/cos/bs32",
+    "pickscore_frames": "transformers==4.49.0/pickscore-v1@a4e4367/fp32/bs16",
+    "hpsv2_frames": "open_clip==3.3.0/ViT-H-14/hps-v2.1@697403c/fp32/cos/bs16"
+  },
+  "coverage": {
+    "vqascore_video": {
+      "scored": 3200,
+      "videos": 3200,
+      "errors": 0
+    },
+    "vqascore_mid": {
+      "scored": 3200,
+      "videos": 3200,
+      "errors": 0
+    },
+    "clipscore_frames": {
+      "scored": 3200,
+      "videos": 3200,
+      "errors": 0
+    },
+    "pickscore_frames": {
+      "scored": 3200,
+      "videos": 3200,
+      "errors": 0
+    },
+    "hpsv2_frames": {
+      "scored": 3200,
+      "videos": 3200,
+      "errors": 0
+    }
+  },
+  "hypotheses": {
+    "H4": {
+      "difference": 0.06175457195865359,
+      "ci": [
+        0.03494160532572745,
+        0.08963158170948674
+      ],
+      "level": 0.975,
+      "agreement_a": 0.6745295520805725,
+      "agreement_b": 0.6127749801219189,
+      "pairs": 3773,
+      "n_prompts": 775,
+      "comparison": "vqascore_video - clipscore_frames, all prompts",
+      "verdict": "supported"
+    },
+    "H5": {
+      "difference": -0.018022793532997614,
+      "ci": [
+        -0.03419032738080715,
+        -0.0015822680548234053
+      ],
+      "level": 0.975,
+      "agreement_a": 0.6745295520805725,
+      "agreement_b": 0.6925523456135702,
+      "pairs": 3773,
+      "n_prompts": 775,
+      "comparison": "vqascore_video - vqascore_mid, all prompts",
+      "verdict": "contradicted"
+    }
+  },
+  "by_model": {
+    "Floor33": {
+      "videos": 800,
+      "mean_human": 2.915,
+      "mean_vqascore_video": 0.33811325675821463,
+      "mean_vqascore_mid": 0.3353718079743135,
+      "mean_clipscore_frames": 0.2471760536926902,
+      "mean_pickscore_frames": 21.16872921864192,
+      "mean_hpsv2_frames": 0.25079074480881297
+    },
+    "Gen2": {
+      "videos": 800,
+      "mean_human": 3.12375,
+      "mean_vqascore_video": 0.4132042090568922,
+      "mean_vqascore_mid": 0.3938071947362454,
+      "mean_clipscore_frames": 0.2551997916586697,
+      "mean_pickscore_frames": 21.941342901918624,
+      "mean_hpsv2_frames": 0.26091241656181713
+    },
+    "Pika_v1": {
+      "videos": 800,
+      "mean_human": 3.007083333333333,
+      "mean_vqascore_video": 0.4141169317419335,
+      "mean_vqascore_mid": 0.41428790380087177,
+      "mean_clipscore_frames": 0.25107178091071547,
+      "mean_pickscore_frames": 21.02531562169393,
+      "mean_hpsv2_frames": 0.2389839605304102
+    },
+    "Modelscope": {
+      "videos": 800,
+      "mean_human": 2.6758333333333333,
+      "mean_vqascore_video": 0.43602772588969285,
+      "mean_vqascore_mid": 0.3920661864555065,
+      "mean_clipscore_frames": 0.2626173257848455,
+      "mean_pickscore_frames": 20.415780200163525,
+      "mean_hpsv2_frames": 0.21017404702595538
+    }
+  },
+  "n_boot": 2000
+}

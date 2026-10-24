@@ -1,0 +1,79 @@
+metric,tag,agreement,ci95_lo,ci95_hi,pairs,n_prompts,kendall_tau_mean
+human (leave-one-out),all,0.7972,0.7883,0.8066,3453,775,
+vqascore_video,all,0.6745,0.6571,0.6922,3773,775,0.311
+vqascore_mid,all,0.6926,0.674,0.7104,3773,775,0.3436
+clipscore_frames,all,0.6128,0.5938,0.6307,3773,775,0.2021
+pickscore_frames,all,0.6835,0.6655,0.7013,3773,775,0.325
+hpsv2_frames,all,0.679,0.6598,0.6981,3773,775,0.3156
+human (leave-one-out),basic,0.8013,0.7856,0.8163,1293,279,
+vqascore_video,basic,0.7136,0.6841,0.7409,1421,279,0.3854
+vqascore_mid,basic,0.7227,0.6914,0.7523,1421,279,0.3995
+clipscore_frames,basic,0.6376,0.6076,0.6686,1421,279,0.2499
+pickscore_frames,basic,0.6974,0.6683,0.7244,1421,279,0.3572
+hpsv2_frames,basic,0.6932,0.6624,0.7221,1421,279,0.3488
+human (leave-one-out),advanced,0.7947,0.7835,0.8058,2160,496,
+vqascore_video,advanced,0.6509,0.6269,0.6744,2352,496,0.2691
+vqascore_mid,advanced,0.6743,0.6495,0.6978,2352,496,0.3121
+clipscore_frames,advanced,0.5978,0.5734,0.6211,2352,496,0.1752
+pickscore_frames,advanced,0.6752,0.6529,0.6978,2352,496,0.3069
+hpsv2_frames,advanced,0.6705,0.6473,0.6937,2352,496,0.2969
+human (leave-one-out),action_relation,0.7952,0.7744,0.814,753,165,
+vqascore_video,action_relation,0.7022,0.6631,0.7387,826,165,0.3562
+vqascore_mid,action_relation,0.7119,0.6686,0.7533,826,165,0.3713
+clipscore_frames,action_relation,0.6404,0.5993,0.6795,826,165,0.2524
+pickscore_frames,action_relation,0.6961,0.6596,0.7315,826,165,0.3491
+hpsv2_frames,action_relation,0.6925,0.6543,0.7309,826,165,0.3418
+human (leave-one-out),attribute,0.7967,0.7793,0.8133,905,194,
+vqascore_video,attribute,0.7309,0.6977,0.7619,996,194,0.4228
+vqascore_mid,attribute,0.7309,0.6952,0.7644,996,194,0.4209
+clipscore_frames,attribute,0.6335,0.5978,0.6706,996,194,0.2443
+pickscore_frames,attribute,0.6727,0.6371,0.7062,996,194,0.3127
+hpsv2_frames,attribute,0.6717,0.6352,0.7091,996,194,0.3103
+human (leave-one-out),comparison,0.7741,0.7461,0.7996,413,99,
+vqascore_video,comparison,0.5965,0.5412,0.6497,461,99,0.1734
+vqascore_mid,comparison,0.6312,0.5711,0.6925,461,99,0.2331
+clipscore_frames,comparison,0.6074,0.554,0.661,461,99,0.1899
+pickscore_frames,comparison,0.6551,0.6091,0.7034,461,99,0.2734
+hpsv2_frames,comparison,0.7093,0.6566,0.7618,461,99,0.3625
+human (leave-one-out),counting,0.789,0.7716,0.8061,935,218,
+vqascore_video,counting,0.6301,0.5944,0.6632,1038,218,0.2363
+vqascore_mid,counting,0.6551,0.6169,0.6891,1038,218,0.2816
+clipscore_frames,counting,0.5829,0.5459,0.6227,1038,218,0.1472
+pickscore_frames,counting,0.6773,0.6438,0.7102,1038,218,0.309
+hpsv2_frames,counting,0.6763,0.6433,0.7102,1038,218,0.3064
+human (leave-one-out),differentiation,0.7804,0.7623,0.7979,921,212,
+vqascore_video,differentiation,0.6102,0.5716,0.6481,1003,212,0.1988
+vqascore_mid,differentiation,0.653,0.617,0.6896,1003,212,0.2746
+clipscore_frames,differentiation,0.6092,0.5706,0.6467,1003,212,0.1952
+pickscore_frames,differentiation,0.677,0.6442,0.7088,1003,212,0.3067
+hpsv2_frames,differentiation,0.682,0.6453,0.7161,1003,212,0.3177
+human (leave-one-out),negation,0.8006,0.7807,0.8191,736,167,
+vqascore_video,negation,0.6578,0.6209,0.6982,786,167,0.2848
+vqascore_mid,negation,0.6883,0.6483,0.7287,786,167,0.3395
+clipscore_frames,negation,0.5776,0.5354,0.6192,786,167,0.1456
+pickscore_frames,negation,0.6794,0.6409,0.716,786,167,0.3186
+hpsv2_frames,negation,0.6463,0.6052,0.6865,786,167,0.2529
+human (leave-one-out),part_relation,0.7852,0.7406,0.8275,232,49,
+vqascore_video,part_relation,0.7098,0.6492,0.7722,255,49,0.3874
+vqascore_mid,part_relation,0.7137,0.6468,0.7795,255,49,0.3955
+clipscore_frames,part_relation,0.6314,0.5586,0.705,255,49,0.2521
+pickscore_frames,part_relation,0.6824,0.6133,0.747,255,49,0.3325
+hpsv2_frames,part_relation,0.6706,0.5896,0.7471,255,49,0.3099
+human (leave-one-out),scene,0.784,0.7627,0.805,615,134,
+vqascore_video,scene,0.743,0.7026,0.7811,681,134,0.4426
+vqascore_mid,scene,0.7372,0.6929,0.7799,681,134,0.4257
+clipscore_frames,scene,0.6432,0.6003,0.6854,681,134,0.2619
+pickscore_frames,scene,0.7122,0.6735,0.7507,681,134,0.384
+hpsv2_frames,scene,0.7078,0.6662,0.7515,681,134,0.376
+human (leave-one-out),spatial_relation,0.8114,0.7906,0.8305,667,141,
+vqascore_video,spatial_relation,0.6786,0.637,0.7191,728,141,0.3218
+vqascore_mid,spatial_relation,0.7088,0.6644,0.7497,728,141,0.3755
+clipscore_frames,spatial_relation,0.6181,0.5779,0.6563,728,141,0.2158
+pickscore_frames,spatial_relation,0.6882,0.6456,0.7304,728,141,0.3428
+hpsv2_frames,spatial_relation,0.6992,0.657,0.7393,728,141,0.3607
+human (leave-one-out),universal,0.814,0.7833,0.8415,349,79,
+vqascore_video,universal,0.7382,0.6818,0.7922,382,79,0.4261
+vqascore_mid,universal,0.7225,0.6571,0.7848,382,79,0.3905
+clipscore_frames,universal,0.5916,0.5236,0.6556,382,79,0.1607
+pickscore_frames,universal,0.6963,0.6442,0.7446,382,79,0.3458
+hpsv2_frames,universal,0.6963,0.6361,0.7506,382,79,0.3431

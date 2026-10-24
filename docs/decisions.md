@@ -714,3 +714,11 @@ template prompts; and a blind check by the author of 60 test pairs (base vs DPO 
 seed): which image matches the text better, and which looks better, the protocol written before the
 pairs are drawn. Smoke run first (20 training prompts, 20 steps, 2 test prompts per category; a
 pipeline check only); the full run (about 6 GPU-hours) after the project author approves it.
+
+*D-036 note (2026-10-23, after the Wan2.2 smoke run; `results/video_gen_smoke/timing.md`).* On an H100
+NVL, 121 frames took 198.7 s per video and 81 frames 116.5 s (3 videos each), both above the 90 s of
+the rule, so the full run uses **49 frames** (about 2 s at 24 fps), the last option the rule allows. 49
+frames were not timed in the smoke run; the full run records the seconds of every video and the report
+gives them. VBench's smoke job failed before scoring anything (openai-clip imports `pkg_resources`,
+which the env's setuptools no longer has); the vbench env gets `setuptools<70` and the VBench smoke run
+is repeated before the full VBench run.

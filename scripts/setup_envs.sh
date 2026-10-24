@@ -94,8 +94,9 @@ case "$ENV" in
     # with CUDA <= 12.1 and transformers 4.33.2; torch 2.4.1's PyPI wheels are built with CUDA 12.1.
     # VBench itself is not pip-installed (its setup.py demands a visible GPU at install time): the
     # pinned source checkout from scripts/download_vbench.sh goes on the path through a .pth file.
+    # openai-clip still imports pkg_resources, which setuptools dropped: keep an older setuptools.
     install "torch==2.4.1" "torchvision==0.19.1" "numpy<2" "timm>=0.9,<=1.0.12" "transformers==4.33.2" \
-      openai-clip decord pyiqa easydict omegaconf opencv-python-headless scipy scikit-image tqdm av
+      openai-clip decord pyiqa easydict omegaconf opencv-python-headless scipy scikit-image tqdm av "setuptools<70"
     ;;
   train)
     # Diffusion-DPO LoRA on SD 1.5 (guide §11.4, D-037): diffusers' research script needs peft,

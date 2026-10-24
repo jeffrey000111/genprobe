@@ -33,8 +33,12 @@ elif [[ "$NAME" == full ]]; then
   echo "submitted Wan generation ($FRAMES frames, 2 shards): job $g"
   SAMPLES="data/video/manifests/gen_wan22_f${FRAMES}_*.jsonl" METRICS=vqascore_video CPU_METRICS="" SUMMARY=0 \
     TAG="wan_f$FRAMES" DEPENDENCY="afterok:$g" SCORE_TIME=01:00:00 bash scripts/submit_scoring.sh data/prompts/genai_bench_video.jsonl
-  v=$(sbatch --parsable --dependency="afterok:$g" --time=03:00:00 slurm/vbench.sbatch "wan22_f$FRAMES" Floor33 Gen2 Pika_v1 Modelscope)
-  echo "submitted VBench (5 models): job ${v%%;*}"
+  if [[ "${NO_VBENCH:-0}" == 1 ]]; then
+    echo "VBench not submitted (NO_VBENCH=1); later: sbatch --time=03:00:00 slurm/vbench.sbatch wan22_f$FRAMES Floor33 Gen2 Pika_v1 Modelscope"
+  else
+    v=$(sbatch --parsable --dependency="afterok:$g" --time=03:00:00 slurm/vbench.sbatch "wan22_f$FRAMES" Floor33 Gen2 Pika_v1 Modelscope)
+    echo "submitted VBench (5 models): job ${v%%;*}"
+  fi
 else
   echo "usage: run_video_gen.sh smoke|full" >&2; exit 2
 fi

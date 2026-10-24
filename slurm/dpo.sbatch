@@ -42,7 +42,8 @@ case "$STAGE" in
     in_env gen python -m genprobe.generate --config configs/gen/sd15.yaml --prompts "$TP" --out data/dpo/cand
     in_env eval python -m genprobe.score --metric vqascore --samples "data/dpo/cand/manifests/gen_*.jsonl" \
       --tag "dpo_cand_$NAME" --prompts "$TP" --out data/dpo/cand
-    in_env eval python -m genprobe.dpo pairs "${SM[@]}"
+    # the pairs are written with pyarrow, which needs NumPy 2 (the eval env pins NumPy 1 for t2v-metrics)
+    in_env train python -m genprobe.dpo pairs "${SM[@]}"
     ;;
   train)
     export WANDB_MODE=disabled HF_DATASETS_OFFLINE=1
