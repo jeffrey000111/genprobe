@@ -796,3 +796,11 @@ test briefs, the shots of each played in order, blind to the arm: which tells th
 which keeps the main character more consistent. The protocol is written before its items are drawn.
 A smoke run (the first dev brief, all arms, τ_v = 0.9 so that the redo rounds run) checks the
 pipeline first; its numbers are not results. Dev and test run after approval.
+
+*D-038 note (2026-10-24, after the smoke run; `results/story_smoke/`).* The pipeline ran end to end
+on the first dev brief: plan, keyframes (one redone), 13 videos at 65–70 s each, VQAScore, judge and
+analysis, with no errors. Two things the smoke run showed. First, Gemma wrote shot descriptions of
+17–21 words, shorter than the 25–60 its prompt asks for. The prompt stays as fixed; every arm uses
+the descriptions as written. Second, every one of the agent's shots reached τ_v = 0.9 with its
+first video, so the video redo rounds made nothing. That path is checked by the unit tests only, not
+on the GPU.

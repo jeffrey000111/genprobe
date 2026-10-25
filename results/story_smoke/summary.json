@@ -1,0 +1,362 @@
+{
+  "created_at": "2026-10-25T05:47:42.362+00:00",
+  "git_commit": "d0c19b3",
+  "name": "smoke",
+  "arms": "ABCD",
+  "briefs": 1,
+  "shots": 4,
+  "tau_k": 0.9,
+  "tau_v": 0.9,
+  "by_arm": {
+    "A": {
+      "shot_pass": {
+        "value": 0.25,
+        "ci": [
+          0.25,
+          0.25
+        ],
+        "n": 4,
+        "briefs": 1
+      },
+      "shot_expected_score": {
+        "value": 4.045274688470498,
+        "ci": [
+          4.045274688470498,
+          4.045274688470498
+        ],
+        "n": 4,
+        "briefs": 1
+      },
+      "vqascore_video": {
+        "value": 0.9091628789901733,
+        "ci": [
+          0.9091628789901733,
+          0.9091628789901733
+        ],
+        "n": 4,
+        "briefs": 1
+      },
+      "story_pass": {
+        "value": 0.0,
+        "ci": [
+          0.0,
+          0.0
+        ],
+        "n": 1,
+        "briefs": 1
+      },
+      "story_score": {
+        "value": 4.0,
+        "ci": [
+          4.0,
+          4.0
+        ],
+        "n": 1,
+        "briefs": 1
+      },
+      "consistency_pass": {
+        "value": 0.0,
+        "ci": [
+          0.0,
+          0.0
+        ],
+        "n": 1,
+        "briefs": 1
+      },
+      "consistency_score": {
+        "value": 3.0,
+        "ci": [
+          3.0,
+          3.0
+        ],
+        "n": 1,
+        "briefs": 1
+      },
+      "gpu_seconds_per_brief": {
+        "value": 263.05000000000007,
+        "ci": [
+          263.05000000000007,
+          263.05000000000007
+        ],
+        "n": 1,
+        "briefs": 1
+      }
+    },
+    "B": {
+      "shot_pass": {
+        "value": 0.5,
+        "ci": [
+          0.5,
+          0.5
+        ],
+        "n": 4,
+        "briefs": 1
+      },
+      "shot_expected_score": {
+        "value": 4.497252452425616,
+        "ci": [
+          4.497252452425616,
+          4.497252452425616
+        ],
+        "n": 4,
+        "briefs": 1
+      },
+      "vqascore_video": {
+        "value": 0.8139349669218063,
+        "ci": [
+          0.8139349669218063,
+          0.8139349669218063
+        ],
+        "n": 4,
+        "briefs": 1
+      },
+      "story_pass": {
+        "value": 1.0,
+        "ci": [
+          1.0,
+          1.0
+        ],
+        "n": 1,
+        "briefs": 1
+      },
+      "story_score": {
+        "value": 5.0,
+        "ci": [
+          5.0,
+          5.0
+        ],
+        "n": 1,
+        "briefs": 1
+      },
+      "consistency_pass": {
+        "value": 0.0,
+        "ci": [
+          0.0,
+          0.0
+        ],
+        "n": 1,
+        "briefs": 1
+      },
+      "consistency_score": {
+        "value": 4.0,
+        "ci": [
+          4.0,
+          4.0
+        ],
+        "n": 1,
+        "briefs": 1
+      },
+      "gpu_seconds_per_brief": {
+        "value": 276.8669,
+        "ci": [
+          276.8669,
+          276.8669
+        ],
+        "n": 1,
+        "briefs": 1
+      }
+    },
+    "C": {
+      "shot_pass": {
+        "value": 0.75,
+        "ci": [
+          0.75,
+          0.75
+        ],
+        "n": 4,
+        "briefs": 1
+      },
+      "shot_expected_score": {
+        "value": 4.7499988356050435,
+        "ci": [
+          4.7499988356050435,
+          4.7499988356050435
+        ],
+        "n": 4,
+        "briefs": 1
+      },
+      "vqascore_video": {
+        "value": 0.9674369543790817,
+        "ci": [
+          0.9674369543790817,
+          0.9674369543790817
+        ],
+        "n": 4,
+        "briefs": 1
+      },
+      "story_pass": {
+        "value": 1.0,
+        "ci": [
+          1.0,
+          1.0
+        ],
+        "n": 1,
+        "briefs": 1
+      },
+      "story_score": {
+        "value": 5.0,
+        "ci": [
+          5.0,
+          5.0
+        ],
+        "n": 1,
+        "briefs": 1
+      },
+      "consistency_pass": {
+        "value": 1.0,
+        "ci": [
+          1.0,
+          1.0
+        ],
+        "n": 1,
+        "briefs": 1
+      },
+      "consistency_score": {
+        "value": 5.0,
+        "ci": [
+          5.0,
+          5.0
+        ],
+        "n": 1,
+        "briefs": 1
+      },
+      "gpu_seconds_per_brief": {
+        "value": 282.7559,
+        "ci": [
+          282.7559,
+          282.7559
+        ],
+        "n": 1,
+        "briefs": 1
+      }
+    },
+    "D": {
+      "shot_pass": {
+        "value": 0.5,
+        "ci": [
+          0.5,
+          0.5
+        ],
+        "n": 4,
+        "briefs": 1
+      },
+      "shot_expected_score": {
+        "value": 4.481035007762827,
+        "ci": [
+          4.481035007762827,
+          4.481035007762827
+        ],
+        "n": 4,
+        "briefs": 1
+      },
+      "vqascore_video": {
+        "value": 0.8519781976938248,
+        "ci": [
+          0.8519781976938248,
+          0.8519781976938248
+        ],
+        "n": 4,
+        "briefs": 1
+      },
+      "story_pass": {
+        "value": 1.0,
+        "ci": [
+          1.0,
+          1.0
+        ],
+        "n": 1,
+        "briefs": 1
+      },
+      "story_score": {
+        "value": 5.0,
+        "ci": [
+          5.0,
+          5.0
+        ],
+        "n": 1,
+        "briefs": 1
+      },
+      "consistency_pass": {
+        "value": 0.0,
+        "ci": [
+          0.0,
+          0.0
+        ],
+        "n": 1,
+        "briefs": 1
+      },
+      "consistency_score": {
+        "value": 3.0,
+        "ci": [
+          3.0,
+          3.0
+        ],
+        "n": 1,
+        "briefs": 1
+      },
+      "gpu_seconds_per_brief": {
+        "value": 549.7185,
+        "ci": [
+          549.7185,
+          549.7185
+        ],
+        "n": 1,
+        "briefs": 1
+      }
+    }
+  },
+  "tests": {
+    "H7": {
+      "comparison": "shot pass rate, B - A",
+      "value": 0.25,
+      "ci": [
+        0.25,
+        0.25
+      ],
+      "n": 4,
+      "briefs": 1,
+      "level": 0.975,
+      "verdict": "supported"
+    },
+    "H8": {
+      "comparison": "shot pass rate, C - B",
+      "value": 0.25,
+      "ci": [
+        0.25,
+        0.25
+      ],
+      "n": 4,
+      "briefs": 1,
+      "level": 0.975,
+      "verdict": "supported"
+    },
+    "C - D (exploratory)": {
+      "comparison": "shot pass rate, C - D",
+      "value": 0.25,
+      "ci": [
+        0.25,
+        0.25
+      ],
+      "n": 4,
+      "briefs": 1
+    },
+    "C - A (exploratory)": {
+      "comparison": "shot pass rate, C - A",
+      "value": 0.5,
+      "ci": [
+        0.5,
+        0.5
+      ],
+      "n": 4,
+      "briefs": 1
+    }
+  },
+  "agent": {
+    "shots": 4,
+    "keyframe_redone": 0.25,
+    "video_redone": 0.0,
+    "videos_per_shot": 1.0,
+    "keyframes_per_shot": 1.25,
+    "ended_below_tau_v": 0.0
+  }
+}
