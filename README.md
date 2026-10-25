@@ -8,6 +8,17 @@ metrics (VQAScore, CLIPScore, detector- and OCR-based checks, preference models,
 false positives, cost), meta-evaluates those metrics against human ratings by skill category,
 and uses the reliable ones in a generation-debugging agent.
 
+![Judge pass rate against GPU-seconds per prompt: re-ranking SDXL and the routed model by VQAScore, and the agent](results/rerank/fig_rerank.png)
+
+**In three sentences.** On GenAI-Bench, VQAScore orders 73 % of image pairs the way people do
+(people among themselves: 81 %, CLIPScore 58 %), and on video it again beats CLIPScore, though
+scoring the whole clip is no better than scoring its middle frame. Driving a generation-debugging
+agent with those checks passes 55 % of test prompts, but sending each kind of prompt to the model
+that is best at it and keeping the better of two samples by VQAScore does as well for half the GPU
+time (figure). Training on VQAScore preferences and checking each shot of a multi-shot video
+changed little that a judge or a person could see; what helped was the choice of model and, for
+video, starting each shot from a keyframe (exploratory).
+
 > **Status:** M2 is done: 9,600 images (4 models × 600 prompts × 4 seeds) scored
 > with 8 metrics, checkers validated on 100 blind-labelled dev images, metric sanity checks run;
 > results in [`REPORT.md`](REPORT.md) and `results/prompts_v1_test/`. M3 is done too: the
@@ -42,7 +53,8 @@ the GPU time of SDXL best-of-4 passes 55 % of prompts, against 37 % for best-of-
 kind of prompt, passes 58 %, and the agent does not beat it (−3.5 points [−8, +1]). Without
 switching model, the agent does no better than best-of-4. So the gain comes from knowing which
 model to use, not from diagnosing and repairing; the agent's one advantage is cost (21 vs 25
-GPU-seconds per success). See `results/agent/testrule+testsdxl/judged.md`. A blind check by the
+GPU-seconds per success). See `results/agent/testrule+testsdxl/judged.md`, and
+`results/examples/agent_gallery.html` for 12 test prompts attempt by attempt. A blind check by the
 author on 138 of the graded images matched the judge's pass / fail call on 76 % (κ 0.53); the judge
 is the stricter of the two, and the person also sees no gain from the agent over routing
 (`results/judge_check/summary.md`).
@@ -56,7 +68,8 @@ is the stricter of the two, and the person also sees no gain from the agent over
   better than VQAScore on the middle frame (69.3 %, H5 contradicted;
   `results/video_meta_eval/hypotheses.md`). On 160 of the prompts, Wan2.2 TI2V-5B scores well above
   the four older models by VQAScore (+0.16 to +0.27) and moves far more, though VBench's aesthetic
-  score puts it below three of them; no person rated its videos (`results/video/summary.md`).
+  score puts it below three of them; no person rated its videos. LTX-Video 0.9.5 (2B) runs 14 times
+  faster but scores level with the 2023 models and barely moves (`results/video/summary.md`).
 - *Preference tuning.* Diffusion-DPO on 821 VQAScore preference pairs from SD 1.5's own samples did
   not measurably raise the judge's pass rate (+1.3 points, 95 % CI [−1, +4]; H6 inconclusive) and
   barely changed the images. In a blind check the author preferred neither image in 53 of 60 pairs
@@ -216,5 +229,11 @@ A full environment fingerprint is written once per job to `data/runs/`.
 | Scoring: Falconsai NSFW image detection (ViT) | Apache-2.0 |
 | Judge: Qwen3-VL-8B-Instruct | Apache-2.0 |
 | Judge: Gemma 4 31B-it | Apache-2.0 |
+| Video: Wan2.2 TI2V-5B | Apache-2.0 |
+| Video: LTX-Video 0.9.5 (2B) | LTX-Video 2B v0.9.5 license (in its repo) |
+| Video scoring: VBench (source at `fd18b3d`) | Apache-2.0; the models it downloads carry their own |
+| Video data: GenAI-Bench-Video (`zhiqiulin/GenAI-Bench-800`) | MIT |
+| Preference tuning: diffusers' `train_diffusion_dpo.py` (v0.41.0) | Apache-2.0 |
 
-No model weights or generated images are committed to this repository.
+No model weights, LoRA weights or videos are committed to this repository. The only generated
+images are the small thumbnails in `results/examples/` (D-025), including the agent's gallery.

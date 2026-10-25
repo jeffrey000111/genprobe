@@ -374,7 +374,7 @@ All were fixed and the analysis code committed before any video was scored.
   four (2.68), yet the highest mean whole-video VQAScore (0.436 vs 0.338–0.414). PickScore and HPSv2.1
   put it last, as people do. The table is in `hypotheses.md`.
 
-### 5.3 Wan2.2 beside the older video models
+### 5.3 Wan2.2 and LTX-Video beside the older video models
 
 **Setup** (guide §11.2–11.3, D-036; `results/video/summary.md`). Wan2.2 TI2V-5B made one video
 (seed 0) for each of 160 GenAI-Bench-Video prompts, drawn at random within the benchmark's tiers
@@ -382,23 +382,25 @@ All were fixed and the analysis code committed before any video was scored.
 except the length. The card's 121 frames took 198.7 s per video on an H100 NVL and 81 frames took
 116.5 s, both above the 90 s that D-036 allowed, so the run used 49 frames (about 2 s): 65.4 s per
 video, 2.9 GPU-hours for the 160. The four older models' videos of the same prompts are the ones
-GenAI-Bench-Video distributes, at their own lengths and resolutions. All five models get VQAScore on
-the whole video (§5.2) and six VBench dimensions (custom-input mode). Exploratory throughout: no
-person rated the Wan2.2 videos.
+GenAI-Bench-Video distributes, at their own lengths and resolutions. LTX-Video 0.9.5 (2B, D-039)
+made the same 160 videos as a fast comparison, at its card's settings (704 × 480, 50 steps, guidance
+3.0, its negative prompt) and also 49 frames: 4.6 s per video. All six models get VQAScore on the
+whole video (§5.2) and six VBench dimensions (custom-input mode). Exploratory throughout: no person
+rated the Wan2.2 or LTX-Video videos.
 
 Means over the 160 prompts [95 % CI]:
 
-| Measure | Wan2.2 (49 frames) | Floor33 | Gen-2 | Pika v1 | ModelScope |
-| --- | --- | --- | --- | --- | --- |
-| VQAScore (whole video) | 0.613 [0.55, 0.67] | 0.342 [0.28, 0.40] | 0.399 [0.34, 0.47] | 0.407 [0.34, 0.47] | 0.453 [0.40, 0.51] |
-| Subject consistency | 0.968 [0.96, 0.97] | 0.973 [0.97, 0.98] | 0.977 [0.97, 0.98] | 0.985 [0.98, 0.99] | 0.952 [0.94, 0.96] |
-| Background consistency | 0.967 [0.96, 0.97] | 0.978 [0.98, 0.98] | 0.973 [0.97, 0.98] | 0.977 [0.97, 0.98] | 0.961 [0.96, 0.97] |
-| Motion smoothness | 0.988 [0.99, 0.99] | 0.984 [0.98, 0.99] | 0.996 [1.00, 1.00] | 0.996 [1.00, 1.00] | 0.975 [0.97, 0.98] |
-| Dynamic degree | 0.531 [0.46, 0.61] | 0.281 [0.21, 0.35] | 0.069 [0.03, 0.11] | 0.200 [0.14, 0.27] | 0.331 [0.26, 0.41] |
-| Aesthetic quality | 0.541 [0.53, 0.55] | 0.650 [0.64, 0.66] | 0.654 [0.64, 0.67] | 0.592 [0.58, 0.61] | 0.452 [0.44, 0.47] |
-| Imaging quality | 0.689 [0.67, 0.70] | 0.606 [0.59, 0.62] | 0.677 [0.66, 0.69] | 0.648 [0.63, 0.66] | 0.619 [0.61, 0.63] |
+| Measure | Wan2.2 (49 frames) | LTX-Video (49 frames) | Floor33 | Gen-2 | Pika v1 | ModelScope |
+| --- | --- | --- | --- | --- | --- | --- |
+| VQAScore (whole video) | 0.613 [0.55, 0.67] | 0.413 [0.35, 0.47] | 0.342 [0.28, 0.40] | 0.399 [0.34, 0.47] | 0.407 [0.34, 0.47] | 0.453 [0.40, 0.51] |
+| Subject consistency | 0.968 [0.96, 0.97] | 0.988 [0.98, 0.99] | 0.973 [0.97, 0.98] | 0.977 [0.97, 0.98] | 0.985 [0.98, 0.99] | 0.952 [0.94, 0.96] |
+| Background consistency | 0.967 [0.96, 0.97] | 0.978 [0.98, 0.98] | 0.978 [0.98, 0.98] | 0.973 [0.97, 0.98] | 0.977 [0.97, 0.98] | 0.961 [0.96, 0.97] |
+| Motion smoothness | 0.988 [0.99, 0.99] | 0.997 [1.00, 1.00] | 0.984 [0.98, 0.99] | 0.996 [1.00, 1.00] | 0.996 [1.00, 1.00] | 0.975 [0.97, 0.98] |
+| Dynamic degree | 0.531 [0.46, 0.61] | 0.069 [0.03, 0.11] | 0.281 [0.21, 0.35] | 0.069 [0.03, 0.11] | 0.200 [0.14, 0.27] | 0.331 [0.26, 0.41] |
+| Aesthetic quality | 0.541 [0.53, 0.55] | 0.511 [0.50, 0.53] | 0.650 [0.64, 0.66] | 0.654 [0.64, 0.67] | 0.592 [0.58, 0.61] | 0.452 [0.44, 0.47] |
+| Imaging quality | 0.689 [0.67, 0.70] | 0.606 [0.59, 0.63] | 0.606 [0.59, 0.62] | 0.677 [0.66, 0.69] | 0.648 [0.63, 0.66] | 0.619 [0.61, 0.63] |
 
-Differences below are Wan2.2 − an older model, paired on prompts (all in `summary.md`).
+Differences below are Wan2.2 − another model, paired on prompts (all in `summary.md`).
 
 - **By VQAScore, Wan2.2 follows the prompts better than every older model:** from +0.160
   [0.09, 0.23] against ModelScope to +0.271 [0.20, 0.34] against Floor33, every CI above 0. This is
@@ -407,17 +409,22 @@ Differences below are Wan2.2 − an older model, paired on prompts (all in `summ
   of the four older models on these prompts. So the gap is the metric's view and was not checked
   against people.
 - **Wan2.2 moves much more.** Dynamic degree (the share of videos VBench counts as moving) is 0.53 for
-  Wan2.2 against 0.07–0.33 for the others; Gen-2 hardly moves. The consistency and smoothness
-  dimensions favour still videos: Gen-2 and Pika v1, the two stillest, have the highest motion
-  smoothness (0.996). Wan2.2 is a little below Floor33, Gen-2 and Pika v1 on subject consistency
-  (−0.005 to −0.017) and above ModelScope (+0.016). That fits more motion rather than worse videos,
-  but this was not checked.
+  Wan2.2 against 0.07–0.33 for the others; Gen-2 and LTX-Video hardly move. The consistency and
+  smoothness dimensions favour still videos: LTX-Video, Gen-2 and Pika v1, the three stillest, have
+  the highest motion smoothness (0.996–0.997). Wan2.2 is a little below LTX-Video, Floor33, Gen-2
+  and Pika v1 on subject consistency (−0.005 to −0.020) and above ModelScope (+0.016). That fits
+  more motion rather than worse videos, but this was not checked.
 - **Sharper but not prettier.** Wan2.2 has the highest imaging quality (MUSIQ: 0.689; Gen-2 is
   close, +0.012 [−0.00, 0.03]) but lower aesthetic quality (LAION predictor) than Floor33, Gen-2 and
-  Pika v1 (−0.051 to −0.113), and higher only than ModelScope. Why was not analysed.
+  Pika v1 (−0.051 to −0.113), and higher only than ModelScope and LTX-Video. Why was not analysed.
+- **LTX-Video is fast but barely moves.** At a fourteenth of Wan2.2's GPU time per video (4.6 s
+  against 65.4 s), it scores 0.199 [0.13, 0.27] lower on VQAScore, level with the 2023 models
+  (0.342–0.453). Its dynamic degree (0.069) is as low as Gen-2's, and, as with Gen-2, its stillness
+  puts it at the top of the consistency and smoothness rows. It also renders at a smaller size
+  (704 × 480), which can lower its imaging quality score (0.606, Wan2.2 +0.083 [0.07, 0.10]).
 
 **What it means.** A 2025 open 5B model is well ahead of the 2023 models on the prompt-following
-metric and on motion. VBench's consistency and aesthetic scores do not put it ahead, and the
+metric and on motion; the 2B LTX-Video, 14 times faster, is not. VBench's consistency and aesthetic scores do not put it ahead, and the
 consistency and smoothness scores favour the stillest videos, so no single VBench dimension can be
 read as overall quality.
 
@@ -588,9 +595,11 @@ of §4 again: the choice of model and conditioning matters more than diagnosing 
   round 1 answers. Round 1 failed its attention checks because of a flaw in the protocol, and round 2
   changed only those checks. Few pairs were decided (7 and 8 of 60), so the person's preference
   shares have wide CIs.
-- Wan2.2 ran at 49 frames (2 s), not its card's 121, to fit D-036's time rule. The older models'
-  videos are used as distributed, at their own lengths and resolutions. VBench's motion and
-  consistency scores can depend on both, so §5.3's comparison is not like for like.
+- Wan2.2 ran at 49 frames (2 s), not its card's 121, to fit D-036's time rule, and LTX-Video at
+  the same length but its card's smaller size. The older models' videos are used as distributed, at
+  their own lengths and resolutions. VBench's motion, consistency and image-quality scores can depend
+  on both, so §5.3's comparison is not like for like. LTX-Video's larger and newer releases were not
+  run (D-039).
 - §5.5 rests on 24 test briefs written by Claude, each with one main character, so its CIs are wide
   and its briefs may not be typical. The judge sees frames, not motion, and judges story and
   consistency from one frame per shot. Gemma's shot descriptions were shorter than its prompt asked

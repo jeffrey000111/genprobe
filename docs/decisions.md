@@ -836,3 +836,15 @@ same 160 prompts. *Evaluation:* as in D-036: VQAScore on the whole video and VBe
 dimensions, means with 95 % CIs over prompts, Wan2.2 − LTX-Video paired on prompts, and GPU-seconds
 per video. Exploratory; no person rates the videos. A 3-prompt smoke run first, to check the
 pipeline and the timing.
+
+*D-039 note (2026-10-25, after the runs).* The 3-prompt smoke run and the full run (160 videos)
+finished without errors: 4.6 s per video on an H100 NVL, against 65.4 s for Wan2.2. Frames of the
+smoke videos looked right but almost still, which the full run's dynamic degree (0.069) confirms.
+Results are in `results/video/summary.md`, as a column next to Wan2.2.
+
+*D-025 note (2026-10-25): the agent's gallery (guide §10.5).* `results/examples/agent_gallery.html`
+(`genprobe/gallery.py`) shows 12 test prompts of the `testrule` run, 3 per category, drawn at random
+(seed 0) among the prompts where the agent tried at least one repair. Each attempt is a 224-pixel
+JPEG thumbnail inlined in the page, with its action, checks, diagnosis, decision and GPU-seconds, and
+the judge's grade of the image the agent kept. Like the example panels, these are the only generated
+images in the repository.
