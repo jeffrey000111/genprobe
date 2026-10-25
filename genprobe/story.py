@@ -670,6 +670,14 @@ def analyze(name: str, root: Path = ROOT, judge_dir: Path = JUDGE_DIR, results: 
         out["tests"]["C - D (exploratory)"] = {"comparison": "shot pass rate, C - D", **diff("C", "D")}
     if "C" in arms and "A" in arms:
         out["tests"]["C - A (exploratory)"] = {"comparison": "shot pass rate, C - A", **diff("C", "A")}
+    # Exploratory, added after the test results were seen (D-038 note of 2026-10-25): paired
+    # differences of the brief-level story and consistency scores.
+    out["brief_diffs"] = {}
+    for x, y in (("B", "A"), ("C", "B"), ("C", "A"), ("C", "D"), ("D", "B")):
+        if x in arms and y in arms:
+            for what in ("story", "consist"):
+                d = {b: [float(story[x][b][what] - story[y][b][what])] for b in story[x]}
+                out["brief_diffs"][f"{what} score, {x} - {y}"] = boot_mean(d, n_boot)
     if "C" in arms:
         cs = list(st["C"].values())
         out["agent"] = {"shots": len(cs),
@@ -712,6 +720,10 @@ def render(res: dict) -> str:
         L += ["", "| Test | Difference [CI] | CI level | Verdict |", "| --- | --- | --- | --- |"]
         for k, t in res["tests"].items():
             L.append(f"| {k}: {t['comparison']} | {cell(t)} | {t.get('level', 0.95)} | {t.get('verdict', 'exploratory')} |")
+    if res.get("brief_diffs"):
+        L += ["", "Exploratory, added after the test results were seen: paired differences per brief.", "",
+              "| Difference | Value [95 % CI] |", "| --- | --- |"]
+        L += [f"| {k} | {cell(v, 2)} |" for k, v in res["brief_diffs"].items()]
     if res["agent"]:
         g = res["agent"]
         L += ["", f"Agent: keyframe redone on {_f(g['keyframe_redone'])} of shots, video redone on {_f(g['video_redone'])}; "

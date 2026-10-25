@@ -817,3 +817,8 @@ the judge passed 0.52. "VQAScore on video ≥ τ" matched its pass / fail with a
 to the lower. At 0.6, 84 % of the dev shots pass the check, so the agent redoes about one shot in six
 after its first video. The blind check's protocol is written now, before the test stage
 (`docs/story_check_protocol.md`).
+
+*D-038 note (2026-10-25, after the test stage).* The test stage ran without errors: 24 briefs,
+78 shots, 245 videos in the first round and 3 in the redo rounds (`results/story/summary.md`). After
+its results were seen, the analysis gained one exploratory table: paired differences per brief of the
+judge's story and consistency scores between arms. H7, H8 and everything fixed above are unchanged.

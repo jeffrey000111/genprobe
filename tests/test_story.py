@@ -186,6 +186,8 @@ class TestStoryPipeline(unittest.TestCase):
         # C: every shot keyframe 1 + check 0.5 + video 60 + check 2; t2s4 two more videos with checks
         self.assertAlmostEqual(c_cost, (7 * 63.5 + 2 * 62) / 2)
         self.assertAlmostEqual(res["agent"]["video_redone"], 1 / 7)
+        self.assertEqual(res["brief_diffs"]["story score, C - A"]["value"], 0.0)          # every story graded 4
+        self.assertEqual(res["brief_diffs"]["consist score, B - A"]["n"], 2)
         self.assertTrue(Path("results/story/summary.md").exists())
         self.assertEqual(len(Path("results/story/shots.jsonl").read_text().splitlines()), 7)
 
