@@ -14,6 +14,8 @@ tag, fetched by scripts/setup_envs.sh train); this module prepares its data and 
     python -m genprobe.dpo select --grades <tag> --arms base s250 s500 ...         (dev: which checkpoint)
     python -m genprobe.dpo analyze --grades <tag> --base <arm> --dpo <arm>           (test: H6 and the checks)
         -> results/dpo/summary.md, summary.json
+    python -m genprobe.dpo training --log logs/dpo_<job>.out     (the pairs and the training job's log)
+        -> results/dpo/training.md, training.json
 """
 
 from __future__ import annotations
@@ -119,6 +121,54 @@ def build_pairs(smoke: bool = False, root: Path = ROOT) -> dict:
             "pairs_list": [{k: p[k] for k in ("prompt_id", "win", "lose", "win_vqa", "lose_vqa")} for p in pairs]}
     atomic_write_text(root / f"pairs{'_smoke' if smoke else ''}.meta.json", json.dumps(meta, indent=1))
     return {k: v for k, v in meta.items() if k != "pairs_list"}
+
+
+# ---------- the training record ----------
+
+TRAIN_WINDOW = 250
+
+
+def train_log(log: str | Path, meta: str | Path = ROOT / "pairs.meta.json", results: Path = Path("results/dpo"),
+              window: int = TRAIN_WINDOW) -> dict:
+    """The pairs' counts and, from the training job's progress bar, the batch values of the DPO loss and
+    of implicit accuracy (the share of a batch's pairs where the LoRA prefers the winner more than the
+    reference model does; near 0.5 while it has learned nothing about the pairs), averaged over windows
+    of steps. These are values on the training pairs, not on held-out ones."""
+    import re
+    m = json.loads(Path(meta).read_text())
+    text = Path(log).read_text(errors="replace").replace("\r", "\n")
+    pat = re.compile(r"\| *(\d+)/(\d+) \[[^\]]*?implicit_acc=([0-9.]+), loss=([0-9.]+)")
+    rows = [(int(x[1]), int(x[2]), float(x[3]), float(x[4])) for x in pat.finditer(text)]
+    if not rows:
+        raise SystemExit(f"{log}: no progress lines with implicit_acc")
+    total = rows[-1][1]
+    win = []
+    for lo in range(0, total, window):
+        sel = [r for r in rows if lo < r[0] <= lo + window]
+        win.append({"steps": [lo + 1, min(lo + window, total)], "logged": len(sel),
+                    "implicit_acc": float(np.mean([r[2] for r in sel])) if sel else math.nan,
+                    "loss": float(np.mean([r[3] for r in sel])) if sel else math.nan})
+    res = {"created_at": now_iso(), "git_commit": git_commit(), "log": Path(log).name,
+           "pairs": {k: m.get(k) for k in ("prompts", "candidates", "scored", "pairs", "dropped", "min_gap", "mean_gap",
+                                            "vqascore_version")},
+           "steps": total, "logged": len(rows), "windows": win}
+    results.mkdir(parents=True, exist_ok=True)
+    p = res["pairs"]
+    L = ["# DPO training record (D-037)", "",
+         f"Made {res['created_at']} at commit `{res['git_commit']}` by `python -m genprobe.dpo training` from "
+         f"`{res['log']}` and the pairs' metadata.", "",
+         f"Pairs: {p['pairs']} from {p['prompts']} training prompts ({p['candidates']} candidate images); "
+         f"{p['dropped']} prompts dropped because their highest and lowest VQAScore differ by less than {p['min_gap']}; "
+         f"mean gap of the kept pairs {_f(p['mean_gap'])}.", "",
+         f"Training: {total} steps; the values the progress bar shows for single batches ({len(rows)} logged), "
+         f"averaged per window of {window} steps.", "",
+         "| Steps | Logged values | Implicit accuracy | DPO loss |", "| --- | --- | --- | --- |"]
+    L += [f"| {w['steps'][0]}–{w['steps'][1]} | {w['logged']} | {_f(w['implicit_acc'])} | {_f(w['loss'])} |" for w in win]
+    L += ["", "Both are measured on the training pairs. The loss is ln 2 = 0.693 while the LoRA and the reference "
+          "model agree; implicit accuracy is near 0.5 while the LoRA has learned nothing about the pairs."]
+    atomic_write_text(results / "training.json", json.dumps(res, indent=2))
+    atomic_write_text(results / "training.md", "\n".join(L) + "\n")
+    return res
 
 
 # ---------- evaluation images ----------
@@ -324,6 +374,9 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--base", required=True)
     p.add_argument("--dpo", required=True)
     p.add_argument("--limit", type=int, default=None)
+    p = sub.add_parser("training")
+    p.add_argument("--log", required=True, help="the training job's log, logs/dpo_<job>.out")
+    p.add_argument("--meta", default=str(ROOT / "pairs.meta.json"))
     a = ap.parse_args(argv)
     if a.cmd == "prompts":
         out = write_train_prompts(a.smoke)
@@ -338,6 +391,8 @@ def main(argv: list[str] | None = None) -> int:
         out = {"images": len(ims), "file": a.out}
     elif a.cmd == "select":
         out = select(a.grades, a.arms, a.limit)
+    elif a.cmd == "training":
+        out = {k: v for k, v in train_log(a.log, a.meta).items() if k != "windows"}
     else:
         out = analyze(a.grades, a.base, a.dpo, a.limit)
         out = {"H6": out["H6"]}

@@ -13,8 +13,9 @@ and uses the reliable ones in a generation-debugging agent.
 > results in [`REPORT.md`](REPORT.md) and `results/prompts_v1_test/`. M3 is done too: the
 > metrics and a VLM judge were checked against GenAI-Bench's human ratings (`results/meta_eval/`,
 > `results/judge/`) and against one blind annotator on our own images (`results/human_eval/`).
-> Module C, the generation-debugging agent, is done as well (`results/agent/`). Every number here
-> comes from a table in `results/`.
+> Module C, the generation-debugging agent, is done as well (`results/agent/`), and so is module D:
+> re-ranking, video and preference tuning (`results/rerank/`, `results/video_meta_eval/`,
+> `results/video/`, `results/dpo/`). Every number here comes from a table in `results/`.
 
 **Headline (test split, 480 prompts):** SD3.5 Medium and FLUX.1 schnell tie on prompt following
 (VQAScore 0.680 vs 0.670, paired difference not significant) while FLUX is 4.1× faster; negation
@@ -44,6 +45,22 @@ GPU-seconds per success). See `results/agent/testrule+testsdxl/judged.md`. A bli
 author on 138 of the graded images matched the judge's pass / fail call on 76 % (κ 0.53); the judge
 is the stricter of the two, and the person also sees no gain from the agent over routing
 (`results/judge_check/summary.md`).
+
+**Module D (same judge and test prompts unless stated):**
+- *Re-ranking.* Keeping the best of N images by VQAScore raises SDXL's pass rate from 25 % (N = 1)
+  to 44 % (N = 9), still below one image from the routed model (46 %). Re-ranking the routed model
+  passes 55 % at N = 2, level with the agent at half its GPU time (`results/rerank/summary.md`).
+- *Video* (GenAI-Bench-Video: 800 prompts, four 2023 models, rated by people). VQAScore on the whole
+  video orders 67.5 % of pairs the way people do, against CLIPScore's 61.3 % (H4 holds), but not
+  better than VQAScore on the middle frame (69.3 %, H5 contradicted;
+  `results/video_meta_eval/hypotheses.md`). On 160 of the prompts, Wan2.2 TI2V-5B scores well above
+  the four older models by VQAScore (+0.16 to +0.27) and moves far more, though VBench's aesthetic
+  score puts it below three of them; no person rated its videos (`results/video/summary.md`).
+- *Preference tuning.* Diffusion-DPO on 821 VQAScore preference pairs from SD 1.5's own samples did
+  not measurably raise the judge's pass rate (+1.3 points, 95 % CI [−1, +4]; H6 inconclusive) and
+  barely changed the images. In a blind check the author preferred neither image in 53 of 60 pairs
+  for prompt following and in 52 of 60 for looks (`results/dpo/summary.md`,
+  `results/dpo/human_check_r2.md`).
 
 ## Quick start (no GPU needed)
 

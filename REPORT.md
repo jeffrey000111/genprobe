@@ -1,8 +1,8 @@
 # GenProbe report
 
 _Status: M2 (benchmark on prompt set v1), M3 (metric meta-evaluation: H1–H3, the VLM judge
-and a human check on our own images) and module C (the generation-debugging agent, §4) done;
-module D (§5) in progress. Every number here is copied from a file in `results/`, named next to
+and a human check on our own images), module C (the generation-debugging agent, §4) and module D
+(re-ranking, video and preference tuning, §5) done. Every number here is copied from a file in `results/`, named next to
 it; nothing is reported before it exists there. Choices behind the numbers are in
 `docs/decisions.md` (D-xxx)._
 
@@ -421,6 +421,61 @@ metric and on motion. VBench's consistency and aesthetic scores do not put it ah
 consistency and smoothness scores favour the stillest videos, so no single VBench dimension can be
 read as overall quality.
 
+### 5.4 Preference tuning on VQAScore (Diffusion-DPO)
+
+**Setup** (guide §11.4, D-037; `results/dpo/`). SD 1.5 made four images (seeds 0–3) for each of the
+1,200 GenAI-Bench-1600 prompts outside prompt set v1, so no dev or test prompt was trained on, and
+none of the template prompts (counting, spatial, text) either. For each prompt, the image with the
+highest VQAScore and the one with the lowest became a preference pair when their scores differed by
+at least 0.1: 821 pairs, with 379 prompts dropped and a mean gap of 0.575 (`training.md`). diffusers'
+Diffusion-DPO script trained a rank-8 LoRA on the pairs: learning rate 1e-5, batch 32, β = 2,500,
+2,000 steps, which is about 78 passes over the 821 pairs.
+
+**Training and checkpoint.** On its own training pairs the LoRA kept learning. Implicit accuracy (how
+often it prefers the winner more than the base model does) rose from 0.61 over the first 250 steps to
+0.78 over the last 250, and the loss fell from 0.68 to 0.54. On dev, the judge's pass rate picked the
+2,000-step checkpoint: 0.183, against 0.150 for the base model and 0.133–0.150 at 250, 500 and 1,000
+steps, all within each other's CIs (`dev_selection.md`).
+
+**Test** (`summary.md`). The base model and the 2,000-step checkpoint were both regenerated in the
+same environment, seeds 0–3 of the 480 test prompts. Gemma 4 31B grades seed 0 (pass = 5); the other
+scores average all four seeds. The regenerated base model matches §2's SD 1.5 (VQAScore 0.364 vs
+0.365, CLIPScore 0.270 for both).
+
+| Measure | Base SD 1.5 | DPO | DPO − base [95 % CI] |
+| --- | --- | --- | --- |
+| Judge pass rate (**H6**, pre-registered) | 0.171 | 0.183 | +0.013 [−0.01, 0.04] |
+| VQAScore (trained on) | 0.364 | 0.388 | +0.023 [0.01, 0.03] |
+| CLIPScore | 0.270 | 0.273 | +0.003 [0.00, 0.00] |
+| PickScore | 21.154 | 21.204 | +0.049 [0.03, 0.07] |
+| HPSv2.1 | 0.249 | 0.252 | +0.003 [0.00, 0.00] |
+| Detector check (counting, spatial) | 0.362 | 0.400 | +0.038 [0.01, 0.07] |
+| OCR check (text) | 0.424 | 0.439 | +0.014 [−0.00, 0.03] |
+
+- **H6 is inconclusive.** The judge's pass rate rose by 0.013, with a CI that reaches below 0. It is
+  unchanged on counting, spatial and text prompts (text: 0 for both) and +0.019 [−0.01, 0.05] on the
+  GenAI-Bench prompts.
+- **No sign of reward hacking, but little reward either.** The LoRA fit its training pairs, yet on
+  test prompts VQAScore, the metric it was trained on, rose by only 0.023. The scores it was not
+  trained on did not fall: PickScore and HPSv2.1 rose slightly, and so did the detector check on
+  counting and spatial prompts, which were never trained on.
+- **A person sees almost no difference.**
+  - Round 1 of the blind check failed its attention checks (0 of 6), so its labels are not used. On
+    all six the annotator answered "neither", and the judge had failed every real image (scores 1–3),
+    so by the decision rules "neither" was a fair answer: the checks tested SD 1.5, not attention
+    (D-037 note).
+  - Round 2 was fixed before it was drawn. It used 60 new prompts, and the attention checks used real
+    images the judge had passed. It passed: 5 of 6 attention checks right, and all 6 hidden repeats
+    got the same answer in both parts (`human_check_r2.md`).
+  - Text: 53 of the 60 pairs were "same" (10) or "neither" (43). Of the 7 decided, the DPO image won
+    4 (0.57 [0.14, 0.86]).
+  - Looks: 52 of 60 were "same". Of the 8 decided, the DPO image won 5 (0.63 [0.25, 0.88]).
+
+**What it means.** Trained on 821 preference pairs from SD 1.5's own samples, Diffusion-DPO fit those
+pairs but changed the test images too little for the judge or a person to notice. By every measure
+here it did no harm, and nothing points to the model gaming VQAScore. Using VQAScore at test time to
+pick among samples (§5.1, on SDXL and the routed models) moved the pass rate far more.
+
 ## 6. Limitations
 - Detector and OCR checks have their own error rates (§1), measured on 50 dev images each by one
   annotator; the OCR threshold was chosen on the same images.
@@ -465,6 +520,13 @@ read as overall quality.
   routed model means keeping two generators loaded, which a single-model baseline avoids.
 - The video meta-evaluation (§5.2) uses four 2023 video models; how well the metrics rank today's
   models (§5.3) is not checked against people.
+- DPO (§5.4) is one run: one seed, one β and learning rate, and 821 pairs from SD 1.5's own
+  samples, far fewer than the training script was written for (D-037). The dev choice of checkpoint
+  was between pass rates within each other's CIs.
+- §5.4's blind check has one annotator, the author, who in round 2 knew the test results and his
+  round 1 answers. Round 1 failed its attention checks because of a flaw in the protocol, and round 2
+  changed only those checks. Few pairs were decided (7 and 8 of 60), so the person's preference
+  shares have wide CIs.
 - Wan2.2 ran at 49 frames (2 s), not its card's 121, to fit D-036's time rule. The older models'
   videos are used as distributed, at their own lengths and resolutions. VBench's motion and
   consistency scores can depend on both, so §5.3's comparison is not like for like.

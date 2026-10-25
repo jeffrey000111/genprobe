@@ -104,6 +104,23 @@ class TestDPO(unittest.TestCase):
         self.assertAlmostEqual(out["metrics"]["vqascore"]["difference"]["value"], 0.3)
         self.assertIn("H6", Path("results/dpo/summary_smoke.md").read_text())
 
+    def test_training_record(self):
+        Path("data/dpo").mkdir(parents=True, exist_ok=True)
+        Path("data/dpo/pairs.meta.json").write_text(json.dumps(
+            {"prompts": 4, "candidates": 16, "scored": 16, "pairs": 3, "dropped": 1, "min_gap": 0.1, "mean_gap": 0.4,
+             "vqascore_version": "v", "pairs_list": []}))
+        lines = ["Steps:   0%|          | 0/4 [00:00<?, ?it/s]"]
+        for step, acc, loss in ((1, 0.5, 0.69), (2, 0.75, 0.6), (3, 1.0, 0.5), (4, 0.5, 0.7)):
+            lines.append(f"Steps:  {25 * step}%|##        | {step}/4 [00:0{step}<00:01, 2.10s/it, implicit_acc={acc}, "
+                         f"loss={loss}, lr=1e-5, raw_model_loss=0.1, ref_loss=0.1]")
+        Path("train.log").write_text("\r".join(lines) + "\nINFO done\n")
+        res = dpo.train_log("train.log", window=2, results=Path("results/dpo"))
+        self.assertEqual((res["steps"], res["logged"], res["pairs"]["pairs"]), (4, 4, 3))
+        self.assertEqual([w["steps"] for w in res["windows"]], [[1, 2], [3, 4]])
+        self.assertAlmostEqual(res["windows"][0]["implicit_acc"], 0.625)
+        self.assertAlmostEqual(res["windows"][1]["loss"], 0.6)
+        self.assertIn("| 3–4 | 2 |", Path("results/dpo/training.md").read_text())
+
 
 if __name__ == "__main__":
     unittest.main()
