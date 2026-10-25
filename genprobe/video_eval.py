@@ -40,9 +40,13 @@ def wan_prompts(path: str = PROMPTS) -> list[dict]:
     return [json.loads(x) for x in Path(path).read_text(encoding="utf-8").splitlines() if x.strip()]
 
 
+GENERATED = ("wan22", "ltxv095")         # our own runs (genprobe.video_gen); the rest are GenAI-Bench-Video's
+
+
 def video_paths(model: str, prompts: list[dict], out: Path = OUT) -> dict[str, str]:
-    """prompt_id -> video file, for a Wan run (data/video/manifests) or an older model (GenAI-Bench-Video)."""
-    if model.startswith("wan22"):
+    """prompt_id -> video file, for one of our runs (data/video/manifests) or an older model
+    (GenAI-Bench-Video)."""
+    if model.startswith(GENERATED):
         recs = latest_by_id(read_many(sorted((out / "manifests").glob(f"gen_{model}_*.jsonl"))))
     else:
         recs = latest_by_id(read_many([gv.MANIFEST]))
@@ -100,11 +104,13 @@ def _ci(per_prompt: dict[str, float], n_boot: int = N_BOOT, seed: int = 0) -> di
 
 
 def analyze(wan: str, prompts_path: str = PROMPTS, out: Path = OUT, data: str = "data",
-            results: Path = Path("results/video"), n_boot: int = N_BOOT) -> dict:
+            results: Path = Path("results/video"), n_boot: int = N_BOOT, extra: tuple[str, ...] = ()) -> dict:
+    """extra: other runs of ours (LTX-Video, D-039), as columns after Wan2.2; differences are always
+    Wan2.2 minus each other model."""
     from .meta_eval import load_metric_scores
 
     prompts = wan_prompts(prompts_path)
-    models = [wan] + list(gv.MODELS)
+    models = [wan] + list(extra) + list(gv.MODELS)
     vq: dict[str, dict[str, float]] = {}
     versions = {}
     for m in models:
@@ -120,11 +126,19 @@ def analyze(wan: str, prompts_path: str = PROMPTS, out: Path = OUT, data: str = 
     table = {k: {m: _ci(v[m], n_boot) for m in models} for k, v in measures.items()}
     diffs = {}
     for k, v in measures.items():
-        for m in gv.MODELS:
+        for m in models[1:]:
             common = [p for p in v[wan] if p in v[m]]
             diffs[f"{k}|{wan} - {m}"] = _ci({p: v[wan][p] - v[m][p] for p in common}, n_boot)
+    seconds = {}
+    for m in [wan] + list(extra):
+        recs = [r for r in latest_by_id(read_many(sorted((out / "manifests").glob(f"gen_{m}_*.jsonl")))).values()
+                if r.get("status") == "ok" and r.get("gen_seconds") is not None]
+        if recs:
+            seconds[m] = {"videos": len(recs), "mean_gen_seconds": sum(r["gen_seconds"] for r in recs) / len(recs),
+                          "size": f"{recs[0]['width']} x {recs[0]['height']}", "frames": recs[0]["frames"]}
     res = {"created_at": now_iso(), "git_commit": git_commit(), "wan": wan, "prompts": len(prompts),
-           "models": models, "table": table, "paired_difference": diffs, "vqascore_versions": versions}
+           "models": models, "table": table, "paired_difference": diffs, "vqascore_versions": versions,
+           "generation": seconds}
     results.mkdir(parents=True, exist_ok=True)
     atomic_write_text(results / "summary.json", json.dumps(res, indent=2))
     atomic_write_text(results / "summary.md", render(res))
@@ -137,7 +151,8 @@ def _f(x, nd=3) -> str:
 
 def render(res: dict) -> str:
     models = res["models"]
-    L = ["# Generated videos: Wan2.2 TI2V-5B and GenAI-Bench-Video's models on the same prompts", "",
+    L = ["# Generated videos: Wan2.2 TI2V-5B" + (", LTX-Video" if len(res.get("generation", {})) > 1 else "")
+         + " and GenAI-Bench-Video's models on the same prompts", "",
          f"Made {res['created_at']} at commit `{res['git_commit']}` by `python -m genprobe.video_eval analyze` "
          f"(D-036). {res['prompts']} prompts; means over prompts with 95 % CIs from resampling prompts. Exploratory.", "",
          "| Measure | " + " | ".join(models) + " |", "| --- |" + " --- |" * len(models)]
@@ -145,7 +160,11 @@ def render(res: dict) -> str:
         L.append(f"| {k} | " + " | ".join(f"{_f(row[m]['value'])} [{_f(row[m]['ci'][0], 2)}, {_f(row[m]['ci'][1], 2)}]"
                                          + ("" if row[m]["n"] == res["prompts"] else f" (n={row[m]['n']})")
                                          for m in models) + " |")
-    L += ["", f"## {res['wan']} minus each older model (same prompts)", "",
+    if res.get("generation"):
+        L += ["", "| Our run | Videos | Size | Frames | Mean GPU-s per video |", "| --- | --- | --- | --- | --- |"]
+        L += [f"| {m} | {g['videos']} | {g['size']} | {g['frames']} | {g['mean_gen_seconds']:.1f} |"
+              for m, g in res["generation"].items()]
+    L += ["", f"## {res['wan']} minus each other model (same prompts)", "",
           "| Measure | " + " | ".join(models[1:]) + " |", "| --- |" + " --- |" * (len(models) - 1)]
     for k in res["table"]:
         cells = [res["paired_difference"][f"{k}|{res['wan']} - {m}"] for m in models[1:]]
@@ -164,8 +183,9 @@ def main(argv: list[str] | None = None) -> int:
     v.add_argument("--limit", type=int, default=None, help="first n prompts (smoke)")
     a = sub.add_parser("analyze")
     a.add_argument("--wan", required=True)
+    a.add_argument("--extra", nargs="*", default=[], help="other runs of ours, e.g. ltxv095_f49 (D-039)")
     args = ap.parse_args(argv)
-    res = vbench(args.model, limit=args.limit) if args.cmd == "vbench" else analyze(args.wan)
+    res = vbench(args.model, limit=args.limit) if args.cmd == "vbench" else analyze(args.wan, extra=tuple(args.extra))
     print(json.dumps(res if args.cmd == "vbench" else {"written": "results/video/summary.md"}, indent=2, default=str))
     return 0
 

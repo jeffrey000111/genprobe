@@ -14,6 +14,7 @@
 #   ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh judge"      qwen3vl8b (VLM judge)
 #   ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh gemma4_31b" final judge for module C (D-030)
 #   ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh wan22_ti2v5b" video generator (module D, D-036)
+#   ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh ltxv095"   second video generator (D-039)
 #
 # SD3.5 Medium and FLUX.1-schnell are gated: accept their terms on huggingface.co first.
 # Re-running is safe: files already in the cache are skipped.
@@ -141,6 +142,15 @@ for m in "$@"; do
         --expect model_index.json transformer/config.json vae/config.json text_encoder/config.json \
           scheduler/scheduler_config.json
       ;;
+    ltxv095)
+      # Second, fast video generator (genprobe/video_gen.py, D-039): LTX-Video 0.9.5 (2B) in diffusers
+      # format, the LTX-Video 2B v0.9.5 license (the .txt at the repo root). T5 text encoder,
+      # transformer, VAE, tokenizer and scheduler; not the root-level single-file checkpoints or media/.
+      download ltxv095 Lightricks/LTX-Video-0.9.5 \
+        --include "*.json" "*.txt" "*.model" "*/*.safetensors" --exclude "media/*" \
+        --expect model_index.json transformer/config.json vae/config.json text_encoder/config.json \
+          scheduler/scheduler_config.json
+      ;;
     easyocr)
       # OCR checker (genprobe/metrics/ocr.py): CRAFT detector + english_g2 recognizer, ~100 MB,
       # into $EASYOCR_MODULE_PATH/model. URLs and md5 sums come from the installed EasyOCR's
@@ -157,7 +167,7 @@ for m in "$@"; do
       ;;
     *) echo "unknown model '$m' (expected login, sd15, sdxl, sd35m, flux_schnell, all, clip_l14, qwen25vl7b," \
             "scorers, grounding_dino_tiny, easyocr, checkers, pickscore, hpsv2, sd_safety, nsfw_vit, m2," \
-            "qwen3vl8b, judge, gemma4_31b or wan22_ti2v5b)" >&2; exit 2 ;;
+            "qwen3vl8b, judge, gemma4_31b, wan22_ti2v5b or ltxv095)" >&2; exit 2 ;;
   esac
 done
 

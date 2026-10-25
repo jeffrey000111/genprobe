@@ -63,6 +63,37 @@ class TestVideoGen(unittest.TestCase):
         md = Path("results/video/summary.md").read_text()
         self.assertIn("(n=159)", md)
 
+    def test_extra_model(self):
+        """A second run of ours (LTX-Video, D-039) becomes a column after Wan2.2, with its timing."""
+        vg.select()
+        prompts = ve.wan_prompts()
+        wan, ltx = "wan22_f49", "ltxv095_f49"
+        self.assertEqual(vg.model_name(49, "ltxv095"), ltx)
+        models = [wan, ltx] + list(gv.MODELS)
+        d = Path("data/scores/vqascore_video")
+        d.mkdir(parents=True)
+        with open(d / "x.jsonl", "w") as f:
+            for i, m in enumerate(models):
+                for p in prompts:
+                    f.write(json.dumps({"sample_id": make_sample_id(m, p["prompt_id"], 0), "metric": "vqascore_video",
+                                        "metric_version": "v", "value": 0.9 - 0.1 * i, "status": "ok",
+                                        "created_at": "2026-10-25"}) + "\n")
+        mdir = Path("data/video/manifests")
+        mdir.mkdir(parents=True)
+        for m, sec in ((wan, 65.0), (ltx, 12.0)):
+            (mdir / f"gen_{m}_shard000of001.jsonl").write_text("".join(json.dumps(
+                {"sample_id": make_sample_id(m, p["prompt_id"], 0), "model": m, "prompt_id": p["prompt_id"],
+                 "path": f"v/{m}/{p['prompt_id']}.mp4", "status": "ok", "gen_seconds": sec, "frames": 49,
+                 "width": 1280 if m == wan else 704, "height": 704 if m == wan else 480}) + "\n" for p in prompts))
+        self.assertEqual(len(ve.video_paths(ltx, prompts)), len(prompts))
+        res = ve.analyze(wan, n_boot=50, extra=(ltx,))
+        self.assertEqual(res["models"][:2], [wan, ltx])
+        self.assertAlmostEqual(res["paired_difference"][f"vqascore_video|{wan} - {ltx}"]["value"], 0.1)
+        self.assertAlmostEqual(res["generation"][ltx]["mean_gen_seconds"], 12.0)
+        self.assertIn("704 x 480", Path("results/video/summary.md").read_text())
+        with self.assertRaises(ValueError):
+            vg.generate(48, model="ltxv095")                                     # LTX needs 8k + 1 frames
+
 
 if __name__ == "__main__":
     unittest.main()

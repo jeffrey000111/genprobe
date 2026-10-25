@@ -822,3 +822,17 @@ after its first video. The blind check's protocol is written now, before the tes
 78 shots, 245 videos in the first round and 3 in the redo rounds (`results/story/summary.md`). After
 its results were seen, the analysis gained one exploratory table: paired differences per brief of the
 judge's story and consistency scores between arms. H7, H8 and everything fixed above are unchanged.
+
+**D-039 (2026-10-25) — LTX-Video as a second generator for §5.3 (the guide's comparison model in
+§11.2), fixed before any LTX-Video video exists.** Project author's choice ("finish the rest").
+*Model:* `Lightricks/LTX-Video-0.9.5`, 2B parameters, in diffusers format under the LTX-Video 2B
+v0.9.5 license; the revision is recorded at download. It is the 2B release with its own
+diffusers-format repo and a single-stage text-to-video example on its card. The 13B releases use a
+two-stage recipe with an upsampler. LTX-2.5 (19B, with audio) needs 72–110 GB of disk and a newer
+diffusers than the video env has. *Settings:* the card's text-to-video example (704 × 480, 50 steps,
+guidance 3.0 as the pipeline's default, its negative prompt, exported at 24 fps), except the length:
+49 frames, the same as Wan2.2 in §5.3. LTX-Video needs 8k + 1 frames, and 49 is one. Seed 0, the
+same 160 prompts. *Evaluation:* as in D-036: VQAScore on the whole video and VBench's six
+dimensions, means with 95 % CIs over prompts, Wan2.2 − LTX-Video paired on prompts, and GPU-seconds
+per video. Exploratory; no person rates the videos. A 3-prompt smoke run first, to check the
+pipeline and the timing.

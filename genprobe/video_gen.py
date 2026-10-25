@@ -11,6 +11,11 @@
 Settings are the model card's: 1280 x 704, 50 steps, cfg 5.0, pipeline in bf16 with the VAE in
 fp32, 24 fps; only the frame count varies (D-036 picks it from the smoke run). Timings are GPU
 seconds per video measured around the pipeline call (model loading excluded).
+
+    python -m genprobe.video_gen generate --model ltxv095 --frames 49 ...   (D-039)
+        LTX-Video 0.9.5 (2B) as a second, fast generator on the same prompts, at its card's settings:
+        704 x 480, 50 steps, guidance 3.0 (the pipeline's default), its negative prompt, 24 fps.
+        -> data/video/ltxv095_f<frames>/, manifests gen_ltxv095_f<frames>_*.jsonl
 """
 
 from __future__ import annotations
@@ -38,8 +43,15 @@ PROMPTS = "data/prompts/wan_video.jsonl"
 OUT = Path("data/video")
 
 
-def model_name(frames: int) -> str:
-    return f"wan22_f{frames}"
+# LTX-Video 0.9.5 (D-039): the model card's text-to-video example. Its revision is the one in the
+# local cache, recorded in every manifest record.
+LTX = {"repo": "Lightricks/LTX-Video-0.9.5", "height": 480, "width": 704, "steps": 50, "cfg": 3.0, "fps": 24,
+       "negative": "worst quality, inconsistent motion, blurry, jittery, distorted"}
+FRAME_STEP = {"wan22": 4, "ltxv095": 8}       # Wan needs 4k + 1 frames, LTX-Video 8k + 1
+
+
+def model_name(frames: int, model: str = "wan22") -> str:
+    return f"{model}_f{frames}"
 
 
 def select(source: str = SOURCE_PROMPTS, out: str = PROMPTS, n: int = N_PROMPTS, seed: int = 0) -> dict:
@@ -61,18 +73,19 @@ def select(source: str = SOURCE_PROMPTS, out: str = PROMPTS, n: int = N_PROMPTS,
 
 
 def generate(frames: int, prompts: str = PROMPTS, limit: int | None = None, shard: int = 0, num_shards: int = 1,
-             out: Path = OUT, log=print) -> dict:
+             out: Path = OUT, log=print, model: str = "wan22") -> dict:
+    if model not in FRAME_STEP:
+        raise ValueError(f"model must be one of {sorted(FRAME_STEP)}, not {model!r}")
+    if (frames - 1) % FRAME_STEP[model]:
+        raise ValueError(f"{model} needs {FRAME_STEP[model]}k + 1 frames, got {frames}")
     import diffusers
     import torch
-    from diffusers import AutoencoderKLWan, WanPipeline
     from diffusers.utils import export_to_video
 
-    if (frames - 1) % 4:
-        raise ValueError(f"Wan needs 4k + 1 frames, got {frames}")
     rows = [json.loads(x) for x in Path(prompts).read_text(encoding="utf-8").splitlines() if x.strip()]
     rows = sorted(rows, key=lambda r: r["prompt_id"])[:limit]
     mine = rows[shard::num_shards]
-    name = model_name(frames)
+    name = model_name(frames, model)
     mdir = out / "manifests"
     done = {s for s, r in latest_by_id(read_many(sorted(mdir.glob(f"gen_{name}_*.jsonl")))).items()
             if r.get("status") == "ok" and Path(r["path"]).is_file()} if mdir.exists() else set()
@@ -83,10 +96,24 @@ def generate(frames: int, prompts: str = PROMPTS, limit: int | None = None, shar
     if not torch.cuda.is_available():
         raise RuntimeError("no CUDA device visible; video generation runs inside a GPU job")
     t0 = time.perf_counter()
-    vae = AutoencoderKLWan.from_pretrained(REPO, subfolder="vae", torch_dtype=torch.float32, revision=REVISION,
-                                           local_files_only=True)
-    pipe = WanPipeline.from_pretrained(REPO, vae=vae, torch_dtype=torch.bfloat16, revision=REVISION,
-                                       local_files_only=True).to("cuda")
+    if model == "wan22":
+        from diffusers import AutoencoderKLWan, WanPipeline
+        repo, revision = REPO, REVISION
+        settings = {"height": HEIGHT, "width": WIDTH, "steps": STEPS, "cfg": CFG, "fps": FPS, "negative": None}
+        vae = AutoencoderKLWan.from_pretrained(REPO, subfolder="vae", torch_dtype=torch.float32, revision=REVISION,
+                                               local_files_only=True)
+        pipe = WanPipeline.from_pretrained(REPO, vae=vae, torch_dtype=torch.bfloat16, revision=REVISION,
+                                           local_files_only=True).to("cuda")
+    else:
+        from diffusers import LTXPipeline
+
+        from .utils.hf import require_cached
+        repo = LTX["repo"]
+        revision = require_cached(repo, ("model_index.json", "transformer/config.json"),
+                                  'ssh sjsu "cd ~/genprobe && bash scripts/download_models.sh ltxv095"')
+        settings = {k: LTX[k] for k in ("height", "width", "steps", "cfg", "fps", "negative")}
+        pipe = LTXPipeline.from_pretrained(repo, torch_dtype=torch.bfloat16, revision=revision,
+                                           local_files_only=True).to("cuda")
     load_s = time.perf_counter() - t0
     gpu = torch.cuda.get_device_name(0)
     commit = git_commit()
@@ -98,20 +125,24 @@ def generate(frames: int, prompts: str = PROMPTS, limit: int | None = None, shar
             sid = make_sample_id(name, r["prompt_id"], SEED)
             path = vdir / f"{r['prompt_id']}_s{SEED}.mp4"
             rec = {"sample_id": sid, "model": name, "prompt_id": r["prompt_id"], "prompt": r["prompt"], "seed": SEED,
-                   "path": str(path), "frames": frames, "height": HEIGHT, "width": WIDTH, "steps": STEPS, "cfg": CFG,
-                   "fps": FPS, "repo": REPO, "revision": REVISION, "diffusers": diffusers.__version__,
+                   "path": str(path), "frames": frames, "height": settings["height"], "width": settings["width"],
+                   "steps": settings["steps"], "cfg": settings["cfg"], "fps": settings["fps"], "repo": repo,
+                   "revision": revision, "diffusers": diffusers.__version__,
                    "torch": torch.__version__, "gpu": gpu, "git_commit": commit, "load_seconds": round(load_s, 1)}
+            if settings["negative"]:
+                rec["negative_prompt"] = settings["negative"]
             try:
                 torch.cuda.reset_peak_memory_stats()
                 torch.cuda.synchronize()
                 t = time.perf_counter()
-                video = pipe(prompt=r["prompt"], height=HEIGHT, width=WIDTH, num_frames=frames,
-                             num_inference_steps=STEPS, guidance_scale=CFG,
-                             generator=torch.Generator("cuda").manual_seed(SEED)).frames[0]
+                kw = {"negative_prompt": settings["negative"]} if settings["negative"] else {}
+                video = pipe(prompt=r["prompt"], height=settings["height"], width=settings["width"], num_frames=frames,
+                             num_inference_steps=settings["steps"], guidance_scale=settings["cfg"],
+                             generator=torch.Generator("cuda").manual_seed(SEED), **kw).frames[0]
                 torch.cuda.synchronize()
                 gen_s = time.perf_counter() - t
                 tmp = path.with_suffix(".tmp.mp4")
-                export_to_video(video, str(tmp), fps=FPS)
+                export_to_video(video, str(tmp), fps=settings["fps"])
                 tmp.replace(path)
                 rec.update(status="ok", gen_seconds=round(gen_s, 2),
                            peak_mem_gb=round(torch.cuda.max_memory_allocated() / 1e9, 1))
@@ -159,6 +190,7 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("select")
     g = sub.add_parser("generate")
     g.add_argument("--frames", type=int, required=True)
+    g.add_argument("--model", default="wan22", choices=sorted(FRAME_STEP))
     g.add_argument("--limit", type=int, default=None)
     g.add_argument("--shard", type=int, default=0)
     g.add_argument("--num-shards", type=int, default=1)
@@ -167,7 +199,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "select":
         print(json.dumps(select(), indent=2))
     elif args.cmd == "generate":
-        res = generate(args.frames, limit=args.limit, shard=args.shard, num_shards=args.num_shards)
+        res = generate(args.frames, limit=args.limit, shard=args.shard, num_shards=args.num_shards, model=args.model)
         print(json.dumps(res))
         return 1 if res.get("error") else 0
     else:

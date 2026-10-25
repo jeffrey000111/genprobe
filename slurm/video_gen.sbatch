@@ -4,6 +4,7 @@
 #
 #   cd ~/genprobe && LIMIT=3 sbatch slurm/video_gen.sbatch 121 1      (smoke: 3 prompts at 121 frames)
 #   cd ~/genprobe && sbatch --array=0-1 slurm/video_gen.sbatch 121 2   (160 prompts, 2 shards)
+#   cd ~/genprobe && MODEL=ltxv095 sbatch slurm/video_gen.sbatch 49 1   (LTX-Video 0.9.5, D-039)
 #
 # Output: data/video/wan22_f<frames>/, data/video/manifests/, logs/video-gen_<id>_<shard>.out.
 # Resubmitting is safe: finished videos are skipped.
@@ -23,5 +24,5 @@ require_gpu
 activate_env video
 cd "$GENPROBE_ROOT"
 python -m genprobe.video_gen select
-python -m genprobe.video_gen generate --frames "$FRAMES" ${LIMIT:+--limit "$LIMIT"} \
+python -m genprobe.video_gen generate --frames "$FRAMES" --model "${MODEL:-wan22}" ${LIMIT:+--limit "$LIMIT"} \
   --shard "${SLURM_ARRAY_TASK_ID:-0}" --num-shards "$NUM_SHARDS"
