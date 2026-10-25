@@ -56,3 +56,31 @@ the repeats. Part 1 says whether the judge's verdict on H6 holds for a person; p
 image quality.
 
 **Ethics.** Only the author labels; no personal data is collected.
+
+## Round 2 (added 2026-10-24, before any round 2 item was drawn)
+
+**Why.** Round 1's attention checks were 0 of 6 right, so by the rules above its labels are not used,
+and that is reported. On all six the answer was "neither", and the judge had given every one of the
+six real images 1–3 (none passed): the real image missed its own prompt too, so by the decision rules
+"neither" was a fair answer. The checks tested the images, not the annotator's attention. This was a
+flaw in the protocol, not in the labelling.
+
+**What changes.** Only the attention checks:
+- Their real image is one that Gemma 4 31B passed (score 5, seed 0, the test grades of D-037), so it
+  matches its prompt and the right answer is unambiguous.
+- Each comes from its own test prompt outside the 60 pairs; the decoy is again an image of a prompt
+  of another stratum. Text prompts cannot supply a real image (the judge passed none of them).
+
+**What stays.** 60 new pairs (15 per stratum), the two parts, the questions, the decision rules, 6
+attention checks with the pass mark of 5 of 6, 6 hidden repeats per part, the analysis, and the rule
+that labels are not used if the checks fail. Items are drawn with seed 1 from the test prompts round 1
+never showed (its pairs, its checks' prompts and their decoys).
+
+**Who labels.** The same annotator. Unlike in round 1, he knows the test results of D-037 (H6
+inconclusive, the automatic metrics) and his own round 1 answers.
+
+**How.** `bash scripts/make_dpo_check.sh make2` on HPC3; copy only
+`data/dpo_check_r2/dpo_check_r2_package.zip`; the page exports `dpo_check_r2_labels.csv`, saved as
+`data/labels/dpo_check_r2_labels.csv` and committed before the key is opened; then
+`bash scripts/make_dpo_check.sh analyze2` → `results/dpo/human_check_r2.md`. Round 1's labels and
+results stay as they are.

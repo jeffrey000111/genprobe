@@ -12,6 +12,16 @@ random; for each, the base and the DPO image of seed 0, sides random. Part 1 ask
 the text better (A, B, same, neither) and adds 6 attention checks (one image belongs to a prompt of
 another stratum) and 6 hidden repeats; part 2 shows the same 60 pairs again with sides re-drawn and
 asks which image looks better (A, B, same), with 6 hidden repeats.
+
+Round 2 (D-037 note of 2026-10-24) repeats the check on 60 new prompts, because round 1's attention
+checks could be answered "neither" by the rules: their real image usually missed its own prompt too.
+In round 2 the real image of an attention check is one the judge passed (score 5); everything else is
+as in round 1.
+
+    python -m genprobe.dpo_check make --round 2
+        -> data/dpo_check_r2/dpo_check_r2_package.zip, data/dpo_check_r2/key.json
+    python -m genprobe.dpo_check analyze --round 2 --labels data/labels/dpo_check_r2_labels.csv
+        -> results/dpo/human_check_r2.md, human_check_r2.json
 """
 
 from __future__ import annotations
@@ -37,17 +47,33 @@ from .utils.io import atomic_write_text
 STRATA = ("counting", "spatial", "text", "genai")
 PER_STRATUM, N_GOLD, GOLD_PASS, N_REPEAT = 15, 6, 5, 6       # fixed in D-037 / docs/dpo_check_protocol.md
 OUT = Path("data/dpo_check")
+ROUND2_SEED = 1                                               # round 2 (D-037 note of 2026-10-24)
+GRADES = "grade_dpo_test_full_gemma4_31b"                     # the judge's grades of the test images
 LABELS = {"text": ("A", "B", "same", "neither"), "quality": ("A", "B", "same")}
 N_BOOT = 2000
 
 
-def build(images: list[dict], base: str, new: str, seed: int = 0) -> tuple[list[dict], list[dict]]:
+def out_dir(rnd: int = 1) -> Path:
+    return OUT if rnd == 1 else Path(f"{OUT}_r{rnd}")
+
+
+def round_name(rnd: int = 1) -> str:
+    return "dpo_check" if rnd == 1 else f"dpo_check_r{rnd}"
+
+
+def build(images: list[dict], base: str, new: str, seed: int = 0, exclude: frozenset[str] | set[str] = frozenset(),
+          gold_ok: set[str] | None = None) -> tuple[list[dict], list[dict]]:
     """images: dpo.eval_images rows (sample_id, prompt_id, prompt, path, group, seed, category) of the
-    two arms on the test split, seed 0. -> (public items, key)."""
+    two arms on the test split, seed 0. -> (public items, key).
+
+    exclude: prompt ids never drawn (round 2: every prompt round 1 showed). gold_ok: if given (round 2),
+    the real image of each attention check is one of these sample ids (the images the judge passed),
+    from a prompt outside the 60 pairs, one check per prompt; otherwise (round 1) it is the base or DPO
+    image of one of the 60 pairs."""
     rng = random.Random(seed)
     by: dict[str, dict[str, dict]] = defaultdict(dict)
     for im in images:
-        if im["seed"] == 0 and im["group"] in (base, new):
+        if im["seed"] == 0 and im["group"] in (base, new) and im["prompt_id"] not in exclude:
             by[im["prompt_id"]][im["group"]] = im
     full = {p: v for p, v in by.items() if base in v and new in v}
     chosen = []
@@ -64,10 +90,22 @@ def build(images: list[dict], base: str, new: str, seed: int = 0) -> tuple[list[
                 "left": a["sample_id"], "right": b["sample_id"], "left_path": a["path"], "right_path": b["path"]}
 
     part1 = [sides(pr, "main", "text") for pr in pairs]
-    for _ in range(N_GOLD):                       # the prompt's real image against another stratum's image
-        pr = rng.choice(pairs)
-        q = rng.choice([o for o in others if full[o][base]["category"] != pr["stratum"]])
-        real, decoy = pr[rng.choice(["base", "new"])], full[q][rng.choice([base, new])]
+    gp: list[str] | None = None
+    if gold_ok is not None:                       # round 2: images the judge passed, from outside the pairs
+        ok = {p: [full[p][g] for g in (base, new) if full[p][g]["sample_id"] in gold_ok] for p in others}
+        gp = rng.sample(sorted(p for p, v in ok.items() if v), N_GOLD)
+        others = [o for o in others if o not in set(gp)]
+    for n in range(N_GOLD):                       # the prompt's real image against another stratum's image
+        if gp is None:                            # round 1 (random draws in the order round 1 was made)
+            pr = rng.choice(pairs)
+            q = rng.choice([o for o in others if full[o][base]["category"] != pr["stratum"]])
+            real = pr[rng.choice(["base", "new"])]
+        else:
+            p = gp[n]
+            pr = {"prompt_id": p, "prompt": full[p][base]["prompt"], "stratum": full[p][base]["category"]}
+            q = rng.choice([o for o in others if full[o][base]["category"] != pr["stratum"]])
+            real = rng.choice(ok[p])
+        decoy = full[q][rng.choice([base, new])]
         a, b = (real, decoy) if rng.random() < 0.5 else (decoy, real)
         part1.append({"kind": "gold", "q": "text", "prompt_id": pr["prompt_id"], "prompt": pr["prompt"],
                       "stratum": pr["stratum"], "left": a["sample_id"], "right": b["sample_id"], "left_path": a["path"],
@@ -104,23 +142,39 @@ def build(images: list[dict], base: str, new: str, seed: int = 0) -> tuple[list[
     return public, key
 
 
-def write_package(public: list[dict], key: list[dict], base: str, new: str, out: Path = OUT) -> Path:
+def write_package(public: list[dict], key: list[dict], base: str, new: str, out: Path = OUT, rnd: int = 1) -> Path:
+    """Round 2 gets its own folder, zip name, export name and browser storage (window.ROUND), so its
+    page never shows round 1's saved answers."""
     out.mkdir(parents=True, exist_ok=True)
     tool = (Path(__file__).parent / "dpo_check_page.html").read_text(encoding="utf-8")
-    zpath = out / "dpo_check_package.zip"
+    name = round_name(rnd)
+    zpath = out / f"{name}_package.zip"
     tmp = zpath.with_suffix(".zip.tmp")
     by_id = {k["item_id"]: k for k in key}
     with zipfile.ZipFile(tmp, "w", zipfile.ZIP_STORED) as z:
-        z.writestr("dpo_check/index.html", tool)
-        z.writestr("dpo_check/items.js", "window.ITEMS = " + json.dumps(public, ensure_ascii=False, indent=0) + ";\n")
+        z.writestr(f"{name}/index.html", tool)
+        z.writestr(f"{name}/items.js", f"window.ROUND = {rnd};\nwindow.ITEMS = "
+                   + json.dumps(public, ensure_ascii=False, indent=0) + ";\n")
         for it in public:
             k = by_id[it["item_id"]]
-            z.writestr(f"dpo_check/{it['left']}", thumbnail(k["left_path"]))
-            z.writestr(f"dpo_check/{it['right']}", thumbnail(k["right_path"]))
+            z.writestr(f"{name}/{it['left']}", thumbnail(k["left_path"]))
+            z.writestr(f"{name}/{it['right']}", thumbnail(k["right_path"]))
     tmp.replace(zpath)
-    atomic_write_text(out / "key.json", json.dumps({"created_at": now_iso(), "git_commit": git_commit(), "base": base,
-                                                    "new": new, "items": key}, indent=1))
+    atomic_write_text(out / "key.json", json.dumps({"created_at": now_iso(), "git_commit": git_commit(), "round": rnd,
+                                                    "base": base, "new": new, "items": key}, indent=1))
     return zpath
+
+
+def round1_prompts(key_path: Path = OUT / "key.json") -> set[str]:
+    """Every prompt round 1 showed: its pairs, its attention checks' prompts and their decoys."""
+    items = json.loads(Path(key_path).read_text())["items"]
+    return {k["prompt_id"] for k in items} | {sid.split("__")[1] for k in items for sid in (k["left"], k["right"])}
+
+
+def passed_ids(tag: str = GRADES, data: str = "data") -> set[str]:
+    from .utils.manifest import latest_by_id, read_many
+    grades = latest_by_id(read_many([Path(data, "judge", f"{tag}.jsonl")]))
+    return {sid for sid, g in grades.items() if g.get("score") == 5}
 
 
 def read_labels(path: str | Path) -> dict[str, str]:
@@ -139,11 +193,11 @@ def choice(k: dict, label: str) -> str:
     return k["left"] if label == "A" else k["right"] if label == "B" else label
 
 
-def analyze(labels: dict[str, str], key: list[dict], new: str, n_boot: int = N_BOOT) -> dict[str, Any]:
+def analyze(labels: dict[str, str], key: list[dict], new: str, n_boot: int = N_BOOT, rnd: int = 1) -> dict[str, Any]:
     by = {k["item_id"]: k for k in key}
     gold = [k for k in key if k["kind"] == "gold" and k["item_id"] in labels]
     right = sum(choice(k, labels[k["item_id"]]) == k["real"] for k in gold)
-    res: dict[str, Any] = {"created_at": now_iso(), "git_commit": git_commit(), "new": new,
+    res: dict[str, Any] = {"created_at": now_iso(), "git_commit": git_commit(), "round": rnd, "new": new,
                            "labelled": sum(1 for k in key if k["item_id"] in labels), "items": len(key),
                            "gold": {"answered": len(gold), "right": right, "pass_mark": GOLD_PASS,
                                     "passed": len(gold) == N_GOLD and right >= GOLD_PASS}}
@@ -185,11 +239,13 @@ def _f(x, nd=3) -> str:
 
 def render(res: dict) -> str:
     g = res["gold"]
-    L = ["# Blind human check: DPO vs base SD 1.5 (one annotator, D-037)", "",
+    rnd = res.get("round", 1)
+    L = [f"# Blind human check{f', round {rnd}' if rnd > 1 else ''}: DPO vs base SD 1.5 (one annotator, D-037)", "",
          f"Made {res['created_at']} at commit `{res['git_commit']}` by `python -m genprobe.dpo_check analyze`; protocol in "
          f"`docs/dpo_check_protocol.md`. Labelled {res['labelled']} of {res['items']} items. 95 % CIs from resampling prompts.",
          "", f"- Attention checks (part 1): {g['right']} of {g['answered']} right (pass mark {g['pass_mark']} of {N_GOLD}): "
-         f"**{'passed' if g['passed'] else 'NOT passed'}**.", ""]
+         f"**{'passed' if g['passed'] else 'NOT passed'}**."
+         + ("" if g["passed"] else " By the protocol, the answers below are not used for any conclusion."), ""]
     for q, title in (("text", "Which image matches the text better?"), ("quality", "Which image looks better?")):
         r = res[q]
         p = r["prefers_new"]
@@ -208,24 +264,36 @@ def main(argv: list[str] | None = None) -> int:
     sub = ap.add_subparsers(dest="cmd", required=True)
     mk = sub.add_parser("make")
     mk.add_argument("--base", default="dpo_base")
+    mk.add_argument("--round", type=int, default=1, choices=(1, 2))
+    mk.add_argument("--grades", default=GRADES, help="round 2: the judge's grades of the test images")
     an = sub.add_parser("analyze")
     an.add_argument("--labels", required=True)
-    an.add_argument("--key", default=str(OUT / "key.json"))
+    an.add_argument("--round", type=int, default=1, choices=(1, 2))
+    an.add_argument("--key", default=None, help="default: the round's key.json")
     an.add_argument("--out", default="results/dpo")
     args = ap.parse_args(argv)
+    rnd = args.round
     if args.cmd == "make":
+        out = out_dir(rnd)
+        if (out / "key.json").exists():
+            raise SystemExit(f"{out / 'key.json'} exists: round {rnd} was already drawn")
         new = json.loads((dpo.ROOT / "selected.json").read_text())["selected"]
         images = dpo.eval_images([args.base, new], "test", seed=0)
-        public, key = build(images, args.base, new)
-        z = write_package(public, key, args.base, new)
-        print(f"wrote {z} ({dict(Counter((k['q'], k['kind']) for k in key))}) and {OUT / 'key.json'} (keep it closed)")
+        if rnd == 1:
+            public, key = build(images, args.base, new)
+        else:
+            public, key = build(images, args.base, new, seed=ROUND2_SEED, exclude=round1_prompts(),
+                                gold_ok=passed_ids(args.grades))
+        z = write_package(public, key, args.base, new, out=out, rnd=rnd)
+        print(f"wrote {z} ({dict(Counter((k['q'], k['kind']) for k in key))}) and {out / 'key.json'} (keep it closed)")
         return 0
-    kj = json.loads(Path(args.key).read_text())
-    res = analyze(read_labels(args.labels), kj["items"], kj["new"])
+    kj = json.loads(Path(args.key or out_dir(rnd) / "key.json").read_text())
+    res = analyze(read_labels(args.labels), kj["items"], kj["new"], rnd=rnd)
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
-    atomic_write_text(out / "human_check.json", json.dumps(res, indent=2))
-    atomic_write_text(out / "human_check.md", render(res))
+    stem = "human_check" if rnd == 1 else f"human_check_r{rnd}"
+    atomic_write_text(out / f"{stem}.json", json.dumps(res, indent=2))
+    atomic_write_text(out / f"{stem}.md", render(res))
     print(render(res))
     return 0
 

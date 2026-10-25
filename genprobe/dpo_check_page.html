@@ -84,7 +84,9 @@
 <script>
 (function () {
   const ITEMS = window.ITEMS || [];
-  const STORE = "genprobe_dpo_check_" + ITEMS.length + "_" + (ITEMS[0] ? ITEMS[0].item_id + ITEMS[ITEMS.length - 1].item_id : "");
+  const ROUND = window.ROUND || 1;   // round 2 keeps its own saved answers and export name
+  if (ROUND > 1) document.title += " (round " + ROUND + ")";
+  const STORE = "genprobe_dpo_check_" + (ROUND > 1 ? "r" + ROUND + "_" : "") + ITEMS.length + "_" + (ITEMS[0] ? ITEMS[0].item_id + ITEMS[ITEMS.length - 1].item_id : "");
   let answers = {};
   try { answers = JSON.parse(localStorage.getItem(STORE) || "{}"); } catch (e) { answers = {}; }
   const save = () => { try { localStorage.setItem(STORE, JSON.stringify(answers)); return true; } catch (e) { return false; } };
@@ -156,7 +158,7 @@
     ITEMS.forEach(it => { const a = answers[it.item_id]; rows.push([it.item_id, it.part, a ? a.label : "", a ? a.at : "", a ? a.seconds : ""]); });
     const blob = new Blob([rows.map(r => r.join(",")).join("\n") + "\n"], { type: "text/csv" });
     const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob); a.download = "dpo_check_labels.csv";
+    a.href = URL.createObjectURL(blob); a.download = ROUND > 1 ? "dpo_check_r" + ROUND + "_labels.csv" : "dpo_check_labels.csv";
     document.body.appendChild(a); a.click(); a.remove();
   }
 
@@ -174,7 +176,7 @@
     else if (e.key === "ArrowRight") show(i + 1);
   });
   status();
-  if (!ITEMS.length) { $("intro").innerHTML = "<p>items.js 没有加载：请把整个 dpo_check 文件夹解压后再打开 index.html。</p>"; }
+  if (!ITEMS.length) { $("intro").innerHTML = "<p>items.js 没有加载：请把整个文件夹解压后再打开 index.html。</p>"; }
 })();
 </script>
 </body>

@@ -746,3 +746,14 @@ system, which lost the records of 15 videos and left 5 unreadable lines. Those 1
 again with the same metric version into a new file (tag `wan_f49_fix`) and the analysis is run again;
 every other record is kept (both jobs ran the same version, so a score does not depend on which job
 wrote it). Nothing else changes.
+
+*D-037 note (2026-10-24, after the blind check's first round).* The full run chose the checkpoint at
+2,000 steps on dev (`results/dpo/dev_selection.md`); the test results are in `results/dpo/summary.md`.
+The blind check's attention checks were 0 of 6 right (`results/dpo/human_check.md`), so by the
+protocol its labels are not used, and the report says so. On all six the annotator answered "neither",
+and the judge had given every real image 1–3: these real images missed their own prompts, so
+"neither" followed the decision rules. The checks were flawed, not the labelling. Project author's
+choice: a second round, fixed before it is drawn (`docs/dpo_check_protocol.md`, "Round 2"). It uses
+60 new test prompts (seed 1, none that round 1 showed), and the attention checks' real images are ones
+the judge passed. Everything else is as in round 1, including the pass mark of 5 of 6. The annotator
+now knows the test results. Round 1 stays in the report as not passed.
