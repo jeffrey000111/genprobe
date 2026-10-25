@@ -1,0 +1,59 @@
+{
+  "created_at": "2026-10-25T21:20:10.198+00:00",
+  "git_commit": "7ab233d",
+  "new": "C",
+  "base": "A",
+  "labelled": 58,
+  "items": 58,
+  "gold": {
+    "answered": 4,
+    "right": 4,
+    "pass_mark": 3,
+    "passed": true
+  },
+  "story": {
+    "answers": {
+      "base": 4,
+      "new": 7,
+      "same": 12,
+      "neither": 1
+    },
+    "repeat": {
+      "pairs": 3,
+      "same_answer": 1.0,
+      "cohen_kappa": 1.0
+    },
+    "prefers_agent": {
+      "value": 0.6363636363636364,
+      "ci": [
+        0.36363636363636365,
+        0.9090909090909091
+      ],
+      "n": 11
+    },
+    "agrees_with_judge": {
+      "pairs": 7,
+      "share": 1.0
+    }
+  },
+  "consist": {
+    "answers": {
+      "base": 5,
+      "new": 9,
+      "same": 10
+    },
+    "repeat": {
+      "pairs": 3,
+      "same_answer": 1.0,
+      "cohen_kappa": 1.0
+    },
+    "prefers_agent": {
+      "value": 0.6428571428571429,
+      "ci": [
+        0.35714285714285715,
+        0.8571428571428571
+      ],
+      "n": 14
+    }
+  }
+}

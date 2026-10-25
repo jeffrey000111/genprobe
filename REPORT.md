@@ -2,9 +2,9 @@
 
 _Status: M2 (benchmark on prompt set v1), M3 (metric meta-evaluation: H1–H3, the VLM judge
 and a human check on our own images), module C (the generation-debugging agent, §4) and module D
-(re-ranking, video and preference tuning, §5) done. Every number here is copied from a file in `results/`, named next to
-it; nothing is reported before it exists there. Choices behind the numbers are in
-`docs/decisions.md` (D-xxx)._
+(re-ranking, video, preference tuning and multi-shot video, §5) done. Every number here is copied
+from a file in `results/`, named next to it; nothing is reported before it exists there. Choices
+behind the numbers are in `docs/decisions.md` (D-xxx)._
 
 ## 1. Setup
 
@@ -296,7 +296,7 @@ four and keeps the one with the highest OCR match. An LLM-planned agent (guide �
 (D-031 revision 2): dev suggested that the actions themselves, not how they are chosen, are the
 bottleneck.
 
-## 5. Module D: re-ranking, video and preference tuning
+## 5. Module D: re-ranking, video, preference tuning and multi-shot video
 
 ### 5.1 Re-ranking curve
 
@@ -476,6 +476,67 @@ pairs but changed the test images too little for the judge or a person to notice
 here it did no harm, and nothing points to the model gaming VQAScore. Using VQAScore at test time to
 pick among samples (§5.1, on SDXL and the routed models) moved the pass rate far more.
 
+### 5.5 Multi-shot videos from a brief
+
+**Setup** (guide §11.2's creative workflow, D-038; `results/story/summary.md`, `dev_tau.md`).
+- **Briefs.** 32 one-sentence briefs, written by Claude for this project before anything was
+  generated, each with one main character and 3–4 events ("A small orange cat with a white chest wakes
+  up on a sunny windowsill, stretches, jumps down to the kitchen floor and drinks from a blue bowl");
+  8 dev and 24 test.
+- **Shots.** Gemma 4 31B splits each brief once into 3–4 self-contained shot descriptions (78 test
+  shots), which every arm uses. Every shot is 49 frames of Wan2.2 TI2V-5B (§5.3's settings).
+- **Arms.**
+  - A: text to video from the description.
+  - B: a FLUX.1 schnell keyframe, then image to video from it.
+  - C, the agent: B with checks. It redraws the keyframe (up to 3) until its VQAScore reaches 0.9,
+    module C's threshold, and redoes the video (up to 3) until VQAScore on the whole video reaches
+    τ_v. Only failing shots are redone.
+  - D: B's keyframe, two videos per shot, keeping the one with the higher VQAScore.
+- **τ_v**, fixed on dev: 0.6. On B's 25 dev shots it matched the judge's pass / fail with a balanced
+  accuracy of 0.667, level with 0.7 and 0.8; ties went to the lower value.
+- **Judge.** Gemma 4 31B grades each shot from its first, middle and last frame (pass = 5), and each
+  brief from the middle frame of every shot: does the sequence tell the brief, and is the main
+  character the same individual throughout (both 1–5).
+
+| Arm (24 test briefs) | Shot pass rate | Story score (1–5) | Consistency score (1–5) | GPU-s per brief |
+| --- | --- | --- | --- | --- |
+| A text to video | 0.462 [0.34, 0.58] | 4.42 [4.12, 4.67] | 3.12 [2.67, 3.58] | 212 |
+| B keyframe, then image to video | 0.500 [0.38, 0.62] | 4.71 [4.54, 4.88] | 3.62 [3.17, 4.04] | 215 |
+| C agent (checks and redo) | 0.526 [0.42, 0.63] | 4.67 [4.46, 4.83] | 3.46 [3.00, 3.92] | 242 |
+| D two videos per shot | 0.513 [0.41, 0.63] | 4.62 [4.42, 4.83] | 3.62 [3.12, 4.08] | 434 |
+
+- **Both pre-registered tests are inconclusive.** The per-shot pass rate does not separate the arms.
+  H7 (keyframes help), B − A: +0.038 [−0.15, 0.21]. H8 (checks and redo help), C − B: +0.026
+  [−0.04, 0.09]. Both are 97.5 % CIs.
+- **Exploratory: over a whole brief, keyframes look better.** These paired differences per brief
+  were added after the results were seen.
+  - Story score: B − A +0.29 [0.04, 0.54]; C − A +0.25 [0.04, 0.46].
+  - Consistency score: B − A +0.50 [0.00, 1.04]; C − A +0.33 [−0.17, 0.83].
+- **The agent's checks add cost and nothing measurable.**
+  - Against keyframes alone (C − B): story −0.04 [−0.12, 0.00] and consistency −0.17 [−0.38, 0.00],
+    for 13 % more GPU time (242 against 215 GPU-s per brief).
+  - The agent redrew the keyframe for 21 % of shots and redid the video for 5 %. VQAScore on video
+    passed 84 % of B's dev shots at τ_v = 0.6 and matched the judge only weakly, so the check found
+    little to act on.
+  - Two videos per shot (D) double the cost (434 GPU-s) for no gain. C − D, shot pass rate: +0.013
+    [−0.06, 0.09].
+- **A person leans the same way, without significance.** The author compared A and C on the 24 test
+  briefs, blind to the arm, and the test results were withheld from him until he had finished
+  (`human_check.md`). He passed the attention checks (4 of 4), and every hidden repeat (3 per part)
+  got the same answer.
+  - Story: 12 briefs were "same" and 1 "neither". Of the 11 decided, the agent's video won 7 (0.64
+    [0.36, 0.91]). Where both he and the judge's story scores separated the two videos, they agreed on
+    7 of 7.
+  - Consistency: 10 briefs were "same". Of the 14 decided, the agent's video won 9 (0.64
+    [0.36, 0.86]).
+  - Most of C's shots are B's, so this mainly compares keyframes with plain text to video.
+
+**What it means.** Starting each shot from a keyframe of a strong image model may help a
+multi-shot video hold its story and its main character. The evidence is exploratory and at the level
+of whole briefs, not shots. Checking each shot with VQAScore and redoing the failures does not add
+to that: VQAScore on video is too lenient to tell good shots from bad ones here. This is the lesson
+of §4 again: the choice of model and conditioning matters more than diagnosing and repairing.
+
 ## 6. Limitations
 - Detector and OCR checks have their own error rates (§1), measured on 50 dev images each by one
   annotator; the OCR threshold was chosen on the same images.
@@ -530,3 +591,9 @@ pick among samples (§5.1, on SDXL and the routed models) moved the pass rate fa
 - Wan2.2 ran at 49 frames (2 s), not its card's 121, to fit D-036's time rule. The older models'
   videos are used as distributed, at their own lengths and resolutions. VBench's motion and
   consistency scores can depend on both, so §5.3's comparison is not like for like.
+- §5.5 rests on 24 test briefs written by Claude, each with one main character, so its CIs are wide
+  and its briefs may not be typical. The judge sees frames, not motion, and judges story and
+  consistency from one frame per shot. Gemma's shot descriptions were shorter than its prompt asked
+  (D-038 note). One seed per shot (two for D), 49 frames. The table of brief-level differences was
+  added after the results were seen. The blind check has one annotator, the author, and few pairs
+  were decided (11 and 14 of 24).

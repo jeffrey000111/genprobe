@@ -14,8 +14,9 @@ and uses the reliable ones in a generation-debugging agent.
 > metrics and a VLM judge were checked against GenAI-Bench's human ratings (`results/meta_eval/`,
 > `results/judge/`) and against one blind annotator on our own images (`results/human_eval/`).
 > Module C, the generation-debugging agent, is done as well (`results/agent/`), and so is module D:
-> re-ranking, video and preference tuning (`results/rerank/`, `results/video_meta_eval/`,
-> `results/video/`, `results/dpo/`). Every number here comes from a table in `results/`.
+> re-ranking, video, preference tuning and multi-shot video (`results/rerank/`,
+> `results/video_meta_eval/`, `results/video/`, `results/dpo/`, `results/story/`). Every number
+> here comes from a table in `results/`.
 
 **Headline (test split, 480 prompts):** SD3.5 Medium and FLUX.1 schnell tie on prompt following
 (VQAScore 0.680 vs 0.670, paired difference not significant) while FLUX is 4.1× faster; negation
@@ -61,6 +62,13 @@ is the stricter of the two, and the person also sees no gain from the agent over
   barely changed the images. In a blind check the author preferred neither image in 53 of 60 pairs
   for prompt following and in 52 of 60 for looks (`results/dpo/summary.md`,
   `results/dpo/human_check_r2.md`).
+- *Multi-shot video.* Gemma 4 31B splits a brief into 3–4 shots, and an agent draws each shot's
+  keyframe (FLUX.1 schnell), animates it (Wan2.2) and redoes shots that fail a VQAScore check. On 24
+  test briefs (78 shots), the per-shot pass rate does not separate the arms (pre-registered H7 and
+  H8 inconclusive). Over whole briefs, starting from keyframes scored higher than plain text to video
+  for telling the brief (+0.29 of 5, exploratory). The agent's checks and redos added 13 % GPU time
+  and nothing measurable. A blind check by the author preferred the agent's video in 7 of the 11
+  briefs where he picked one (`results/story/summary.md`, `results/story/human_check.md`).
 
 ## Quick start (no GPU needed)
 
