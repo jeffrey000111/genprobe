@@ -1,0 +1,122 @@
+{
+  "created_at": "2026-10-25T01:47:37.697+00:00",
+  "git_commit": "e9a97fd",
+  "new": "dpo_s2000",
+  "labelled": 138,
+  "items": 138,
+  "gold": {
+    "answered": 6,
+    "right": 0,
+    "pass_mark": 5,
+    "passed": false
+  },
+  "text": {
+    "answers": {
+      "neither": 45,
+      "new": 4,
+      "same": 9,
+      "base": 2
+    },
+    "repeat": {
+      "pairs": 6,
+      "same_answer": 0.8333333333333334,
+      "cohen_kappa": 0.5714285714285715
+    },
+    "prefers_new": {
+      "value": 0.6666666666666666,
+      "ci": [
+        0.3333333333333333,
+        1.0
+      ],
+      "n": 6
+    },
+    "by_stratum": {
+      "counting": {
+        "value": 1.0,
+        "ci": [
+          1.0,
+          1.0
+        ],
+        "n": 2
+      },
+      "spatial": {
+        "value": 0.5,
+        "ci": [
+          0.0,
+          1.0
+        ],
+        "n": 2
+      },
+      "text": {
+        "value": 0.0,
+        "ci": [
+          0.0,
+          0.0
+        ],
+        "n": 1
+      },
+      "genai": {
+        "value": 1.0,
+        "ci": [
+          1.0,
+          1.0
+        ],
+        "n": 1
+      }
+    }
+  },
+  "quality": {
+    "answers": {
+      "same": 55,
+      "base": 2,
+      "new": 3
+    },
+    "repeat": {
+      "pairs": 6,
+      "same_answer": 1.0,
+      "cohen_kappa": 1.0
+    },
+    "prefers_new": {
+      "value": 0.6,
+      "ci": [
+        0.2,
+        1.0
+      ],
+      "n": 5
+    },
+    "by_stratum": {
+      "counting": {
+        "value": 1.0,
+        "ci": [
+          1.0,
+          1.0
+        ],
+        "n": 2
+      },
+      "spatial": {
+        "value": 0.5,
+        "ci": [
+          0.0,
+          1.0
+        ],
+        "n": 2
+      },
+      "text": {
+        "value": 0.0,
+        "ci": [
+          0.0,
+          0.0
+        ],
+        "n": 1
+      },
+      "genai": {
+        "value": NaN,
+        "ci": [
+          NaN,
+          NaN
+        ],
+        "n": 0
+      }
+    }
+  }
+}
