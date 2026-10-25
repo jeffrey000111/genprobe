@@ -804,3 +804,9 @@ analysis, with no errors. Two things the smoke run showed. First, Gemma wrote sh
 the descriptions as written. Second, every one of the agent's shots reached τ_v = 0.9 with its
 first video, so the video redo rounds made nothing. That path is checked by the unit tests only, not
 on the GPU.
+
+*Infrastructure note (2026-10-25).* The dev stage's first job (94926) failed before planning
+anything: another process held 14 GiB of its GPU, and vLLM would not start with the judge's
+`gpu_memory_utilization` of 0.92. The judge now asks vLLM for the free share of the GPU minus 3
+points when that is lower, and stops below 75 % (`fit_memory_utilization` in `genprobe/judge.py`).
+This changes only the memory set aside for the KV cache, not the model, the prompt or the decoding.

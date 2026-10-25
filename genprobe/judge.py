@@ -34,6 +34,7 @@ import json
 import math
 import random
 import re
+import subprocess
 import sys
 import time
 from collections import defaultdict
@@ -351,6 +352,28 @@ def image_url(path: str, max_side: int = MAX_SIDE) -> str:
     return "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode()
 
 
+def fit_memory_utilization(want: float, floor: float = 0.75, margin: float = 0.03, query=None, log=print) -> float:
+    """vLLM reserves `want` x the GPU's memory at start-up and refuses to start when less is free. On a
+    shared node another process can hold some of it (story job 94926 found 79 of 93 GiB free), so ask
+    for what is free minus a margin, never less than `floor` (Gemma 4 31B's weights alone need ~62 GB).
+    Memory set aside for the KV cache does not change what the judge answers for a given batch."""
+    try:
+        if query is None:
+            query = subprocess.run(["nvidia-smi", "--query-gpu=memory.free,memory.total", "--format=csv,noheader,nounits"],
+                                   capture_output=True, text=True, timeout=30, check=True).stdout
+        free, total = (float(x) for x in query.strip().splitlines()[0].split(","))
+    except (OSError, ValueError, IndexError, subprocess.SubprocessError):
+        return want
+    have = round(free / total - margin, 3)
+    if have >= want:
+        return want
+    if have < floor:
+        raise RuntimeError(f"only {free / 1024:.1f} of {total / 1024:.1f} GiB free on the GPU; the judge needs about "
+                           f"{floor:.0%} of it")
+    log(f"[judge] {free / 1024:.1f} of {total / 1024:.1f} GiB free: gpu_memory_utilization {want} -> {have}")
+    return have
+
+
 class VLLMJudge:
     def __init__(self, judge: str = DEFAULT_JUDGE, max_model_len: int = 8192, chunk: int = 256,
                  workers: int = 8, max_images: int = 2, version_extra: str = "") -> None:
@@ -364,8 +387,9 @@ class VLLMJudge:
         cfg = JUDGES[judge]
         sha = require_cached(cfg["repo"], cfg["files"], download_hint(judge))
         path = str(repo_cache_dir(cfg["repo"]) / "snapshots" / sha)
+        self.gpu_memory_utilization = fit_memory_utilization(cfg["gpu_memory_utilization"])
         self.llm = LLM(model=path, tokenizer=path, dtype="bfloat16", max_model_len=max_model_len,
-                       gpu_memory_utilization=cfg["gpu_memory_utilization"], limit_mm_per_prompt={"image": max_images},
+                       gpu_memory_utilization=self.gpu_memory_utilization, limit_mm_per_prompt={"image": max_images},
                        seed=0, **cfg["llm"])
         extra = f"/{cfg['tag']}" if cfg.get("tag") else ""
         self.version = (f"vllm=={md.version('vllm')}/{cfg['short']}@{sha[:7]}/bf16{extra}/img{MAX_SIDE}/"

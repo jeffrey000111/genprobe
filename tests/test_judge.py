@@ -169,5 +169,17 @@ class TestPlan(unittest.TestCase):
         self.assertEqual(res["examples"]["counts"]["grey_scored_3_plus"], 0)    # fake grey images score 1
 
 
+
+class TestMemoryFit(unittest.TestCase):
+    def test_fit_memory_utilization(self):
+        from genprobe.judge import fit_memory_utilization as fit
+        quiet = lambda *_: None  # noqa: E731
+        self.assertEqual(fit(0.92, query="95000, 95830\n", log=quiet), 0.92)          # a free GPU: unchanged
+        self.assertEqual(fit(0.92, query="81172, 95320\n", log=quiet), 0.822)         # job 94926: 79.3 of 93.1 GiB free
+        with self.assertRaises(RuntimeError):
+            fit(0.92, query="40000, 95830\n", log=quiet)
+        self.assertEqual(fit(0.92, query="garbage", log=quiet), 0.92)                  # can't tell: leave it to vLLM
+
+
 if __name__ == "__main__":
     unittest.main()
