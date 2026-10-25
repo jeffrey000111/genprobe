@@ -1,0 +1,91 @@
+{
+  "created_at": "2026-10-25T02:20:06.614+00:00",
+  "git_commit": "a6664de",
+  "log": "dpo_94406.out",
+  "pairs": {
+    "prompts": 1200,
+    "candidates": 4800,
+    "scored": 4800,
+    "pairs": 821,
+    "dropped": 379,
+    "min_gap": 0.1,
+    "mean_gap": 0.5745307113576994,
+    "vqascore_version": "vqascore-port-of-t2v_metrics-qwen2vl/transformers==4.49.0/qwen2.5-vl-7b@cc59489/sdpa/tmpl-af8bcca9/bs8"
+  },
+  "steps": 2000,
+  "logged": 6001,
+  "windows": [
+    {
+      "steps": [
+        1,
+        250
+      ],
+      "logged": 750,
+      "implicit_acc": 0.6119026666666667,
+      "loss": 0.6787853333333332
+    },
+    {
+      "steps": [
+        251,
+        500
+      ],
+      "logged": 750,
+      "implicit_acc": 0.6764573333333332,
+      "loss": 0.655136
+    },
+    {
+      "steps": [
+        501,
+        750
+      ],
+      "logged": 750,
+      "implicit_acc": 0.7105720000000001,
+      "loss": 0.630348
+    },
+    {
+      "steps": [
+        751,
+        1000
+      ],
+      "logged": 750,
+      "implicit_acc": 0.7223466666666668,
+      "loss": 0.6131866666666667
+    },
+    {
+      "steps": [
+        1001,
+        1250
+      ],
+      "logged": 750,
+      "implicit_acc": 0.7443666666666666,
+      "loss": 0.5908306666666666
+    },
+    {
+      "steps": [
+        1251,
+        1500
+      ],
+      "logged": 750,
+      "implicit_acc": 0.7489106666666666,
+      "loss": 0.5726359999999999
+    },
+    {
+      "steps": [
+        1501,
+        1750
+      ],
+      "logged": 750,
+      "implicit_acc": 0.7618666666666668,
+      "loss": 0.5555066666666667
+    },
+    {
+      "steps": [
+        1751,
+        2000
+      ],
+      "logged": 750,
+      "implicit_acc": 0.7800799999999999,
+      "loss": 0.5367826666666666
+    }
+  ]
+}
