@@ -757,3 +757,42 @@ choice: a second round, fixed before it is drawn (`docs/dpo_check_protocol.md`, 
 60 new test prompts (seed 1, none that round 1 showed), and the attention checks' real images are ones
 the judge passed. Everything else is as in round 1, including the pass mark of 5 of 6. The annotator
 now knows the test results. Round 1 stays in the report as not passed.
+
+**D-038 (2026-10-24) — Multi-shot videos from a brief (guide §11.2's "creative workflow"), fixed
+before any shot is generated.** Project author's choice to do it, at 8 dev and 24 test briefs.
+*Briefs:* 32 short briefs, written by Claude for this project before anything was generated
+(`data/prompts/story_briefs.jsonl`), each one sentence with one main character (an animal, a person,
+an object or a vehicle) and 3–4 events; 8 dev and 24 test, drawn at random (seed 0). They are not
+changed once a shot exists. *Shot plan:* Gemma 4 31B (text only, greedy, a JSON schema) splits each
+brief once into 3–4 shots, each a self-contained description of 25–60 words that repeats the main
+character's appearance; every arm uses the same plan (`genprobe/story.py`, prompt fixed now, not
+tuned). *Shots:* 49 frames of Wan2.2 TI2V-5B at D-036's settings. Keyframes: FLUX.1 schnell at its
+card's settings (4 steps, guidance 0) at 1280 × 704, from the shot description; image-to-video uses
+the same Wan weights (first-frame conditioning). No negative prompt, as in §5.3. *Arms:*
+- **A**, text to video: Wan from the shot description, seed 0.
+- **B**, keyframe then image to video: FLUX keyframe seed 0, then Wan from it and the description,
+  seed 0.
+- **C**, the agent: keyframe seeds 0, 1, 2 until one has VQAScore ≥ 0.9 (module C's threshold,
+  D-031), else the highest; then video seeds 0, 1, 2 from that keyframe until VQAScore on the whole
+  video (D-035) ≥ τ_v, else the highest. Only failing shots are redone; at most 3 keyframes and 3
+  videos per shot.
+- **D**, re-ranking at about C's cost: B's keyframe, video seeds 0 and 1, the higher VQAScore kept.
+
+An attempt two arms share (same inputs, same seed) is made once and counted for both.
+*τ_v, on dev only:* arm B on the 8 dev briefs; the judge grades its shots; τ_v is the value in
+{0.5, 0.6, 0.7, 0.8, 0.9} whose "VQAScore ≥ τ_v" best matches the judge's pass / fail (balanced
+accuracy), ties going to the lower. *Judge:* Gemma 4 31B (another family than VQAScore's Qwen),
+prompts fixed now. Per shot it sees the first, middle and last frame and the description, and scores
+1–5 with §4's checks; pass = 5. Per brief it sees the middle frame of every shot in order, twice:
+with the brief (does the sequence show it, 1–5) and with the main character's description (is it the
+same individual in every shot, 1–5). *Cost:* measured GPU-seconds per brief of generation plus the
+checks' VQAScore runs. Planning is the same for every arm and model loading is not counted.
+**H7** (keyframes help): B's shot pass rate is above A's, over all test shots. **H8** (checks and
+redo help): C's is above B's. Each is a paired difference over shots with a 97.5 % CI (two tests)
+from 2,000 resamples of briefs (seed 0): supported above 0, contradicted below, inconclusive
+otherwise. Everything else is exploratory: the story and consistency scores, VQAScore, C against D at
+their costs, C against A, how often C redoes. *Blind check:* the author compares A and C on the 24
+test briefs, the shots of each played in order, blind to the arm: which tells the brief better, and
+which keeps the main character more consistent. The protocol is written before its items are drawn.
+A smoke run (the first dev brief, all arms, τ_v = 0.9 so that the redo rounds run) checks the
+pipeline first; its numbers are not results. Dev and test run after approval.

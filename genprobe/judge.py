@@ -151,9 +151,10 @@ class Request:
     prompt: str
     images: list[str]             # image paths; "grey:<path>" = a grey image of that image's size
     meta: dict[str, Any] = field(default_factory=dict)
+    template: str | None = None   # another question with the absolute answer format (genprobe/story.py)
 
     def text(self) -> str:
-        t = ABS_TEMPLATE if self.kind == "abs" else PAIR_TEMPLATE
+        t = self.template or (ABS_TEMPLATE if self.kind == "abs" else PAIR_TEMPLATE)
         return t.format(prompt=quote(self.prompt))
 
 
@@ -352,7 +353,9 @@ def image_url(path: str, max_side: int = MAX_SIDE) -> str:
 
 class VLLMJudge:
     def __init__(self, judge: str = DEFAULT_JUDGE, max_model_len: int = 8192, chunk: int = 256,
-                 workers: int = 8) -> None:
+                 workers: int = 8, max_images: int = 2, version_extra: str = "") -> None:
+        """max_images: images per request (genprobe/story.py shows up to 4 frames); version_extra is
+        appended to the version string by callers that ask their own questions."""
         import importlib.metadata as md
 
         from vllm import LLM
@@ -362,11 +365,11 @@ class VLLMJudge:
         sha = require_cached(cfg["repo"], cfg["files"], download_hint(judge))
         path = str(repo_cache_dir(cfg["repo"]) / "snapshots" / sha)
         self.llm = LLM(model=path, tokenizer=path, dtype="bfloat16", max_model_len=max_model_len,
-                       gpu_memory_utilization=cfg["gpu_memory_utilization"], limit_mm_per_prompt={"image": 2},
+                       gpu_memory_utilization=cfg["gpu_memory_utilization"], limit_mm_per_prompt={"image": max_images},
                        seed=0, **cfg["llm"])
         extra = f"/{cfg['tag']}" if cfg.get("tag") else ""
         self.version = (f"vllm=={md.version('vllm')}/{cfg['short']}@{sha[:7]}/bf16{extra}/img{MAX_SIDE}/"
-                        f"tmpl-{template_id()}")
+                        f"tmpl-{template_id()}{version_extra}")
         self.chat_kwargs = cfg["chat"]
         self.chunk, self.workers = chunk, workers
 
