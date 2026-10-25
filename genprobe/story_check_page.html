@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GenProbe story check</title>
+<style>
+  :root { --ink:#1b1b1a; --ink2:#5c5b57; --line:#d9d8d3; --bg:#fafaf8; --card:#ffffff; --accent:#2a78d6; --done:#1baf7a; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#ecebe7; --ink2:#a7a6a1; --line:#3a3a37; --bg:#161615; --card:#20201e; --accent:#6aa8ef; --done:#3cc795; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 -apple-system, "PingFang SC", "Segoe UI", sans-serif; }
+  header { display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; padding:10px 16px; border-bottom:1px solid var(--line); }
+  header .status { color:var(--ink2); font-variant-numeric:tabular-nums; }
+  main { max-width:1360px; margin:0 auto; padding:16px; }
+  .prompt { font-size:19px; line-height:1.4; margin:4px 0 14px; padding:12px 14px; background:var(--card); border:1px solid var(--line); border-radius:8px; }
+  .pair { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width: 760px) { .pair { grid-template-columns:1fr; } }
+  figure { margin:0; background:var(--card); border:1px solid var(--line); border-radius:8px; padding:8px; }
+  figure video { width:100%; aspect-ratio:1280/704; max-height:calc(100vh - 330px); min-height:200px; object-fit:contain; display:block; background:#000; }
+  figcaption { font-weight:600; text-align:center; padding-top:6px; }
+  .buttons { display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin:16px 0 8px; }
+  @media (max-width: 760px) { .buttons { grid-template-columns:1fr 1fr; } }
+  button { font:inherit; padding:12px 10px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--ink); cursor:pointer; }
+  button:hover { border-color:var(--accent); }
+  button.chosen { border-color:var(--accent); box-shadow:inset 0 0 0 2px var(--accent); }
+  button.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .key { color:var(--ink2); font-size:12px; display:block; }
+  .nav { display:flex; gap:10px; justify-content:space-between; align-items:center; color:var(--ink2); }
+  .note { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:14px 16px; margin:12px 0; }
+  .note h2 { margin:0 0 8px; font-size:18px; }
+  .bar { height:4px; background:var(--line); }
+  .bar > div { height:4px; background:var(--done); width:0; }
+  .hidden { display:none; }
+</style>
+</head>
+<body>
+<header>
+  <strong>GenProbe — 两段视频比一比 / Compare two videos</strong>
+  <span class="status" id="status"></span>
+  <span>
+    <button id="export">导出 CSV / Export CSV</button>
+  </span>
+</header>
+<div class="bar"><div id="bar"></div></div>
+<main>
+  <div id="intro" class="note">
+    <h2>开始之前 / Before you start</h2>
+    <p>每题一段小故事和两段视频（A 在左，B 在右）。每段视频由 3–4 个镜头接起来，会自动循环播放，可以按 R 让两段同时从头播放。题目分两部分，每题上方会写明问的是哪一个：</p>
+    <p><b>第一部分：哪段视频更好地讲出了这段故事？</b>看故事里的每件事有没有发生、顺序对不对、主角和场景对不对，不看好不好看。先在心里列出每段漏掉或画错的事，漏得少、错得轻的胜出；两段一样好或一样差选“差不多”；两段都基本没讲出这个故事才选“都没讲出”。选项：A / B / 差不多 / 都没讲出。</p>
+    <p><b>第二部分：哪段视频里，主角从头到尾更像同一个人（或同一只动物、同一个东西）？</b>只看主角的外貌在各镜头之间是否一致：种类、颜色、衣服、花纹等。姿势、远近、光线和角度的变化不算。<strong>不看</strong>故事讲得好不好。选项：A / B / 差不多。</p>
+    <p>键盘：1 = A，2 = B，3 = 差不多，4 = 都没讲出（只在第一部分有），R = 重播，← → 翻题。进度自动保存在这个浏览器里；中途和最后请点右上角<strong>导出 CSV</strong>。完整说明见 <code>docs/story_check_protocol.md</code>。</p>
+    <p style="color:var(--ink2)">Two parts: first which video tells the brief better (A, B, same, neither); then in which video the main character stays the same from shot to shot (A, B, same). Keys 1-4, R to replay, arrows to move; export the CSV at the end.</p>
+    <button class="primary" id="start">开始 / Start</button>
+  </div>
+  <div id="task" class="hidden">
+    <div class="nav"><span id="where"></span><span id="part"></span></div>
+    <div class="nav"><strong id="question"></strong></div>
+    <div class="prompt" id="prompt"></div>
+    <div class="pair">
+      <figure><video id="vidA" muted loop playsinline controls></video><figcaption>A</figcaption></figure>
+      <figure><video id="vidB" muted loop playsinline controls></video><figcaption>B</figcaption></figure>
+    </div>
+    <div class="buttons">
+      <button data-label="A">A<span class="key">1</span></button>
+      <button data-label="B">B<span class="key">2</span></button>
+      <button data-label="same">差不多 / same<span class="key">3</span></button>
+      <button data-label="neither">都没讲出 / neither<span class="key">4</span></button>
+    </div>
+    <div class="nav">
+      <button id="prev">← 上一题</button>
+      <button id="replay">↻ 同时重播 / replay (R)</button>
+      <span id="saved"></span>
+      <button id="next">下一题 →</button>
+    </div>
+  </div>
+  <div id="pause" class="note hidden">
+    <h2 id="pauseTitle"></h2>
+    <p id="pauseText"></p>
+    <button class="primary" id="resume">继续 / Continue</button>
+  </div>
+</main>
+<script src="items.js"></script>
+<script>
+(function () {
+  const ITEMS = window.ITEMS || [];
+  const STORE = "genprobe_story_check_" + ITEMS.length + "_" + (ITEMS[0] ? ITEMS[0].item_id + ITEMS[ITEMS.length - 1].item_id : "");
+  let answers = {};
+  try { answers = JSON.parse(localStorage.getItem(STORE) || "{}"); } catch (e) { answers = {}; }
+  const save = () => { try { localStorage.setItem(STORE, JSON.stringify(answers)); return true; } catch (e) { return false; } };
+  const $ = (id) => document.getElementById(id);
+  const nPractice = ITEMS.filter(i => i.part === "practice").length;
+  const nMain = ITEMS.length - nPractice;
+  let i = 0, shownAt = Date.now(), pausedFor = null;
+
+  const firstOpen = () => { const k = ITEMS.findIndex(it => !answers[it.item_id]); return k < 0 ? ITEMS.length - 1 : k; };
+  const doneIn = (part) => ITEMS.filter(it => it.part === part && answers[it.item_id]).length;
+
+  function status() {
+    $("status").textContent = `练习 ${doneIn("practice")}/${nPractice} · 正式 ${doneIn("main")}/${nMain}`;
+    $("bar").style.width = (100 * Object.keys(answers).length / ITEMS.length) + "%";
+  }
+
+  function show(k) {
+    i = Math.max(0, Math.min(ITEMS.length - 1, k));
+    const it = ITEMS[i];
+    $("where").textContent = it.item_id;
+    $("part").textContent = it.part === "practice" ? "练习（不计分）/ practice" : "正式 / main";
+    $("prompt").textContent = it.prompt;
+    $("question").textContent = it.q === "consist" ? "第二部分：哪段视频里，主角从头到尾更像同一个？/ In which video does the main character stay the same?" : "第一部分：哪段视频更好地讲出了这段故事？/ Which video tells the brief better?";
+    document.querySelector('.buttons button[data-label="neither"]').classList.toggle("hidden", it.q === "consist");
+    $("vidA").src = it.left; $("vidB").src = it.right; replay();
+    document.querySelectorAll(".buttons button").forEach(b =>
+      b.classList.toggle("chosen", !!(answers[it.item_id] && answers[it.item_id].label === b.dataset.label)));
+    $("saved").textContent = answers[it.item_id] ? "已答 / answered" : "";
+    shownAt = Date.now();
+    status();
+  }
+
+  function pause(title, text) {
+    $("task").classList.add("hidden"); $("pause").classList.remove("hidden");
+    $("pauseTitle").textContent = title; $("pauseText").textContent = text;
+  }
+
+  function answer(label) {
+    const it = ITEMS[i];
+    const prev = answers[it.item_id];
+    answers[it.item_id] = { label, at: new Date().toISOString(),
+                            seconds: Math.round((Date.now() - shownAt) / 100) / 10 + (prev ? prev.seconds : 0) };
+    if (!save()) { alertBox("浏览器不允许保存进度，请立即导出 CSV。/ This browser won't save progress: export now."); }
+    const next = i + 1;
+    if (it.part === "practice" && (next >= ITEMS.length || ITEMS[next].part === "main") && !prev) {
+      status();
+      return pause("练习结束 / Practice done", "接下来是正式题。");
+    }
+    if (next < ITEMS.length && ITEMS[next].q !== it.q && !prev) {
+      status();
+      return pause("第一部分完成 / Part 1 done", "接下来是第二部分：哪段视频里主角从头到尾更像同一个？只看主角，不看故事。/ Part 2: in which video does the main character stay the same?");
+    }
+    const mainDone = doneIn("main");
+    if (it.part === "main" && !prev && mainDone > 0 && mainDone % 50 === 0 && mainDone < nMain) {
+      status();
+      return pause(`已完成 ${mainDone} 题 / ${mainDone} done`, "休息几分钟，并点右上角导出 CSV 备份。/ Take a short break and export a backup.");
+    }
+    if (next >= ITEMS.length) {
+      status();
+      return pause("全部完成 / All done", "请点右上角“导出 CSV”保存结果。/ Export the CSV now.");
+    }
+    show(next);
+  }
+
+  function alertBox(msg) { $("saved").textContent = msg; }
+
+  function replay() {
+    ["vidA", "vidB"].forEach(id => { const v = $(id); try { v.currentTime = 0; const p = v.play(); if (p && p.catch) p.catch(() => {}); } catch (e) {} });
+  }
+
+  function exportCsv() {
+    const rows = [["item_id", "part", "label", "answered_at", "seconds"]];
+    ITEMS.forEach(it => { const a = answers[it.item_id]; rows.push([it.item_id, it.part, a ? a.label : "", a ? a.at : "", a ? a.seconds : ""]); });
+    const blob = new Blob([rows.map(r => r.join(",")).join("\n") + "\n"], { type: "text/csv" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = "story_check_labels.csv";
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+
+  $("start").onclick = () => { $("intro").classList.add("hidden"); $("task").classList.remove("hidden"); show(firstOpen()); };
+  $("resume").onclick = () => { $("pause").classList.add("hidden"); $("task").classList.remove("hidden"); show(Math.min(i + 1, firstOpen())); };
+  $("prev").onclick = () => show(i - 1);
+  $("next").onclick = () => show(i + 1);
+  $("export").onclick = exportCsv;
+  $("replay").onclick = replay;
+  document.querySelectorAll(".buttons button").forEach(b => b.onclick = () => answer(b.dataset.label));
+  document.addEventListener("keydown", (e) => {
+    if ($("task").classList.contains("hidden")) return;
+    const map = { "1": "A", "2": "B", "3": "same", "4": "neither" };
+    if (map[e.key] && !(map[e.key] === "neither" && ITEMS[i].q === "consist")) answer(map[e.key]);
+    else if (e.key === "r" || e.key === "R") replay();
+    else if (e.key === "ArrowLeft") show(i - 1);
+    else if (e.key === "ArrowRight") show(i + 1);
+  });
+  status();
+  if (!ITEMS.length) { $("intro").innerHTML = "<p>items.js 没有加载：请把整个文件夹解压后再打开 index.html。</p>"; }
+})();
+</script>
+</body>
+</html>

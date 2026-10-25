@@ -810,3 +810,10 @@ anything: another process held 14 GiB of its GPU, and vLLM would not start with 
 `gpu_memory_utilization` of 0.92. The judge now asks vLLM for the free share of the GPU minus 3
 points when that is lower, and stops below 75 % (`fit_memory_utilization` in `genprobe/judge.py`).
 This changes only the memory set aside for the KV cache, not the model, the prompt or the decoding.
+
+*D-038 note (2026-10-25, after the dev stage; `results/story/dev_tau.md`).* On arm B's 25 dev shots
+the judge passed 0.52. "VQAScore on video ≥ τ" matched its pass / fail with a balanced accuracy of
+0.63–0.67 across the grid, so the check is weak. τ_v = 0.6: 0.6, 0.7 and 0.8 tie at 0.667, and ties go
+to the lower. At 0.6, 84 % of the dev shots pass the check, so the agent redoes about one shot in six
+after its first video. The blind check's protocol is written now, before the test stage
+(`docs/story_check_protocol.md`).
