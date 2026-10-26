@@ -230,7 +230,7 @@ A full environment fingerprint is written once per job to `data/runs/`.
 | Judge: Qwen3-VL-8B-Instruct | Apache-2.0 |
 | Judge: Gemma 4 31B-it | Apache-2.0 |
 | Video: Wan2.2 TI2V-5B | Apache-2.0 |
-| Video: LTX-Video 0.9.5 (2B) | LTX-Video 2B v0.9.5 license (in its repo) |
+| Video: LTX-Video 0.9.5 (2B) | Open RAIL-M (Lightricks' license for LTX Video 2B 0.9.5, 5 March 2025) |
 | Video scoring: VBench (source at `fd18b3d`) | Apache-2.0; the models it downloads carry their own |
 | Video data: GenAI-Bench-Video (`zhiqiulin/GenAI-Bench-800`) | MIT |
 | Preference tuning: diffusers' `train_diffusion_dpo.py` (v0.41.0) | Apache-2.0 |

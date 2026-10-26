@@ -68,6 +68,22 @@ def image_paths(run: str, data: str = "data") -> dict[str, str]:
     return {s: r["path"] for s, r in latest_by_id(read_many(files)).items() if r.get("status") == "ok"}
 
 
+def detector_extra(run: str, data: str = "data") -> dict[str, dict]:
+    """The detector's details per image (count found, objects missing): the agent breaks ties between
+    failed attempts with them (agent.core.closeness), and the audit log keeps only the pass / fail."""
+    files = sorted((Path(data) / "scores" / "detect").glob("*.jsonl")) + \
+        sorted((Path(data) / "agent" / run / "scores" / "detect").glob("*.jsonl"))
+    return {s: r.get("extra") or {} for s, r in latest_by_id(read_many(files)).items() if r.get("status") == "ok"}
+
+
+def _detector(x: dict) -> str:
+    if "count_pred" in x:
+        return f"detector counted {x['count_pred']} of {x['count_target']}"
+    if x.get("missing"):
+        return "detector: " + " and ".join(f"object {m}" for m in x["missing"]) + " not found"
+    return ""
+
+
 def thumb(path: str, side: int = SIDE) -> str:
     from PIL import Image
     with Image.open(path) as im:
@@ -91,6 +107,7 @@ def build(run: str, grades: str, data: str = "data", results: Path = Path("resul
     category = {p: core.category_of(prompts[p].tags) for p in by if p in prompts}
     chosen = choose(by, category)
     paths = image_paths(run, data)
+    det = detector_extra(run, data)
     g = latest_by_id(read_many([Path(data) / "judge" / f"{grades}.jsonl"]))
     cards = []
     for pid in chosen:
@@ -115,7 +132,9 @@ def build(run: str, grades: str, data: str = "data", results: Path = Path("resul
                 f'<span class="dim">{html.escape(", ".join(x for x in how if x))}</span>'
                 + (f'<br><span class="dim">rewritten: “{html.escape(rewritten)}”</span>' if rewritten else "")
                 + f'<br>{html.escape(_checks(r.get("checks") or {}))} '
-                f'<span class="{"ok" if r.get("passed") else "no"}">{"passes its checks" if r.get("passed") else "fails its checks"}</span>'
+                + (f'<span class="dim">({html.escape(_detector(det[r["sample_id"]]))})</span> '
+                   if _detector(det.get(r["sample_id"], {})) else "")
+                + f'<span class="{"ok" if r.get("passed") else "no"}">{"passes its checks" if r.get("passed") else "fails its checks"}</span>'
                 f'<br><span class="dim">{html.escape(r.get("decision_reason") or "")}</span>'
                 f'<br><span class="dim">{r.get("gpu_seconds", 0):.1f} GPU-s, {r.get("budget_left", 0):.1f} left</span>'
                 + ('<br><b>kept</b>' if r["step"] == k else "") + "</figcaption></figure>")
@@ -164,7 +183,10 @@ PAGE = """<!doctype html>
 <main>
 <h1>The generation-debugging agent, attempt by attempt</h1>
 <p class="dim">{{META}} Each row is one prompt: the base SDXL image, then the agent's repairs in order. The agent judges
-its attempts with its own checks (detector, OCR, VQAScore); the judge's grade is independent of them (REPORT §4).</p>
+its attempts with its own checks (detector, OCR, VQAScore); the judge's grade is independent of them (REPORT §4).
+Between two attempts that both fail, the agent keeps the one that came nearer: for counting, the detected count nearer
+the target; for spatial prompts, fewer objects missing; for text, the higher OCR match; then a VQAScore gain of at
+least 0.02.</p>
 {{CARDS}}
 </main>
 </body>

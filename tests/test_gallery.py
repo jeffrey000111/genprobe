@@ -54,6 +54,10 @@ class TestGallery(unittest.TestCase):
         Path("results/agent/run1/audit.jsonl").write_text("".join(json.dumps(r) + "\n" for r in audit))
         Path("data/agent/run1/manifests").mkdir(parents=True)
         Path("data/agent/run1/manifests/gen_r1_sdxl.jsonl").write_text("".join(json.dumps(r) + "\n" for r in man))
+        Path("data/agent/run1/scores/detect").mkdir(parents=True)
+        Path("data/agent/run1/scores/detect/x.jsonl").write_text("".join(json.dumps(
+            {"sample_id": r["sample_id"], "metric_version": "v", "value": 0.0, "status": "ok", "created_at": "2026-10-25",
+             "extra": {"count_pred": 4, "count_target": 5}}) + "\n" for r in audit if r["prompt_id"].startswith("tc")))
         Path("data/judge").mkdir(parents=True)
         Path("data/judge/g.jsonl").write_text("".join(json.dumps({"sample_id": r["sample_id"], "score": 5}) + "\n"
                                                       for r in audit if r["step"] == 2))
@@ -67,6 +71,7 @@ class TestGallery(unittest.TestCase):
         self.assertIn("5 of 5 — pass", page)
         self.assertIn("prompt &lt;", page)                                           # prompts are escaped
         self.assertNotIn("x.png", page)
+        self.assertIn("detector counted 4 of 5", page)
 
 
 if __name__ == "__main__":

@@ -848,3 +848,8 @@ Results are in `results/video/summary.md`, as a column next to Wan2.2.
 JPEG thumbnail inlined in the page, with its action, checks, diagnosis, decision and GPU-seconds, and
 the judge's grade of the image the agent kept. Like the example panels, these are the only generated
 images in the repository.
+
+*D-039 note (2026-10-25).* The license file in the downloaded repo is Lightricks' Open RAIL-M license
+for LTX Video 2B 0.9.5, dated 5 March 2025; that is the license D-039 calls "the LTX-Video 2B v0.9.5
+license". The agent's gallery (D-025 note) also shows the detector's count or missing objects, which
+the agent uses to break ties between failed attempts but which the audit log does not keep.
