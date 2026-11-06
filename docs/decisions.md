@@ -853,3 +853,57 @@ images in the repository.
 for LTX Video 2B 0.9.5, dated 5 March 2025; that is the license D-039 calls "the LTX-Video 2B v0.9.5
 license". The agent's gallery (D-025 note) also shows the detector's count or missing objects, which
 the agent uses to break ties between failed attempts but which the audit log does not keep.
+
+**D-040 (2026-11-05) — A scoring service: GenProbe's metrics behind an HTTP API, fixed before any
+load test.** Project author's choice (turn the research code into a service). *Shape:* clients
+submit an image and a prompt and poll for the scores (`POST /v1/jobs`, `GET /v1/jobs/{id}`);
+workers score in the background. Scoring takes 0.1–2 s per image depending on the metric and
+device, so it does not belong inside a request: the API only touches the database, and overload
+becomes a 429 rather than a growing wait. *Queue on Postgres* (`SELECT … FOR UPDATE SKIP LOCKED`),
+not Redis or a broker: the job and its tasks are written in one transaction, so a job never
+exists without its tasks or the reverse, and there is one stateful system to run; a Postgres
+queue handles thousands of claims per second, far above what the scorers can absorb. A broker
+would be the change at a much larger scale. *Delivery:* at-least-once with leases (60 s, renewed
+every 20 s while scoring) and at most 3 attempts with exponential backoff (2 s, 4 s); `complete`
+and `fail` are fenced on (worker, attempt), so a worker that lost its lease cannot overwrite a
+newer result. A task whose lease runs out on its last attempt is failed by the reaper.
+*Idempotency:* an optional `Idempotency-Key`; the same key with the same request returns the
+first job (even when the queue is full), with a different request a 409. *Cache:* scores are kept
+under (image sha256, prompt sha256, metric, metric version), checked at submit (for the version
+live workers report) and again by the worker; a model upgrade changes the version and so
+invalidates old scores, as in D-003. *Backpressure:* at 1,000 queued or running tasks for a
+metric, submissions get 429 with `Retry-After: 5`. *Batching:* a worker claims whatever is
+waiting, up to its batch size (16), and scores it in one call; it never waits to fill a batch, so
+batches grow only under load. A batch that raises is split in halves down to single items, so one
+bad input fails alone. *Scorers:* the metric plugins themselves, limited to those that take an
+image and a free-text prompt (CLIPScore, VQAScore, PickScore, HPSv2.1); the default is CLIPScore
+on CPU at the research environment's versions (env/eval.lock.txt), so the service reports the
+same metric version as §2. VQAScore runs on a GPU machine with the same worker and different
+settings. *Images:* PNG, JPEG or WebP, at most 10 MB and 4096 × 4096 pixels (checked from the
+header before decoding), stored once under their sha256 and written atomically. URLs are not
+accepted, so the service never fetches anything a client names. *Out of scope:* TLS and user
+accounts (an API key at most; TLS belongs to a reverse proxy in front), an object store for
+several hosts, autoscaling, result expiry. *Load tests* (`genprobe.service.loadtest`) use an open
+loop (Poisson arrivals at a fixed rate), fresh images per request unless a run tests the cache, and
+end-to-end latency from the server's timestamps. The offered rates are set from each setup's
+measured capacity (`genprobe.service.bench`, images per second at the chosen batch size): about
+50 %, 80 %, 100 % and 150 % of it, 60 s each. Every number reported comes from a file in
+`results/service/`.
+
+*D-040 note (2026-11-05, after the measurements).* All on one 2-vCPU, 7 GB cloud VM that also ran
+Postgres, the API and the load generator; the numbers are for that box (`results/service/summary.md`).
+(1) The first job submitted waited 0.97 s in the queue: an idle worker only looked every 50 ms to
+1 s. The API now sends a Postgres NOTIFY with each new task and idle workers LISTEN, keeping the
+poll as a fallback for retries and expired leases; the next job through the Docker stack waited
+0.004 s. (2) The scorer benchmark showed that on this CPU, batching does not raise CLIPScore's
+throughput (1.36–1.47 images/s from batch 1 to 16) while the time per batch grows with its size,
+so CPU workers run batch 1 (the compose default); 16 stays the code default for GPUs, to be
+measured with `slurm/service_bench.sbatch`. (3) The load-test rates followed the rule: about 1.4
+jobs/s of capacity at batch 1, so 0.7, 1.1, 1.4 and 2.1 for CLIPScore; for the fake scorer (no
+model cost, testing the API and queue) 50, 80, 100 and 150 jobs/s, but the 150 run was lost to a
+container restart and not repeated, since 100 was already past the point where submissions slowed
+(p99 14 s). (4) Added runs, labelled as such: 2.1 jobs/s with a 10-task queue limit (backpressure),
+1.1 jobs/s with half the requests repeated (cache), and `genprobe.service.chaos`, which SIGKILLs
+workers while they score. (5) The Docker images were built and the compose stack run end to end
+(migrate, API, two workers, scoring a real image, graceful stop); the local build added the
+sandbox's proxy certificate in a copy of the Dockerfile that is not committed.

@@ -1,0 +1,13 @@
+# API and worker (genprobe.service). Pinned so images rebuild the same; `pip install -e ".[service]"`
+# gives the same packages unpinned for development.
+fastapi==0.115.12
+uvicorn[standard]==0.34.2
+psycopg[binary]==3.2.9
+psycopg-pool==3.2.6
+prometheus-client==0.22.1
+python-multipart==0.0.20
+httpx==0.28.1
+pydantic==2.11.4
+pillow==11.2.1
+numpy==2.2.5
+pyyaml==6.0.2

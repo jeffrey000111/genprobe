@@ -1,0 +1,8 @@
+# Only the code and the dependency lists go into the images.
+*
+!pyproject.toml
+!README.md
+!LICENSE
+!genprobe/
+!deploy/requirements-*.txt
+**/__pycache__

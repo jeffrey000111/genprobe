@@ -21,9 +21,15 @@ dependencies = [
 [project.optional-dependencies]
 analysis = ["pandas", "pyarrow"]
 dev = ["pytest"]
+# The scoring service (genprobe/service, D-040); pinned versions in deploy/requirements-service.txt
+service = ["fastapi>=0.115", "uvicorn[standard]>=0.30", "psycopg[binary]>=3.2", "psycopg-pool>=3.2",
+           "prometheus-client>=0.20", "python-multipart>=0.0.9", "httpx>=0.27"]
 
 [tool.setuptools.packages.find]
 include = ["genprobe*"]
+
+[tool.setuptools.package-data]
+"genprobe.service" = ["migrations/*.sql"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

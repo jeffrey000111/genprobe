@@ -1,0 +1,9 @@
+# CLIPScore worker on CPU, at the versions of the research environment (env/eval.lock.txt), so the
+# service reports the same metric version as the benchmark. torch/torchvision are installed first
+# by the Dockerfile from the CPU index.
+open-clip-torch==3.3.0
+timm==1.0.30
+huggingface-hub==0.36.2
+safetensors==0.8.0
+ftfy==6.3.1
+regex==2026.9.29

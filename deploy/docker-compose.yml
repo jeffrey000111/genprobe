@@ -1,0 +1,71 @@
+# The scoring service on one machine (D-040):
+#   docker compose -f deploy/docker-compose.yml up -d --build --scale worker=2
+#   curl -F image=@cat.png -F prompt="a cat on a sofa" http://localhost:8000/v1/jobs
+# Prometheus (optional): add --profile monitoring, then open http://localhost:9090.
+name: genprobe
+
+x-common-env: &common-env
+  GENPROBE_DATABASE_URL: postgresql://genprobe:genprobe@db:5432/genprobe
+  GENPROBE_SERVICE_DATA: /data
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: genprobe
+      POSTGRES_PASSWORD: genprobe          # local only; set a real secret before exposing anything
+      POSTGRES_DB: genprobe
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U genprobe -d genprobe"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  migrate:
+    build: {context: .., dockerfile: deploy/Dockerfile, target: api}
+    image: genprobe-api
+    environment: *common-env
+    command: ["python", "-m", "genprobe.service.db", "migrate"]
+    depends_on:
+      db: {condition: service_healthy}
+    restart: "no"
+
+  api:
+    image: genprobe-api
+    environment:
+      <<: *common-env
+      GENPROBE_SERVICE_METRICS: ${GENPROBE_SERVICE_METRICS:-clipscore}
+      GENPROBE_MAX_QUEUE_DEPTH: ${GENPROBE_MAX_QUEUE_DEPTH:-1000}
+      GENPROBE_API_KEYS: ${GENPROBE_API_KEYS:-}
+    volumes: [images:/data]
+    ports: ["8000:8000"]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    restart: unless-stopped
+
+  worker:
+    build: {context: .., dockerfile: deploy/Dockerfile, target: worker}
+    image: genprobe-worker
+    environment:
+      <<: *common-env
+      GENPROBE_WORKER_METRIC: ${GENPROBE_WORKER_METRIC:-clipscore}
+      GENPROBE_WORKER_BATCH_SIZE: ${GENPROBE_WORKER_BATCH_SIZE:-1}  # on CPU batching adds latency, not throughput (results/service)
+      GENPROBE_WORKER_METRICS_PORT: "9100"
+      OMP_NUM_THREADS: ${WORKER_THREADS:-2}  # torch threads per worker; workers x threads <= cores
+    volumes: [images:/data]
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    stop_grace_period: 60s                   # SIGTERM lets the current batch finish
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    profiles: [monitoring]
+    volumes: [./prometheus.yml:/etc/prometheus/prometheus.yml:ro]
+    ports: ["9090:9090"]
+    depends_on: [api]
+
+volumes:
+  pgdata:
+  images:

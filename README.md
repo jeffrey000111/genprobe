@@ -83,6 +83,15 @@ is the stricter of the two, and the person also sees no gain from the agent over
   and nothing measurable. A blind check by the author preferred the agent's video in 7 of the 11
   briefs where he picked one (`results/story/summary.md`, `results/story/human_check.md`).
 
+**Scoring service** (`genprobe/service/`, `docs/service.md`, D-040). The same metric plugins behind
+an HTTP API: FastAPI, a Postgres work queue (`SKIP LOCKED` claims, leases with fenced completion,
+retries with backoff, an idempotency key, a score cache keyed by metric version, 429 when a queue
+is full, LISTEN/NOTIFY to wake idle workers) and batch-scoring workers, packaged with Docker
+Compose and Prometheus metrics. On one 2-vCPU VM, a CPU CLIPScore worker served 80 % of its
+capacity with a p99 of 4 s from submit to score, a queue limit kept p99 at 8 s under 150 % load
+by refusing the excess, and killing workers mid-batch 19 times lost none of 600 jobs
+(`results/service/summary.md`).
+
 ## Quick start (no GPU needed)
 
 ```bash
@@ -195,8 +204,11 @@ genprobe/
   human_eval.py     own blind human evaluation: labelling package and analysis (results/human_eval/)
   agent/            generation-debugging agent: core.py (checks, diagnoses, rules, budget), run.py
                     (rounds, baselines, audit log), gen.py, compare.py (grading by the judge)
+  service/          scoring service: api.py (FastAPI), queue.py (Postgres queue), worker.py,
+                    scorers.py (metric plugins), store.py, migrations/, loadtest.py, chaos.py, bench.py
   backends.py       diffusers backend + CPU fake backend for testing
   utils/            shard, manifest, atomic IO, environment fingerprint, HF cache checks
+deploy/             Dockerfile (API and worker images), docker-compose.yml, prometheus.yml
 slurm/              job scripts (common.sh: job settings, GPU check, env activation)
 scripts/            paths, env build + model download (coe-hpc1), HPC checks, laptop sync
 docs/               hpc_notes.md (curated), decisions.md; hpc_check.md (raw, not in git)
