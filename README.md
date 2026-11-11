@@ -1,5 +1,7 @@
 # GenProbe
 
+[![CI](https://github.com/jeffrey000111/genprobe/actions/workflows/ci.yml/badge.svg)](https://github.com/jeffrey000111/genprobe/actions/workflows/ci.yml)
+
 **Which automatic metrics agree with human judgment, on which kinds of prompts — and can the
 trustworthy ones drive automatic fixes?**
 

@@ -19,7 +19,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-analysis = ["pandas", "pyarrow"]
+analysis = ["pandas", "pyarrow", "matplotlib"]
 dev = ["pytest"]
 # The scoring service (genprobe/service, D-040); pinned versions in deploy/requirements-service.txt
 service = ["fastapi>=0.115", "uvicorn[standard]>=0.30", "psycopg[binary]>=3.2", "psycopg-pool>=3.2",

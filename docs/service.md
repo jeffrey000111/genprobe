@@ -97,6 +97,12 @@ API: `GENPROBE_DATABASE_URL`, `GENPROBE_SERVICE_DATA` (image store), `GENPROBE_S
 
 ## Tests and measurements
 
+GitHub Actions runs on every push and pull request (`.github/workflows/ci.yml`, D-041): the whole
+test suite on Python 3.10, 3.11 and 3.13 against a real Postgres; the fake generation run twice
+(the second must resume with nothing to do); both Docker images built; and the compose stack
+started with the fake metric and checked end to end by `scripts/service_e2e.py`, ending with a
+graceful stop of the workers.
+
 - `python -m unittest tests.test_service`: input validation, the image store, the fake scorer.
   With `GENPROBE_TEST_PG_DSN` pointing at a Postgres, also the queue (8 threads claiming 300
   tasks without overlap, lease takeover and fencing, backoff, dead-lettering, the cache), the

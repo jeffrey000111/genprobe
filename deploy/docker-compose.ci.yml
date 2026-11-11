@@ -1,0 +1,14 @@
+# CI override (D-041): the whole stack with the fake metric, so no model weights are needed. Workers
+# run from the API image (the fake scorer needs no torch). Used by .github/workflows/ci.yml:
+#   docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.ci.yml up -d --no-build --scale worker=2
+services:
+  api:
+    environment:
+      GENPROBE_SERVICE_METRICS: fake
+  worker:
+    image: genprobe-api
+    command: ["python", "-m", "genprobe.service.worker"]
+    environment:
+      GENPROBE_WORKER_METRIC: fake
+      GENPROBE_WORKER_BATCH_SIZE: "8"
+      GENPROBE_FAKE_ITEM_SECONDS: "0.05"

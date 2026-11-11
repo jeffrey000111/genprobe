@@ -22,9 +22,13 @@ RUN if [ "$(uname -m)" = "x86_64" ]; then \
 COPY deploy/requirements-worker.txt /tmp/requirements-worker.txt
 RUN pip install -r /tmp/requirements-worker.txt
 ENV HF_HOME=/opt/hf
-RUN python -c "from huggingface_hub import hf_hub_download; \
+# PRELOAD_WEIGHTS=0 skips the 1.7 GB download (CI builds the image to check it, then never runs CLIP)
+ARG PRELOAD_WEIGHTS=1
+RUN if [ "$PRELOAD_WEIGHTS" = "1" ]; then \
+        python -c "from huggingface_hub import hf_hub_download; \
 hf_hub_download('timm/vit_large_patch14_clip_224.openai', 'open_clip_model.safetensors')" \
-    && chmod -R a+rX /opt/hf
+        && chmod -R a+rX /opt/hf; \
+    fi
 
 FROM py AS api
 COPY pyproject.toml README.md LICENSE ./

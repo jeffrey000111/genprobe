@@ -1,0 +1,107 @@
+# Continuous integration (D-041). Every push to main and every pull request:
+#   tests   - the unit and integration tests on Python 3.10, 3.11 and 3.13, with a real Postgres
+#             so the scoring service's queue, worker and API tests run too; then the fake
+#             end-to-end generation run, twice, to check that the second run resumes with nothing
+#             left to do.
+#   docker  - builds the API and worker images from deploy/Dockerfile, starts the compose stack
+#             with the fake metric, scores jobs through the API (scripts/service_e2e.py) and
+#             stops the workers gracefully.
+# No GPU and no model weights are used; tests that need real models skip themselves.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: tests (Python ${{ matrix.python }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.11", "3.13"]
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 2s --health-timeout 3s --health-retries 30
+    env:
+      GENPROBE_TEST_PG_DSN: postgresql://postgres:postgres@localhost:5432/postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install
+        run: pip install -e ".[service,analysis]"
+      - name: Unit and integration tests
+        run: python -m unittest discover -s tests -t . -v
+      - name: Fake end-to-end generation, then resume
+        run: |
+          make smoke-fake
+          make smoke-fake | tee second-run.txt
+          test "$(grep -c ' 0 to generate' second-run.txt)" -eq 8
+
+  docker:
+    name: docker images and service end to end
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      COMPOSE: docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.ci.yml
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build the API image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deploy/Dockerfile
+          target: api
+          tags: genprobe-api
+          load: true
+          cache-from: type=gha,scope=api
+          cache-to: type=gha,mode=max,scope=api
+      - name: Build the worker image (CPU torch, without the CLIP weights)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deploy/Dockerfile
+          target: worker
+          tags: genprobe-worker
+          build-args: PRELOAD_WEIGHTS=0
+          load: true
+          cache-from: type=gha,scope=worker
+          cache-to: type=gha,mode=max,scope=worker
+      - name: Check the worker image imports its scorer stack
+        run: docker run --rm genprobe-worker python -c "import torch, open_clip, genprobe.service.worker; print('torch', torch.__version__, 'open_clip', open_clip.__version__)"
+      - name: Start the stack (fake metric, 2 workers)
+        run: $COMPOSE up -d --no-build --scale worker=2
+      - name: Score jobs through the API
+        run: python3 scripts/service_e2e.py --url http://localhost:8000 --metric fake --workers 2
+      - name: Workers stop gracefully
+        run: |
+          $COMPOSE stop worker
+          test "$($COMPOSE logs worker | grep -c 'worker stopped')" -eq 2
+      - name: Logs
+        if: always()
+        run: $COMPOSE logs --no-color --tail 200
+      - name: Tear down
+        if: always()
+        run: $COMPOSE down -v

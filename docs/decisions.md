@@ -907,3 +907,18 @@ container restart and not repeated, since 100 was already past the point where s
 workers while they score. (5) The Docker images were built and the compose stack run end to end
 (migrate, API, two workers, scoring a real image, graceful stop); the local build added the
 sandbox's proxy certificate in a copy of the Dockerfile that is not committed.
+
+**D-041 (2026-11-11) — Continuous integration on GitHub Actions, with no GPU and no weights.** Project
+author's choice. Every push to main and every pull request runs two jobs. *tests:* the whole suite on
+Python 3.10 (the floor in pyproject), 3.11 (the HPC envs and the Docker images) and 3.13, with a
+Postgres 16 service container and `GENPROBE_TEST_PG_DSN` set, so the scoring service's queue, worker
+and API tests run rather than skip; then `make smoke-fake` twice, and the second run must report
+"0 to generate" for all 8 model shards (resume works). Tests that load real models keep skipping
+themselves. *docker:* builds the API image and the worker image (`PRELOAD_WEIGHTS=0`: the 1.7 GB
+CLIP download is skipped, the CPU torch and open_clip install is still checked), starts the compose
+stack with `deploy/docker-compose.ci.yml` (fake metric, two workers running from the API image), and
+runs `scripts/service_e2e.py`: a job from submission to score, the cache, idempotency keys, a 409, a
+400 and the metrics endpoint; then the workers must stop gracefully. Writing the workflow showed that
+matplotlib, which the figure code imports, was missing from the `analysis` extra; it is added. Both
+jobs were run locally (the tests on 3.10, 3.11 and 3.13; the image builds and the compose checks)
+before the workflow was committed.
